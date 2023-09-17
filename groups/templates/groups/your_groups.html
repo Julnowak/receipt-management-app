@@ -1,0 +1,40 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <div style="padding-top: 100px">
+
+    </div>
+    <div>
+        Twoje grupy
+    <ul>
+
+        {% for group in member_of_groups %}
+            <li>
+            <a href="{% url 'groups:group_site' group.id %}" >
+                {{ group }}
+            </a>
+            </li>
+        {% empty %}
+            Nie jesteś jeszcze członkiem żadnej grupy.
+        {% endfor %}
+
+    </ul>
+
+    </div>
+    <div>
+        <a href="{% url 'groups:add_group' %}">
+            Stwórz nową grupę
+        </a>
+    </div>
+
+    <div>
+        <a href="{% url 'groups:add_group' %}">
+            Wpisz kod
+        </a>
+    </div>
+
+    <form action="{% url 'groups:groups' %}" method="get">
+         <input name="q" type="text" placeholder="Wprowadź nazwę grupy">
+         <button name="post_btn">Szukaj</button>
+    </form>
+{% endblock content %}

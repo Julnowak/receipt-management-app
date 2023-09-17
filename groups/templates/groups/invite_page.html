@@ -1,0 +1,20 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <div style="padding-top: 80px">
+
+    </div>
+    <h1>Zaproś</h1>
+    <p>Wpisz nazwę użytkownika, którego chcesz dodać do grupy:</p>
+
+    <form method="POST" action="search/">
+    {% csrf_token %}
+    <input type="text" name="textfield">
+
+    <button type="submit">Upload text</button>
+    </form>
+
+    <p>Możesz też zaprosić go, przekazując mu kod:</p>
+    <p>{{ code }}</p>
+
+{% endblock content %}

@@ -1,0 +1,23 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+    <div style="padding-top: 80px">
+
+    </div>
+
+    <div>
+        <h1 style="text-align: center">Zarządzaj grupą</h1>
+    </div>
+
+    <div>
+        <h3>Członkowie</h3>
+        <ol>
+            {% for member in members%}
+                <li>
+                 {{ member }}
+                </li>
+            {% endfor %}
+        </ol>
+    </div>
+{% endblock content %}

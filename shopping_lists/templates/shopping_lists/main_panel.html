@@ -1,0 +1,57 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <style>
+
+        body{
+            background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+            text-align: center
+        }
+
+        .basic_white{
+            background-color: white;
+            border-radius: 10px;
+            padding:20px;
+            margin: 10px;
+        }
+
+    </style>
+
+    <div style="padding-top: 90px">
+
+    </div>
+
+    <div style="color: white; margin: 20px; font-size: 20px">
+
+    {% if user.is_authenticated %}
+        Witaj, {{ user.username }}!
+    {% else %}
+        Witaj, Gościu!
+    {% endif %}
+
+    </div>
+
+    <div class="basic_white">
+        {% if True %}
+            Brak nowych wiadomości
+        {% elif False %}
+            Masz nowe wiadomości
+        {% endif %}
+    </div>
+
+    <div class="basic_white">
+    Statystyki główne
+    </div>
+
+    <div class="basic_white">
+
+    </div>
+
+    <div class="basic_white">
+        <h3> Pie Chart </h3>
+        {% autoescape off %}
+            {{ pie_chart }}
+        {% endautoescape %}
+    </div>
+
+{% endblock content %}

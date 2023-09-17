@@ -1,0 +1,13 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+    <h1>Dodaj nowy produkt:</h1>
+
+    <form action="{% url 'new_product' current_list.id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button name="post_btn">Dodaj</button>
+    </form>
+
+{% endblock content %}

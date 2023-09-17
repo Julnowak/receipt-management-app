@@ -1,0 +1,20 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <div style="padding-top: 80px">
+
+    </div>
+
+    <div>
+        <h1 style="text-align: center">Nowy paragon</h1>
+    </div>
+
+    <div>
+        <form method = "post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload</button>
+        </form>
+    </div>
+
+{% endblock content %}

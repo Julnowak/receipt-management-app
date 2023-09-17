@@ -1,0 +1,14 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <div style="padding-top: 80px">
+
+    </div>
+    <h1>Tworzenie nowej grupy</h1>
+
+    <form action="{% url 'groups:add_group' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button name="post_btn">Utwórz</button>
+    </form>
+{% endblock content %}

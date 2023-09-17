@@ -1,0 +1,15 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <div style="padding-top: 100px">
+
+    </div>
+    <div>
+        <form method="post" action="{% url 'users:register' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button name="register_btn">Zarejestruj</button>
+            <input type="hidden" name="next" value="{% url 'homepage' %}">
+        </form>
+    </div>
+{% endblock content %}

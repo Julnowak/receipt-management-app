@@ -1,0 +1,69 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    {% if form.errors %}
+        <p>Nazwa użytkownika lub hasło nieprawidłowe. Spróbuj jeszcze raz.</p>
+    {% endif %}
+
+    <style>
+        body
+        {
+            background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+        }
+
+        .white_block {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 40px 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .text_style
+        {
+            color: white;
+            font-size: 50px;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .text_style_smol
+        {
+            color: white;
+            text-align: center;
+        }
+
+    </style>
+
+    <div style="padding-top: 100px;">
+        <div style="background-color: rgba(0,1,1,0.6);margin: 20px; padding: 20px; border-radius: 30px">
+
+            <div class="text_style">
+                Zaloguj się
+            </div>
+
+            <div class="white_block">
+                <form method="post" action="{% url 'users:login' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button id="login_btn">Zaloguj</button>
+                <input type="hidden" name="next" value="{% url 'main_panel' %}">
+                </form>
+            </div>
+
+            <div class="text_style_smol">
+                Akceptuje warunki
+
+            </div>
+
+            <div class="text_style_smol">
+                Nie masz konta?
+                <a href="{% url 'users:login' %}">Zarejestruj się</a>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endblock content %}

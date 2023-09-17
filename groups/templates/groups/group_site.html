@@ -1,0 +1,157 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <style>
+
+        body{
+            background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+            text-align: center
+        }
+
+        .white_block{
+            background-color: ghostwhite;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .leave_btn{
+            background-color: #db2e32;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            width: 200px;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px auto;
+        }
+
+        .leave_btn:hover{
+            background-color: #be272a;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            width: 200px;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px auto;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .leave_btn a{
+            text-decoration: none;
+            color: white;
+        }
+
+        .invite_btn{
+            background-color: #411646;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            width: 200px;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 15px auto;
+        }
+
+        .invite_btn:hover, .invite_btn:focus{
+            background-color: #5e1d67;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            width: 200px;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 15px auto;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .invite_btn a{
+            text-decoration: none;
+            color: white;
+        }
+
+    </style>
+    <div style="padding-top: 100px">
+
+    </div>
+
+    <div class="white_block" style="">
+    <h1>
+    {{ group}}
+    </h1>
+
+    <h5 style="margin-top: -10px; color: #545454">
+        Utworzono:&nbsp&nbsp{{ group.date_created }}
+    </h5>
+
+    <h5 style="margin-top: -10px; color: #545454">
+        Właściciel:&nbsp&nbsp{{ group.owner }}
+    </h5>
+
+
+    </div>
+
+    <div class="white_block">
+
+
+    <div>
+    <h2>
+        Members
+    </h2>
+    <h5 style="margin-top: -10px; color: #545454">
+        {{ group.number_of_members }}/{{ group.max_number_of_members }}
+    </h5>
+        <div style="background-color: olivedrab">
+    <ul>
+        {% for member in members %}
+        <li>
+            {{ member }}
+        </li>
+        {% endfor %}
+    </ul>
+    </div>
+
+
+    </div>
+    <div>
+        Paragony grupy
+    </div>
+    <div>
+        Łączna suma do podziału:
+    </div>
+    <div>
+        Suma na jednego członka:
+    </div>
+    <div>
+    Ustawienia
+    </div>
+
+    {% if group.owner == user %}
+        <a href="{% url 'groups:manage_group' group.id %}">
+            Zarządzaj grupą
+        </a>
+    {% endif %}
+
+    <div class="invite_btn">
+        <a href="{% url 'groups:invite_page' group.id %}">
+            Zaproś
+        </a>
+    </div>
+    <div class="leave_btn">
+        <a href="{% url 'groups:leaving_group_page' group.id %}">
+            Opuść grupę
+        </a>
+    </div>
+
+    {% if group.owner == user %}
+        <a href="{% url 'groups:leaving_group_page' group.id %}">
+            Usuń grupę
+        </a>
+    {% endif %}
+
+    </div>
+
+{% endblock content %}

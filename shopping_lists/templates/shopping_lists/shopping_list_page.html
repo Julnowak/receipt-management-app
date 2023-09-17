@@ -1,0 +1,338 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <!DOCTYPE html>
+<html lang="pl">
+    <head>
+
+        <title>Zebragon</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+        <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
+
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+
+            body
+            {
+                background: ghostwhite;
+                margin: 0;
+                font-family: "Montserrat", sans-serif;
+            }
+
+            div:empty
+            {
+                background: rgba(0,0,0,0.8);
+                backdrop-filter: saturate(180%) blur(10px);
+                height: 80px;
+                width: 100vw;
+                position: fixed;
+            }
+
+            .stripez
+            {
+                background: rgba(0,0,0,0.8);
+                backdrop-filter: saturate(180%) blur(10px);
+                height: 80px;
+                width: 100vw;
+                position: fixed;
+                color: white;
+                text-align: right;
+            }
+
+            h1, h2, h3, h4, h5, h6
+            {
+                font-family: "Montserrat", sans-serif;
+            }
+
+            h1, p {
+                text-align: center;
+            }
+
+
+
+            /* Phone */
+            @media only screen and (max-width: 800px) {
+
+                .container {
+                    background-color: #fff;
+                    padding: 30px;
+                    border-radius: 5px;
+                    text-align: center;
+                    margin: auto;
+                    margin-top: 100px;
+                    margin-bottom: 20px;
+                    transition: 0.5s;
+                    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+                }
+
+
+                .container h1 {
+                    font-size: 48px;
+                    color: #333;
+                    letter-spacing: 3px;
+                    margin-bottom: 20px;
+                }
+
+                .container p {
+                    font-size: 18px;
+                    color: #0d0716;
+                }
+
+                .container_2 {
+                    background-color: #0f0614;
+                    padding: 30px;
+                }
+
+                .image_container {
+                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+                    padding: 30px;
+                    align-content: center;
+                    margin: 0;
+                    height: auto;
+                }
+
+                .homepage {
+                    text-align: center;
+                    margin-left: 0;
+                    transition: 0.5s;
+                }
+
+                .colorbar {
+                    width: 100vw;
+                    height: 80px;
+                    opacity: 50%;
+                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+
+                }
+            .sidebar
+            {
+                height: 100%;
+                width: 0;
+                position: fixed;
+                top: 0;
+                left: 0;
+                background-color: #0f0614;
+                color: #fff;
+                transition: 0.5s;
+                overflow-x: hidden;
+
+            }
+
+            .sidebar a
+            {
+                padding: 30px;
+                text-decoration: none;
+                color: #fff;
+                display: block;
+                transition: background-color 0.3s;
+                text-align: center;
+            }
+
+            .sidebar a:hover
+            {
+                background-color: #2b1941;
+            }
+
+            .open-btn
+            {
+                font-size: 40px;
+                cursor: pointer;
+                position: fixed;
+                top: 10px;
+                color: white;
+                left: 20px;
+                z-index: 1000;
+                user-select: none;
+            }
+
+            }
+
+
+
+            /* Phone */
+
+
+            /* Desktop */
+            @media only screen and (min-width: 801px) {
+
+                .container {
+                    background-color: #fff;
+                    padding: 30px;
+                    border-radius: 5px;
+                    text-align: center;
+                    margin: auto;
+                    margin-top: 100px;
+                    margin-bottom: 20px;
+                    transition: 0.5s;
+                    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+                }
+
+                .container h1 {
+                    font-size: 48px;
+                    color: #333;
+                    letter-spacing: 3px;
+                    margin-bottom: 20px;
+                }
+
+                .container p {
+                    font-size: 18px;
+                    color: #0d0716;
+                }
+
+                .container_2 {
+                    background-color: #0f0614;
+                    padding: 30px;
+                }
+
+                .image_container {
+                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+                    padding: 30px;
+                    align-content: center;
+                    margin: 0;
+                    height: auto;
+                }
+
+                .homepage {
+                    text-align: center;
+                    margin-left: 0;
+                    transition: 0.5s;
+                }
+
+                .colorbar{
+                    width: 100vw;
+                    height: 80px;
+                    opacity: 50%;
+                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+
+                }
+
+
+            .sidebar
+            {
+                height: 100%;
+                width: 0;
+                position: fixed;
+                top: 0;
+                left: 0;
+                background-color: #0f0614;
+                color: #fff;
+                transition: 0.5s;
+                overflow-x: hidden;
+
+            }
+
+            .sidebar a
+            {
+                padding: 30px;
+                text-decoration: none;
+                color: #fff;
+                display: block;
+                transition: background-color 0.3s;
+                text-align: center;
+            }
+
+            .sidebar a:hover
+            {
+                background-color: #2b1941;
+            }
+
+            .open-btn
+            {
+                font-size: 40px;
+                cursor: pointer;
+                position: fixed;
+                top: 10px;
+                color: white;
+                left: 20px;
+                z-index: 1000;
+                user-select: none;
+            }
+            }
+            /* Desktop */
+
+        </style>
+    </head>
+
+    <body>
+    <div id="main" class="homepage">
+        <span id="hamburger" class="open-btn" onclick="toggleNav()">&#9776;</span>
+        <div id="stripez" class="stripez"> Log in </div>
+    </div>
+
+    <div class="image_container">
+        <div class="container">
+            <h1 id="title">Zebragon</h1>
+            <p>Your receipt management app </p>
+        </div>
+    </div>
+
+    <div id="mySidebar" class="sidebar">
+        <div id="colorful_stripe" class="colorbar">&nbsp;</div>
+        <a href="{% url 'homepage' %}" >Home</a>
+        <a href="{% url 'your_lists' %}">Your lists</a>
+        <a href="#">Your Groups</a>
+        <a href="#">Statistics</a>
+        <a href="#">Contact</a>
+        <span id="person">	&#x1F464;</span>
+    </div>
+
+
+    <h1>{{ current_list }}</h1>
+    <p>Produkty:</p>
+    <ul>
+        {% for product in products %}
+            <li>
+                {{ product }}
+                <a href="{% url 'edit_product' product.id %}">Edytuj</a>
+
+            </li>
+
+        {% empty %}
+        <li>Nie został dodany jeszcze żaden produkt!</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'new_product' current_list.id %}">Dodaj nowy produkt</a>
+
+
+
+    <script>
+        function toggleNav() {
+            var sidebar = document.getElementById("mySidebar");
+            var mainContent = document.getElementById("main");
+            var hamburger = document.getElementById("hamburger")
+            if (sidebar.style.width === "100vw" || sidebar.style.width === "250px")
+            {
+                sidebar.style.width = "0px";
+                mainContent.style.marginLeft = "0px";
+                hamburger.innerHTML = "&#9776;"
+
+            }
+            else
+            {
+                if (window.innerWidth < 600)
+                    {
+                        sidebar.style.width = "100vw";
+                        mainContent.style.marginLeft = "100vw";
+
+                    }
+                else
+                    {
+                        sidebar.style.width = "250px";
+                        mainContent.style.marginLeft = "250px";
+                    }
+                hamburger.innerHTML = "&#10096;";
+            }
+        }
+    </script>
+
+
+    </body>
+
+    <footer style="background-color: black;color: white; margin: 0; min-height: 50px">
+        <p>Copyrights</p>
+    </footer>
+</html>
+
+{% endblock content %}

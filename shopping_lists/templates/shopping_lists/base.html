@@ -1,0 +1,288 @@
+
+<head>
+    <title>Zebragon</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <meta charset="UTF-8">
+</head>
+
+<style>
+
+            body
+            {
+                background: ghostwhite;
+                margin: 0;
+                font-family: "Montserrat", sans-serif;
+            }
+
+
+            h1, h2, h3, h4, h5, h6
+            {
+                font-family: "Montserrat", sans-serif;
+            }
+
+            h1,p{
+                text-align: center;
+            }
+
+            .stripez
+            {
+                background: rgba(0,0,0,0.8);
+                backdrop-filter: saturate(180%) blur(10px);
+                height: 80px;
+                width: 100vw;
+                position: fixed;
+                color: white;
+                text-align: right;
+            }
+
+            .sidebar
+            {
+                height: 100%;
+                width: 0;
+                position: fixed;
+                top: 0;
+                left: 0;
+                background-color: #0f0614;
+                color: #fff;
+                transition: 0.5s;
+                overflow:hidden;
+                z-index: 1;
+
+            }
+
+            .sidebar a
+            {
+
+                text-decoration: none;
+                color: #fff;
+                display: block;
+                transition: 0.5s;
+                padding: 15px;
+                text-align: center;
+                border-radius: 40px;
+                width: 150px;
+                margin: 20px auto;
+            }
+
+            .sidebar a:hover
+            {
+                background-color: #270c28;
+                transition: 0.3s;
+                border-radius: 40px;
+                width: 150px;
+            }
+
+            .sidebar img
+            {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 20px;
+            }
+
+            .open-btn
+            {
+                font-size: 40px;
+                cursor: pointer;
+                position: fixed;
+                top: 10px;
+                color: white;
+                left: 20px;
+                z-index: 1000;
+                width:50px;
+                height: 70px;
+                user-select: none;
+            }
+
+            .homepage {
+                text-align: center;
+                margin-left: 0;
+                transition: 0.5s;
+            }
+
+            .colorbar {
+                width: 100vw;
+                height: 80px;
+                opacity: 50%;
+                background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+            }
+
+            /* SCROLLBAR */
+            /* width */
+            ::-webkit-scrollbar {
+              width: 10px;
+            }
+
+            /* Track */
+            ::-webkit-scrollbar-track {
+              background: #f1f1f1;
+            }
+
+            /* Handle */
+            ::-webkit-scrollbar-thumb {
+              background: #888;
+            }
+
+            /* Handle on hover */
+            ::-webkit-scrollbar-thumb:hover {
+              background: #555;
+            }
+
+            #login_btn_topbar,#logout_btn_topbar{
+                text-decoration: none;
+                color: #fff;
+                transition: 0.5s;
+            }
+
+            #login_btn_topbar:hover,#logout_btn_topbar:hover{
+                text-decoration: none;
+                color: #949494;
+                transition: 0.5s;
+            }
+
+
+</style>
+
+    <div id="main" class="homepage">
+        <span id="hamburger" class="open-btn" onclick="toggleNav()">&#9776;</span>
+        <div id="stripez" class="stripez">
+
+        </div>
+        <span style="color: white; margin: 10px; padding-top: 25px; position: fixed; right: 70px">
+            {% if user.is_authenticated %}
+                <a id="logout_btn_topbar" href="{% url 'users:logout' %}"> Wyloguj się </a>
+            {% else %}
+                <a id="login_btn_topbar" href="{% url 'users:login' %}" > Zaloguj się </a>
+            {% endif %}
+        </span>
+
+        <span style="position: fixed; right: 0; margin:20px; padding-top: 5px;">
+            <a href="{% url 'homepage' %}">
+                <img width="30" height="30" src="https://img.icons8.com/ios-filled/50/FFFFFF/home.png" alt="home"/>
+            </a>
+        </span>
+
+
+
+
+{% if user.is_authenticated %}
+    <div id="mySidebar" class="sidebar">
+        <div id="colorful_stripe" class="colorbar">&nbsp;</div>
+        <a href="{% url 'main_panel' %}" >Panel główny</a>
+        <a href="{% url 'your_lists' %}">Twoje listy</a>
+        <a href="{% url 'groups:groups' %}">Twoje grupy</a>
+        <a href="{% url 'receipts:your_receipts' %}">Twoje paragony</a>
+        <a href="#">Statystyki</a>
+        <a href="{% url 'groups:messages_page' %}">Wiadomości</a>
+
+
+
+        <div id="profile_img" style="border-radius: 20px; margin: 100px auto;">
+        <div style=" display: inline-block;left: 30px; margin-right: 40px">
+            <img width="64" height="64" src="https://img.icons8.com/pastel-glyph/64/FFFFFF/user-male-circle.png" alt="user-male-circle"/>
+            <h5>
+                {{ user.username }}
+            </h5>
+        </div>
+
+
+        <div style=" display: inline-block">
+            <h5>
+                <a id="profile_btn" href="#">Zarządzaj kontem</a>
+            </h5>
+
+            <h5 >
+                <a id="logout_btn_sidebar" style="margin-top: -20px " href="{% url 'users:logout' %}"> Wyloguj się </a>
+            </h5>
+        </div>
+
+
+    </div>
+
+
+    </div>
+{% else %}
+    <div id="mySidebar" class="sidebar">
+        <div id="colorful_stripe" class="colorbar">&nbsp;</div>
+        <a href="{% url 'homepage' %}" >Home</a>
+        <a href="{% url 'your_lists' %}">Your lists</a>
+        <a href="#">Contact</a>
+
+        <div id="profile_img" style="border-radius: 20px; margin: 100px auto; background-color: black">
+            <div style=" display: inline-block;left: 30px; margin-right: 40px">
+                <img width="64" height="64" src="https://img.icons8.com/pastel-glyph/64/FFFFFF/user-male-circle.png" alt="user-male-circle"/>
+                <h5 style="color: darkgrey">
+                    Nie zalogowano
+                </h5>
+            </div>
+
+
+            <div style=" display: inline-block;">
+                <h5 style=" padding-bottom: 5px">
+                    <a id="login_sidebar_btn" href="{% url 'users:login' %}">Zaloguj się</a>
+                </h5>
+
+                <h5 >
+                    <a id="register_btn_sidebar" style="margin-top: -20px " href="{% url 'users:register' %}"> Zarejestruj się </a>
+                </h5>
+            </div>
+        </div>
+{% endif %}
+
+
+
+    <script>
+        function toggleNav() {
+            var sidebar = document.getElementById("mySidebar");
+            var mainContent = document.getElementById("main");
+            var hamburger = document.getElementById("hamburger")
+            var colorbar = document.getElementById("colorful_stripe")
+            if (sidebar.style.width === "100vw" || sidebar.style.width === "250px")
+            {
+                sidebar.style.width = "0px";
+                mainContent.style.marginLeft = "0px";
+                hamburger.innerHTML = "&#9776;"
+            }
+            else
+            {
+                if (window.innerWidth < 600)
+                    {
+                        sidebar.style.width = "100vw";
+                        mainContent.style.marginLeft = "100vw";
+
+
+                    }
+                else
+                    {
+                        sidebar.style.width = "250px";
+                        mainContent.style.marginLeft = "250px";
+                    }
+                hamburger.innerHTML = "&#10096;";
+            }
+        }
+
+    </script>
+</div>
+    </div>
+
+{% block content %}
+
+{% endblock content %}
+
+<div style="bottom: 20px; text-align: center; margin: 10px">
+    <input type="button" value="Powrót" onclick="powrot()">
+    <script>
+        function powrot() {
+            window.history.back()
+            window.location=document.referrer;
+            }
+    </script>
+</div>
+
+<footer style="background-color: black;color: white; min-height: 50px; bottom: 20px">
+    <p>Copyrights</p>
+    <a href="https://icons8.com/icon/ckaioC1qqwCu/user">User</a>
+    icon by <a href="https://icons8.com">Icons8</a>
+</footer>

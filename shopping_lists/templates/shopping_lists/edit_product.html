@@ -1,0 +1,11 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <h1>Edytuj:</h1>
+
+    <form action="{% url 'edit_product' current_product.id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button name="post_btn">Zapisz zmiany</button>
+    </form>
+{% endblock content %}

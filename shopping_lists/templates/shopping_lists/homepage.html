@@ -1,0 +1,156 @@
+{% extends "shopping_lists/base.html" %}
+{% load static %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="pl">
+    <head>
+        <title>Zebragon</title>
+
+        <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
+
+        <style>
+
+            /* Phone */
+            @media only screen and (max-width: 800px) {
+
+                .container {
+                    background-color: #fff;
+                    padding: 30px;
+                    border-radius: 5px;
+                    text-align: center;
+                    margin: 100px auto 20px;
+                    transition: 0.5s;
+                    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+                }
+
+
+                .container h1 {
+                    font-size: 48px;
+                    color: #333;
+                    letter-spacing: 3px;
+                    margin-bottom: 20px;
+                }
+
+                .container p {
+                    font-size: 18px;
+                    color: #0d0716;
+                }
+
+                .container_2 {
+                    background-color: #0f0614;
+                    padding: 30px;
+                }
+
+                .image_container {
+                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+                    padding: 30px;
+                    align-content: center;
+                    margin: 0;
+                    height: auto;
+                }
+
+
+            }
+
+            /* Phone */
+
+
+            /* Desktop */
+            @media only screen and (min-width: 801px) {
+
+                .container {
+                    background-color: #fff;
+                    padding: 30px;
+                    border-radius: 5px;
+                    text-align: center;
+                    margin: auto;
+                    margin-top: 100px;
+                    margin-bottom: 20px;
+                    transition: 0.5s;
+                    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+                }
+
+                .container h1 {
+                    font-size: 48px;
+                    color: #333;
+                    letter-spacing: 3px;
+                    margin-bottom: 20px;
+                }
+
+                .container p {
+                    font-size: 18px;
+                    color: #0d0716;
+                }
+
+                .container_2 {
+                    background-color: #0f0614;
+                    padding: 30px;
+                }
+
+                .image_container {
+                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+                    padding: 30px;
+                    align-content: center;
+                    margin: 0;
+                    height: auto;
+                }
+
+
+            }
+            /* Desktop */
+
+        </style>
+    </head>
+
+    <body>
+
+    <div class="image_container">
+        <div class="container">
+            <h1 id="title">Zebragon</h1>
+            <p>Your receipt management app </p>
+        </div>
+    </div>
+
+    <div id="text_1" class="container_2" style="color: white">
+        <h1 id="title">Control your money</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+            magna aliqua.
+            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+            voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+            deserunt mollit anim id est laborum.</p>
+    </div>
+
+    <div id="text_2" class="container_2" style="color: white; background-color: #491139">
+        <h1 id="title">Create groups</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+            magna aliqua.
+            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+            voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+            deserunt mollit anim id est laborum.</p>
+    </div>
+
+    <div id="text_3" class="container_2" style="color: white;">
+        <h1 id="title">Make shopping easier</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+            magna aliqua.
+            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+            voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+            deserunt mollit anim id est laborum.</p>
+    </div>
+
+
+    <div id="text_4" class="container_2" style="background-color: #ba1540; color: white; text-align: center">
+        <h2>Join today!</h2>
+    </div>
+
+    </body>
+
+</html>
+{% endblock content %}

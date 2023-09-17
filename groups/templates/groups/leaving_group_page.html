@@ -1,0 +1,28 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+    <div style="padding-top: 80px"></div>
+    <h3>  Czy na pewno chcesz opuścić grupę {{ group.group_name }}?</h3>
+
+        {% if user == group.owner %}
+            <p>
+            Jesteś założycielem grupy. Jeśli ją opuścisz, inna osoba przejmie status właściciela grupy.
+            Możesz wybrać swojego następcę albo właścicielem zostanie osoba będąca członkiem najdłużej.
+            </p>
+
+
+        {% endif %}
+
+    <p>
+        Wszelkie dane zebrane dotychczas zostaną usunięte!
+        Czy na pewno chcesz kontynuować?
+    </p>
+
+    <div style="text-align: center">
+        <a href="{% url 'groups:left_group' group.id%}" >TAK</a>
+        <a href="{% url 'groups:group_site' group.id %}">NIE</a>
+    </div>s
+
+
+{% endblock content %}
