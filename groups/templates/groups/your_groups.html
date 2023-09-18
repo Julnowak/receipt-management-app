@@ -33,8 +33,11 @@
         </a>
     </div>
 
-    <form action="{% url 'groups:groups' %}" method="get">
-         <input name="q" type="text" placeholder="Wprowadź nazwę grupy">
-         <button name="post_btn">Szukaj</button>
+
+    <form method="POST" action="search_group/">
+        {% csrf_token %}
+        <input name="q" type="text" placeholder="Wprowadź nazwę grupy">
+        <button type="submit">Szukaj</button>
     </form>
+
 {% endblock content %}

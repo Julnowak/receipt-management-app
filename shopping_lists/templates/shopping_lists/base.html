@@ -130,6 +130,16 @@
               background: #555;
             }
 
+            input,
+            textarea,
+            button,
+            select,
+            a,
+            div,
+            span{
+                -webkit-tap-highlight-color: transparent;
+            }
+
             #login_btn_topbar,#logout_btn_topbar{
                 text-decoration: none;
                 color: #fff;
@@ -238,7 +248,6 @@
             var sidebar = document.getElementById("mySidebar");
             var mainContent = document.getElementById("main");
             var hamburger = document.getElementById("hamburger")
-            var colorbar = document.getElementById("colorful_stripe")
             if (sidebar.style.width === "100vw" || sidebar.style.width === "250px")
             {
                 sidebar.style.width = "0px";

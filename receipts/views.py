@@ -12,6 +12,7 @@ def your_receipts(request):
     return render(request, 'receipts/your_receipts.html', context)
 
 
+@login_required
 def new_receipt(request):
     if request.method == 'POST':
         form = ReceiptForm(request.POST, request.FILES)
@@ -21,4 +22,4 @@ def new_receipt(request):
             return redirect('your_receipts')
     else:
         form = ReceiptForm()
-    return render(request, 'receipts/new_receipt.html',{'form': form})
+    return render(request, 'receipts/new_receipt.html', {'form': form})

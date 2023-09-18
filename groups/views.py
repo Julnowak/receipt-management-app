@@ -110,3 +110,19 @@ def manage_group(request, group_id):
     group = CommonGroups.objects.get(id=group_id)
     context = {"group": group, "user": request.user, 'members': group.members.all()}
     return render(request, 'groups/manage_group.html', context)
+
+def search_group(request):
+    groups_searched = 'None'
+    exists = False
+    number = 0
+    if request.method == 'POST':
+        group_name = request.POST.get('q')
+        print(group_name)
+        try:
+            groups_searched = CommonGroups.objects.get(group_name=group_name)
+            number = CommonGroups.objects.filter(group_name=group_name).count()
+            exists = True
+        except CommonGroups.DoesNotExist:
+            groups_searched = "Nie ma takiej grupy"
+    context = {"user": request.user, 'groups': groups_searched, 'exists': exists, 'number': number}
+    return render(request, 'groups/search_group.html', context)
