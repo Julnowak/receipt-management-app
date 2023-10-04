@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from .models import ShoppingList, Product
 from .forms import ShoppingListForm, ProductForm
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
@@ -102,3 +102,7 @@ def main_panel(request):
     return render(request, 'shopping_lists/main_panel.html', context)
 
 
+def removed(request, product_id):
+        current_product = Product.objects.get(id=product_id)
+        current_product.delete()
+        return render(request, 'shopping_lists/shopping_list_page.html')

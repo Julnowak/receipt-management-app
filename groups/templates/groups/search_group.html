@@ -1,18 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "shopping_lists/base.html" %}
 
-        {% if exists and number > 1%}
-            {% for g in groups %}
-                <p>{{g}}</p>
-            {% endfor %}
-        {% else %}
-            <p>{{ groups}}</p>
-        {% endif %}
+{% block content %}
 
-</body>
-</html>
+    <h3>Znaleziono {{ number }} wyniki: </h3>
+    {% if exists and number > 1%}
+        {% for g in groups %}
+            <p>{{g}}</p>
+        {% endfor %}
+    {% elif exists and number == 1 %}
+        <p>{{ groups}}</p>
+    {% else %}
+        <p>Brak wyników.</p>
+    {% endif %}
+
+{% endblock content %}

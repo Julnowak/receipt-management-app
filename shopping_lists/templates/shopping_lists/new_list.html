@@ -1,7 +1,10 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
-    <h1>Dodaj nowy temat:</h1>
+    <div style="padding-top: 80px">
+
+    </div>
+    <h1>Dodaj nową listę:</h1>
 
     <form action="{% url 'new_list' %}" method="post">
         {% csrf_token %}

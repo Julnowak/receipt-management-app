@@ -1,14 +1,72 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
-    <div style="padding-top: 80px">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    </div>
+    <style>
+        p {
+            margin: 30px 30px auto;
+        }
+
+        .p_error {
+            margin: 0 30px auto;
+        }
+
+        .errorlist {
+            list-style: none;
+            margin: 0 20px auto;
+            padding: 0;
+            color: red;
+            text-align: center;
+        }
+
+    </style>
+
     <h1>Tworzenie nowej grupy</h1>
 
-    <form action="{% url 'groups:add_group' %}" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button name="post_btn">Utwórz</button>
-    </form>
+    <div style="margin: 70px auto">
+        <form  novalidate action="{% url 'groups:add_group' %}" method="post">
+            {% csrf_token %}
+            <p>
+                {{ group_name }}
+                {{ form.group_name }}
+            </p>
+            <p class="p_error">
+                {% if form.group_name.errors %}
+                    {{ form.group_name.errors }}
+                {% else %}
+                    &nbsp;
+                {% endif %}
+            </p>
+
+            <p>
+                {{ max_members }}
+                {{ form.max_number_of_members }}
+            </p>
+            <p class="p_error">
+            {% if form.max_number_of_members.errors %}
+                {{ form.max_number_of_members.errors }}
+            {% else %}
+                 &nbsp;
+            {% endif %}
+            </p>
+
+            <p>
+                {{ password }}
+                {{ form.password }}
+            </p>
+            <p class="p_error">
+                {% if form.password.errors %}
+                    {{ form.password.errors }}
+                {% else %}
+                        &nbsp;
+                {% endif %}
+            </p>
+
+            <div class="text-center">
+                <button class="btn btn-dark" name="post_btn">Utwórz</button>
+            </div>
+        </form>
+    </div>
+
 {% endblock content %}

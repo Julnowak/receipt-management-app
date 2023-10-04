@@ -15,6 +15,37 @@
             margin: 10px;
         }
 
+        .chosen_one_box{
+            background-color: darkgrey;
+            padding: 10px;
+            margin: 5px 5px 0 5px;
+            transition: 0.5s;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+        }
+
+        .chosen_one_box:hover, .chosen_one_box_first{
+            filter: brightness(85%);
+            transition: 0.5s;
+        }
+
+        .main_expenses_field{
+            margin: 0 5px;
+            background-color: red;
+            padding: 10px;
+            border-radius: 0 0 10px 10px;
+
+
+        }
+        .chosen_one_box_first{
+            background-color: red;
+            padding: 10px;
+            margin: 5px 5px 0 5px;
+            transition: 0.5s;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+        }
+
     </style>
 
     <div style="padding-top: 90px">
@@ -44,6 +75,17 @@
     </div>
 
     <div class="basic_white">
+        <h4>Wydatki</h4>
+        <div style="display: grid;grid-template-columns: auto auto auto auto auto">
+            <div id="year_box" class="chosen_one_box_first">Roczne</div>
+            <div id="month_box" class="chosen_one_box">Miesięczne</div>
+            <div id="week_box" class="chosen_one_box">Tygodniowe</div>
+            <div id="day_box" class="chosen_one_box"> Dzisiaj</div>
+            <div id="custom_box" class="chosen_one_box">Wybierz zakres</div>
+        </div>
+        <div class="main_expenses_field">
+            <h4 id="expenses_title">Content</h4>
+        </div>
 
     </div>
 
@@ -53,5 +95,44 @@
             {{ pie_chart }}
         {% endautoescape %}
     </div>
+
+    <script>
+        var year_box = document.getElementById("year_box")
+        var month_box = document.getElementById("month_box")
+        var week_box = document.getElementById("week_box")
+        var day_box = document.getElementById("day_box")
+        var custom_box = document.getElementById("custom_box")
+        var exp_title = document.getElementById("expenses_title")
+
+        var boxes = [
+            year_box,
+            month_box,
+            week_box,
+            day_box,
+            custom_box,
+             ];
+        boxes.forEach((item) => {item.addEventListener('click', wrapper)});s
+
+          function wrapper(){
+              on_click(event.target)
+              console.log(event.target)
+          }
+
+          function on_click(box){
+              box.style.backgroundColor = "red";
+              boxes.forEach((item) => {
+                  if (item === box){
+                      item.style.backgroundColor = "red";
+                  }
+                  else
+                  {
+                      item.style.backgroundColor = "darkgray";
+                  }
+
+              });
+              exp_title.innerHTML = box.innerText + " wydatki"
+          }
+
+    </script>
 
 {% endblock content %}

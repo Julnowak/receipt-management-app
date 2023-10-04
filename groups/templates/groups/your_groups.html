@@ -1,12 +1,36 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
-    <div style="padding-top: 100px">
 
-    </div>
-    <div>
+    <style>
+
+        .messages{
+            background-color: palegreen;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            opacity: 100%;
+        }
+
+    </style>
+            <div style="height:40px">
+
+
+            {% if messages %}
+                <div id="messages" class="messages">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+                </div>
+            {% endif %}
+
+
+            </div>
+
+
+    <h2>
         Twoje grupy
-    <ul>
+    </h2>
 
         {% for group in member_of_groups %}
             <li>
@@ -18,9 +42,6 @@
             Nie jesteś jeszcze członkiem żadnej grupy.
         {% endfor %}
 
-    </ul>
-
-    </div>
     <div>
         <a href="{% url 'groups:add_group' %}">
             Stwórz nową grupę
@@ -39,5 +60,15 @@
         <input name="q" type="text" placeholder="Wprowadź nazwę grupy">
         <button type="submit">Szukaj</button>
     </form>
+
+    <script>
+        var message_container = document.getElementById("messages")
+
+        setTimeout(function()
+        {
+           message_container.style.opacity = "0%";
+        }, 3000);
+
+    </script>
 
 {% endblock content %}

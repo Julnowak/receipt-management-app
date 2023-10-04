@@ -2,10 +2,6 @@
 
 {% block content %}
 
-    <div style="padding-top: 80px">
-
-    </div>
-
     <div>
         <h1 style="text-align: center">Zarządzaj grupą</h1>
     </div>
@@ -16,8 +12,23 @@
             {% for member in members%}
                 <li>
                  {{ member }}
+                    {% if member == group.owner %}
+                        👑
+                    {% else %}
+                        <button onclick="">X</button>
+                    {% endif %}
+
                 </li>
             {% endfor %}
         </ol>
     </div>
+
+    <div>
+        {% if group.owner == user %}
+            <a href="{% url 'groups:leaving_group_page' group.id %}">
+                Usuń grupę
+            </a>
+        {% endif %}
+    </div>
+
 {% endblock content %}

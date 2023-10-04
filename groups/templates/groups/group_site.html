@@ -74,9 +74,6 @@
         }
 
     </style>
-    <div style="padding-top: 100px">
-
-    </div>
 
     <div class="white_block" style="">
     <h1>
@@ -145,12 +142,6 @@
             Opuść grupę
         </a>
     </div>
-
-    {% if group.owner == user %}
-        <a href="{% url 'groups:leaving_group_page' group.id %}">
-            Usuń grupę
-        </a>
-    {% endif %}
 
     </div>
 

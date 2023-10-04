@@ -20,26 +20,6 @@
                 font-family: "Montserrat", sans-serif;
             }
 
-            div:empty
-            {
-                background: rgba(0,0,0,0.8);
-                backdrop-filter: saturate(180%) blur(10px);
-                height: 80px;
-                width: 100vw;
-                position: fixed;
-            }
-
-            .stripez
-            {
-                background: rgba(0,0,0,0.8);
-                backdrop-filter: saturate(180%) blur(10px);
-                height: 80px;
-                width: 100vw;
-                position: fixed;
-                color: white;
-                text-align: right;
-            }
-
             h1, h2, h3, h4, h5, h6
             {
                 font-family: "Montserrat", sans-serif;
@@ -51,192 +31,12 @@
 
 
 
-            /* Phone */
-            @media only screen and (max-width: 800px) {
-
-                .container {
-                    background-color: #fff;
-                    padding: 30px;
-                    border-radius: 5px;
-                    text-align: center;
-                    margin: 10px;
-                    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
-                }
-
-                .container h1 {
-                    font-size: 48px;
-                    color: #333;
-                    letter-spacing: 3px;
-                    margin-bottom: 20px;
-                }
-
-                .container p {
-                    font-size: 18px;
-                    color: #0d0716;
-                }
-
-
-                /* List element */
-                li {
-                  counter-increment: index;
-                  display: flex;
-                  align-items: center;
-                  padding: 15px 0;
-                }
-
-                /* Element counter */
-                li::before {
-                      content: counters(index, ".", decimal-leading-zero);
-                      font-size: 1.5rem;
-                      text-align: right;
-                      font-weight: bold;
-                      min-width: 50px;
-                      padding-right: 20px;
-                      font-variant-numeric: tabular-nums;
-                      align-self: flex-start;
-                    background-image: linear-gradient(to bottom, aquamarine, orangered);
-                    background-attachment: fixed;
-                    border-radius: 20px;
-                }
-
-
-
-                .homepage {
-                    text-align: center;
-                    margin-left: 0;
-                    transition: 0.5s;
-                }
-
-                .colorbar {
-                    width: 100vw;
-                    height: 80px;
-                    opacity: 50%;
-                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
-
-                }
-
-                .container_2 {
-                    background-color: #0f0614;
-                    padding: 30px;
-                }
-
-                .image_container {
-                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
-                    padding: 30px;
-                    align-content: center;
-                    margin: 0;
-                    height: auto;
-                }
-                .sidebar
-                {
-                    height: 100%;
-                    width: 0;
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    background-color: #0f0614;
-                    color: #fff;
-                    transition: 0.5s;
-                    overflow-x: hidden;
-
-                }
-
-                .sidebar a
-                {
-                    padding: 30px;
-                    text-decoration: none;
-                    color: #fff;
-                    display: block;
-                    transition: background-color 0.3s;
-                    text-align: center;
-                }
-
-                .sidebar a:hover
-                {
-                    background-color: #2b1941;
-                }
-
-                .open-btn
-                {
-                    font-size: 40px;
-                    cursor: pointer;
-                    position: fixed;
-                    top: 10px;
-                    color: white;
-                    left: 20px;
-                    z-index: 1000;
-                    user-select: none;
-                }
-
-            }
-
-
-
-            /* Phone */
-
-
-            /* Desktop */
-            @media only screen and (min-width: 801px) {
-
-                .container {
-                    background-color: #fff;
-                    padding: 30px;
-                    border-radius: 5px;
-                    text-align: center;
-                    margin: auto;
-                    margin-top: 100px;
-                    margin-bottom: 20px;
-                    transition: 0.5s;
-                    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
-                }
-
-                .image_container {
-                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
-                    padding: 30px;
-                    align-content: center;
-                    margin: 0;
-                    height: auto;
-                }
-
-                .container h1 {
-                    font-size: 48px;
-                    color: #333;
-                    letter-spacing: 3px;
-                    margin-bottom: 20px;
-                }
-
-                .container p {
-                    font-size: 18px;
-                    color: #0d0716;
-                }
-
-                .container_2 {
-                    background-color: #0f0614;
-                    padding: 30px;
-                }
-
-                .image_container {
-                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
-                    padding: 30px;
-                    align-content: center;
-                    margin: 0;
-                    height: auto;
-                }
-
-
-
-            }
-            /* Desktop */
-
         </style>
     </head>
 
     <body>
 
-    <div id="text_your_lists" class="image_container" style="color: white; height: 30px;">
-    </div>
-
-    <div id="text_your_lists" class="container_2" style="color: white;">
+    <div id="text_your_lists" class="container_2" >
         <h1 id="title">Twoje listy</h1>
     </div>
 
@@ -260,10 +60,7 @@
 
 
     </body>
-
-    <footer style="background-color: black;color: white; margin: 0; min-height: 50px">
-        <p>Copyrights</p>
-    </footer>
+    
 </html>
 
 {% endblock content %}

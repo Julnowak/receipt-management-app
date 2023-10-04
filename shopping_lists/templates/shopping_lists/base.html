@@ -37,6 +37,20 @@
                 text-align: right;
             }
 
+            .black_back{
+                z-index: 1;
+                position: fixed;
+                background-color: black;
+                opacity: 0;
+                transition: opacity 200ms, display 200ms;
+                overflow:hidden;
+                display: none;
+                height: 100%;
+                width: 100%;
+                top: 0;
+                left: 0;
+            }
+
             .sidebar
             {
                 height: 100%;
@@ -48,7 +62,10 @@
                 color: #fff;
                 transition: 0.5s;
                 overflow:hidden;
-                z-index: 1;
+                z-index: 2;
+                -webkit-box-shadow: 7px 0px 22px -1px rgba(0, 0, 0, 1);
+                -moz-box-shadow: 7px 0px 22px -1px rgba(0, 0, 0, 1);
+                box-shadow: 7px 0px 22px -1px rgba(0, 0, 0, 1);
 
             }
 
@@ -175,6 +192,8 @@
         </span>
 
 
+    <div style="padding-top: 80px"></div>
+    <div class="black_back" id="blackback"></div>
 
 
 {% if user.is_authenticated %}
@@ -185,9 +204,7 @@
         <a href="{% url 'groups:groups' %}">Twoje grupy</a>
         <a href="{% url 'receipts:your_receipts' %}">Twoje paragony</a>
         <a href="#">Statystyki</a>
-        <a href="{% url 'groups:messages_page' %}">Wiadomości</a>
-
-
+        <a href="{% url 'my_messages:my_messages' %}">Wiadomości</a>
 
         <div id="profile_img" style="border-radius: 20px; margin: 100px auto;">
         <div style=" display: inline-block;left: 30px; margin-right: 40px">
@@ -248,20 +265,23 @@
             var sidebar = document.getElementById("mySidebar");
             var mainContent = document.getElementById("main");
             var hamburger = document.getElementById("hamburger")
+            var blackback = document.getElementById("blackback")
             if (sidebar.style.width === "100vw" || sidebar.style.width === "250px")
             {
                 sidebar.style.width = "0px";
+                blackback.style.opacity = "0%";
+                blackback.style.display = "none";
                 mainContent.style.marginLeft = "0px";
                 hamburger.innerHTML = "&#9776;"
             }
             else
             {
-                if (window.innerWidth < 600)
+                blackback.style.display = "block";
+                setTimeout(function(){
+                    if (window.innerWidth < 600)
                     {
                         sidebar.style.width = "100vw";
                         mainContent.style.marginLeft = "100vw";
-
-
                     }
                 else
                     {
@@ -269,6 +289,11 @@
                         mainContent.style.marginLeft = "250px";
                     }
                 hamburger.innerHTML = "&#10096;";
+                blackback.style.opacity = "50%";
+
+                },1);
+
+
             }
         }
 

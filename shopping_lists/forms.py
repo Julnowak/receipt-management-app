@@ -13,5 +13,5 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ['product']
-        labels = {'product': ''}
-        widgets = {'product': forms.Textarea(attrs={'cols': 80})}
+        labels = {'product': 'Nazwa produktu'}
+

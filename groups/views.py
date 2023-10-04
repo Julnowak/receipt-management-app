@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import CommonGroups, User
 from groups.forms import CommonGroupsForm
+from django.contrib import messages
 
 # Create your views here.
 
@@ -53,15 +54,10 @@ def search(request, group_id):
     # return render(request, 'groups/invite_page.html', context)
 
 
-def messages_page(request):
-    return render(request, 'groups/messages.html')
-
-
 def leaving_group_page(request, group_id):
     group = CommonGroups.objects.get(id=group_id)
     if request.method == 'POST':
         name = request.POST.get('textfield', None)
-
 
     context = {"group": group, "user": request.user}
     return render(request, 'groups/leaving_group_page.html', context)
@@ -77,10 +73,16 @@ def add_group(request):
             new_group.owner = request.user
             new_group.save()
             new_group.members.add(request.user)
+            messages.success(request, 'Grupa została utworzona')
             return redirect('groups:groups')
     else:
         form = CommonGroupsForm()
-    context = {'form': form}
+
+    names = list(form._meta.labels.values())
+    group_name = names[0]
+    max_members = names[1]
+    pswd = names[2]
+    context = {'form': form, 'group_name': group_name, 'max_members': max_members, 'password': pswd}
     return render(request, 'groups/add_group.html', context)
 
 ####
@@ -108,21 +110,33 @@ def left_group(request, group_id):
 
 def manage_group(request, group_id):
     group = CommonGroups.objects.get(id=group_id)
-    context = {"group": group, "user": request.user, 'members': group.members.all()}
+    delete_member_fun = delete_member_from_group
+    context = {"group": group, "user": request.user, 'members': group.members.all(), "delete_member_fun": delete_member_fun}
     return render(request, 'groups/manage_group.html', context)
+
 
 def search_group(request):
     groups_searched = 'None'
-    exists = False
     number = 0
+    exists = False
     if request.method == 'POST':
         group_name = request.POST.get('q')
-        print(group_name)
+
         try:
-            groups_searched = CommonGroups.objects.get(group_name=group_name)
-            number = CommonGroups.objects.filter(group_name=group_name).count()
+            groups_searched = CommonGroups.objects.filter(group_name__icontains=group_name)
+            number = CommonGroups.objects.filter(group_name__icontains=group_name).count()
             exists = True
-        except CommonGroups.DoesNotExist:
+        except :
             groups_searched = "Nie ma takiej grupy"
-    context = {"user": request.user, 'groups': groups_searched, 'exists': exists, 'number': number}
+
+    context = {"user": request.user, 'exists': exists, 'groups': groups_searched, 'number': number}
     return render(request, 'groups/search_group.html', context)
+
+
+def delete_member_from_group(member,group_id):
+    group = CommonGroups.objects.get(id=group_id)
+    group.members.remove(member)
+    group.save()
+
+
+

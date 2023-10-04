@@ -1,0 +1,15 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+    <div style="padding-top: 80px">
+
+    </div>
+    <h1>Nowa kategoria</h1>
+
+    <form action="{% url 'categories:new_category' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button name="post_btn">Utwórz</button>
+    </form>
+{% endblock content %}

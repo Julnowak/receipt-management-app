@@ -1,0 +1,20 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <div style="padding-top: 80px">
+
+    </div>
+    <h1>{{ category }}</h1>
+
+    {% for subcat in subcategories %}
+        <div>
+            {{ subcat }}
+        </div>
+    {% empty %}
+        <p>Brak podkategorii</p>
+    {% endfor %}
+
+    <a href="{% url 'categories:new_subcategory' category.slug %}" >Dodaj kategorię</a>
+    <a href="{% url 'categories:edit_subcategory' category.slug %}" >Edytuj kategorię</a>
+
+{% endblock content %}

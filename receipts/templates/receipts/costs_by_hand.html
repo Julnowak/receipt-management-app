@@ -1,0 +1,20 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <div style="padding-top: 80px">
+
+    </div>
+
+    <div>
+        <h1 style="text-align: center">Koszty własne</h1>
+    </div>
+
+    <div>
+        <form action="{% url 'receipts:costs_by_hand' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button name="post_btn">Dodaj</button>
+        </form>
+    </div>
+
+{% endblock content %}

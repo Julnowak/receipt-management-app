@@ -1,0 +1,80 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+    <style>
+        h2{
+            text-align: center;
+        }
+
+        .color_block{
+            width: 100px;
+            justify-content: center;
+            border-radius: 10px;
+            text-align: center;
+            margin: 10px;
+            padding: 20px;
+            display: flex;
+            transition: 0.5s;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .color_block:hover{
+            filter: brightness(85%);
+            transition: 0.5s;
+        }
+
+    </style>
+
+    <div style="padding-top: 80px">
+
+    </div>
+
+    <div>
+        <h1 style="text-align: center">Kategorie</h1>
+    </div>
+
+    <h2>Główne</h2>
+    <div style="display: grid; grid-template-columns: auto auto auto; grid-template-rows: auto auto auto;  justify-content: center">
+        {% for cat in cat_public%}
+
+            <a style="text-decoration: none; color: black" href="{% url 'categories:subcategories' cat.slug %} " >
+
+            <div class="color_block" style="background-color: {{ cat.color }};">
+                <span>{{cat.icon}}</span>
+
+                <span style="margin: 0 5px;">{{ cat }}</span>
+            </div>
+
+            </a>
+
+        {% empty %}
+            <p>Brak głównych kategorii.</p>
+
+        {% endfor %}
+
+    </div>
+
+    <h2>Własne</h2>
+    <div style="display: grid; grid-template-columns: auto auto auto; grid-template-rows: auto auto auto;  justify-content: center">
+        {% for cat in cat_private %}
+            <a style="text-decoration: none; color: black" href="{% url 'categories:subcategories' cat.slug %} " >
+
+            <div class="color_block" style="background-color: {{ cat.color }};">
+                <span>{{cat.icon}}</span>
+
+                <span style="margin: 0 5px;">{{ cat }}</span>
+            </div>
+
+            </a>
+        {% empty %}
+            <p>Brak własnych kategorii.</p>
+
+        {% endfor %}
+    </div>
+
+    <a href="{% url 'categories:new_category' %}" >Dodaj kategorię</a>
+    <a href="{% url 'categories:edit_category' %}" >Edytuj kategorię</a>
+
+
+{% endblock content %}
