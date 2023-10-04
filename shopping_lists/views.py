@@ -1,8 +1,12 @@
 from django.shortcuts import render, redirect, reverse
 from .models import ShoppingList, Product
+from receipts.models import Expense
 from .forms import ShoppingListForm, ProductForm
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
+from my_messages.models import Message
+
+import pandas as pd
 # Create your views here.
 
 
@@ -89,15 +93,21 @@ from django.shortcuts import render
 
 @login_required
 def main_panel(request):
+
+    expenses = Expense.objects.filter(owner=request.user).values_list("category","amount")
+    new_messages_number = Message.objects.filter(receiver=request.user, new=True).count()
+
     # Pie Chart
-    df = px.data.tips()
-    fig_pie = px.pie(df, values='tip', names='day', height=300)
+    df = pd.DataFrame(list(expenses))
+    df.columns = ['category','amount']
+    print(df)
+    fig_pie = px.pie(df, values='amount', names='category', height=300,title="Wydatki stałe")
 
     pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
 
     labels = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"]
-    data = [12, 19, 3, 5, 2, 3]
-    context = {"pie_chart": pie_chart, 'labels': labels,'data': data}
+
+    context = {"pie_chart": pie_chart, 'labels': labels, 'new_messages_number': new_messages_number}
 
     return render(request, 'shopping_lists/main_panel.html', context)
 

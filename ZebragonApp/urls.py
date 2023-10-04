@@ -24,5 +24,6 @@ urlpatterns = [
     path('receipts/', include('receipts.urls')),
     path('categories/', include('categories.urls')),
     path('my_messages/', include('my_messages.urls')),
+    path('profile_mangement/', include('profile_mangement.urls')),
     path('', include('shopping_lists.urls')),
 ]

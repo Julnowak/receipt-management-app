@@ -5,4 +5,53 @@
     <div>
         <h1 style="text-align: center">Twoje wiadomości</h1>
     </div>
+
+    <ul>
+        {% for message in messages %}
+            <li>
+                <a style="text-decoration: none;" href="{% url "my_messages:message_inside" message.id %}">
+                    {% if message.new %}
+                        <b style="color: red">{{ message }}</b>
+                    {% else %}
+                        {{ message }}
+                    {% endif %}
+                </a>
+            </li>
+        {% empty %}
+            <p>Brak wiadomości</p>
+        {% endfor %}
+    </ul>
+
+    <div id="demo">
+      <h2>Let AJAX change this text</h2>
+    </div>
+    <button type="button" onclick="loadDoc()">Change Content</button>
+
+    <script>
+
+    var container = document.getElementById("demo")
+    function loadDoc() {
+      var xhttp = new XMLHttpRequest();
+
+      xhttp.onreadystatechange = function()
+      {
+        if (xhttp.status === 200)
+        {
+         container.innerHTML = "heloeleoeoe";
+         const newButton = document.createElement('button');
+         newButton.textContent = 'Click me!';
+         newButton.addEventListener('click',reload_fun);
+         container.appendChild(newButton);
+        }
+      };
+      xhttp.open("GET", {% url "my_messages:my_messages" %}, true);
+      xhttp.send();
+    }
+
+    function reload_fun(){
+        container.innerHTML = "vwvwe";
+    }
+    </script>
+
+
 {% endblock content %}

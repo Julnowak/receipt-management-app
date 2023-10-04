@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'receipts',
     'categories',
     'my_messages',
+    'profile_mangement',
 
     # From beginning
     'django.contrib.admin',

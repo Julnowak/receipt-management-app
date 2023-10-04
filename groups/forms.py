@@ -1,5 +1,6 @@
 from django import forms
 from .models import CommonGroups
+from django.contrib.auth.models import User
 from django.core import validators
 
 
@@ -75,3 +76,4 @@ class CommonGroupsForm(forms.ModelForm):
             ])
 
         return self.cleaned_data
+

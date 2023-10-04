@@ -3,5 +3,5 @@ from .models import Receipt, Expense
 
 # Register your models here.
 
-admin.register(Receipt)
-admin.register(Expense)
+admin.site.register(Receipt)
+admin.site.register(Expense)

@@ -24,7 +24,7 @@
 
     <h1>Tworzenie nowej grupy</h1>
 
-    <div style="margin: 70px auto">
+    <div style="margin: 70px auto" >
         <form  novalidate action="{% url 'groups:add_group' %}" method="post">
             {% csrf_token %}
             <p>

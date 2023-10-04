@@ -1,0 +1,17 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+    <h2>{{ message.title }}</h2>
+    <p>
+        Data wysłania: {{ message.date_created }}
+    </p>
+    <p>
+        Nadawca: {{ message.sender }}
+    </p>
+    <p>
+        {{ message.text }}
+    </p>
+
+
+{% endblock content %}

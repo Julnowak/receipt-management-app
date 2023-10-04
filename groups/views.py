@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from .models import CommonGroups, User
 from groups.forms import CommonGroupsForm
 from django.contrib import messages
+from my_messages.forms import MessageForm
+from my_messages.models import Message
+from django.template.defaultfilters import slugify
 
 # Create your views here.
 
@@ -23,7 +26,25 @@ def group_site(request, group_id):
 
 def invite_page(request, group_id):
     group = CommonGroups.objects.get(id=group_id)
-    context = {"group": group, "code": group.password}
+    mes_last_id = Message.objects.latest('id').id
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+
+        if form.is_valid():
+            new_message = form.save(commit=False)
+
+            new_message.sender = request.user
+            new_message.title = "Zaproszenie do grupy " + group.group_name
+            new_message.slug = slugify(new_message.title + " " + str(mes_last_id + 1))
+            new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
+                               "Zapraszam Cię do dołączenia do grupy " + group.group_name + "."
+            new_message.save()
+            messages.success(request, 'Wiadomość została wysłana.')
+            return redirect('groups:group_site', group_id=group_id)
+    else:
+        form = MessageForm()
+
+    context = {"group": group, "code": group.password, "form": form}
     return render(request, 'groups/invite_page.html', context)
 
 
@@ -128,6 +149,16 @@ def search_group(request):
             exists = True
         except :
             groups_searched = "Nie ma takiej grupy"
+
+
+    if number == 0:
+        text = "Brak wyników."
+    elif number == 1:
+        text = "wynik"
+    elif number in [2,3,4]:
+        text = "wyniki"
+    else:
+        text = ""
 
     context = {"user": request.user, 'exists': exists, 'groups': groups_searched, 'number': number}
     return render(request, 'groups/search_group.html', context)

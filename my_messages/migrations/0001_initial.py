@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=200)),
                 ('text', models.TextField()),
-                ('slug', models.SlugField(default='')),
+                ('slug', models.SlugField(unique=True)),
                 ('date_created', models.DateField(auto_now_add=True)),
                 ('receiver', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='receiver', to=settings.AUTH_USER_MODEL)),
                 ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender', to=settings.AUTH_USER_MODEL)),

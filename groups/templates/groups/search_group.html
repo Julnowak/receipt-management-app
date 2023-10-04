@@ -5,7 +5,11 @@
     <h3>Znaleziono {{ number }} wyniki: </h3>
     {% if exists and number > 1%}
         {% for g in groups %}
-            <p>{{g}}</p>
+            <p>
+                <a href="{% url 'groups:group_site' g.id %}">
+                    {{g}}
+                </a>
+            </p>
         {% endfor %}
     {% elif exists and number == 1 %}
         <p>{{ groups}}</p>
