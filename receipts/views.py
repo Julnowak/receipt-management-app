@@ -18,8 +18,10 @@ def new_receipt(request):
         form = ReceiptForm(request.POST, request.FILES)
 
         if form.is_valid():
-            form.save()
-            return redirect('your_receipts')
+            new_receipt = form.save(commit=False)
+            new_receipt.owner = request.user
+            new_receipt.save()
+            return redirect('receipts:your_receipts')
     else:
         form = ReceiptForm()
     return render(request, 'receipts/new_receipt.html', {'form': form})

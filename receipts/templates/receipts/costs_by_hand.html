@@ -9,9 +9,73 @@
     <div>
         <form action="{% url 'receipts:costs_by_hand' %}" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            <p>
+                {{ form.expense_name.label }}
+                {{ form.expense_name }}
+            </p>
+            <p id="id_checkbox_recurrent" onclick="is_checked_recurrent()">
+                {{ form.is_recurrent }}
+                {{ form.is_recurrent.label }}
+            </p>
+            <p id="recurrent_field" style="display: none">
+                {{ form.number.label}}
+                {{ form.number}}
+            </p>
+            <p id="recurrent_field_2" style="display: none">
+                {{ form.time_stamp}}
+            </p>
+            <p>
+                {{ form.amount.label }}
+                {{ form.amount }}
+            </p>
+            <p>
+                {{ form.category.label}}
+                {{ form.category}}
+            </p>
+            <p>
+                <label>
+                    <input id="id_checkbox" onclick="is_checked()" type="checkbox">
+                    Czy należy do grupy?
+                </label>
+            </p>
+
+            <p id="group_field" style="display: none">
+                {{ form.group.label }}
+                {{ form.group }}
+            </p>
+
             <button name="post_btn">Dodaj</button>
         </form>
     </div>
 
+    <script>
+        function is_checked(){
+            var checkbox_is_group = document.getElementById("id_checkbox")
+            var group_field = document.getElementById("group_field")
+
+            if (checkbox_is_group.checked){
+                group_field.style.display = "block";
+            }
+            else{
+                group_field.style.display = "none";
+            }
+        }
+
+        var checkbox_recurrent = document.getElementById("id_checkbox_recurrent")
+        var recurrent_field = document.getElementById("recurrent_field")
+        var recurrent_field_2 = document.getElementById("recurrent_field_2")
+
+        checkbox_recurrent.addEventListener('change',function (e){
+            if (recurrent_field.style.display === "none"){
+                recurrent_field.style.display = "block";
+                recurrent_field_2.style.display = "block";
+            }
+            else{
+                recurrent_field.style.display = "none";
+                recurrent_field_2.style.display = "none";
+            }
+        })
+
+
+    </script>
 {% endblock content %}

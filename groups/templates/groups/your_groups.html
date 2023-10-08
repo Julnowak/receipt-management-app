@@ -32,8 +32,9 @@
         Twoje grupy
     </h2>
 
+    <ul >
         {% for group in member_of_groups %}
-            <li>
+            <li style="margin: 20px">
             <a href="{% url 'groups:group_site' group.id %}" >
                 {{ group }}
             </a>
@@ -41,6 +42,7 @@
         {% empty %}
             Nie jesteś jeszcze członkiem żadnej grupy.
         {% endfor %}
+    </ul>
 
     <div>
         <a href="{% url 'groups:add_group' %}">

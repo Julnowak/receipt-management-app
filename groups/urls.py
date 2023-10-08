@@ -11,5 +11,7 @@ urlpatterns = [
     path('<int:group_id>/invite/search/', views.search, name='search'),
     path('<int:group_id>/leave_group/left/', views.left_group, name='left_group'),
     path('<int:group_id>/manage_group/', views.manage_group, name='manage_group'),
+    path('<int:group_id>/group_receipts_and_expenses/', views.group_receipts_and_expenses, name='group_receipts_and_expenses'),
     path('search_group/', views.search_group, name='search_group'),
+    path('<int:group_id>/not_member_of_group/', views.not_member_of_group, name='not_member_of_group'),
 ]

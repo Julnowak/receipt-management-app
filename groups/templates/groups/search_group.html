@@ -2,17 +2,21 @@
 
 {% block content %}
 
-    <h3>Znaleziono {{ number }} wyniki: </h3>
-    {% if exists and number > 1%}
-        {% for g in groups %}
+    <h3> {{ text }}: </h3>
+    {% if exists %}
+        {% for group in groups %}
             <p>
-                <a href="{% url 'groups:group_site' g.id %}">
-                    {{g}}
+                {% if user in group.members %}
+                <a href="{% url 'groups:group_site' group.id %}">
+                    {{group}}
                 </a>
+                {% else %}
+                    <a href="{% url 'groups:not_member_of_group' group.id %}">
+                        {{group}}
+                    </a>
+                {% endif %}
             </p>
         {% endfor %}
-    {% elif exists and number == 1 %}
-        <p>{{ groups}}</p>
     {% else %}
         <p>Brak wyników.</p>
     {% endif %}

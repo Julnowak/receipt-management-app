@@ -1,42 +1,33 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
-    <!DOCTYPE html>
-<html lang="pl">
-    <head>
 
-        <title>Zebragon</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
-        <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
+    <title>Zebragon</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
 
 
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
+    <style>
 
-            body
-            {
-                background: ghostwhite;
-                margin: 0;
-                font-family: "Montserrat", sans-serif;
-            }
+        body
+        {
+            background: ghostwhite;
+            margin: 0;
+            font-family: "Montserrat", sans-serif;
+        }
 
 
-            h1, h2, h3, h4, h5, h6
-            {
-                font-family: "Montserrat", sans-serif;
-            }
+        h1, h2, h3, h4, h5, h6
+        {
+            font-family: "Montserrat", sans-serif;
+        }
 
-            h1, p {
-                text-align: center;
-            }
+        h1, p {
+            text-align: center;
+        }
 
 
-        </style>
-    </head>
-
-    <body>
-
+    </style>
 
     <h1>{{ current_list }}</h1>
     <p>Produkty:</p>
@@ -44,7 +35,7 @@
         {% for product in products %}
             <li>
                 {{ product }}
-                <a href="{% url 'edit_product' product.id %}">✎</a>
+                <a href="{% url 'edit_product' product.id %}" onclick="loadDoc()">✎</a>
                 <a href="{% url 'removed' product.id %}" >✕</a>
             </li>
 
@@ -54,10 +45,22 @@
     </ul>
     <a href="{% url 'new_product' current_list.id %}">Dodaj nowy produkt</a>
 
-
-
-    </body>
-
-</html>
+    <script type="text/javascript">
+    var frm = $('#FORM-ID');
+    frm.submit(function () {
+        $.ajax({
+            type: frm.attr('method'),
+            url: frm.attr('action'),
+            data: frm.serialize(),
+            success: function (data) {
+                $("#SOME-DIV").html(data);
+            },
+            error: function(data) {
+                $("#MESSAGE-DIV").html("Something went wrong!");
+            }
+        });
+        return false;
+    });
+</script>
 
 {% endblock content %}

@@ -41,7 +41,7 @@
             <a style="text-decoration: none; color: black" href="{% url 'categories:subcategories' cat.slug %} " >
 
             <div class="color_block" style="background-color: {{ cat.color }};">
-                <span>{{cat.icon}}</span>
+                <span>{{ cat.icon|safe }}</span>
 
                 <span style="margin: 0 5px;">{{ cat }}</span>
             </div>
@@ -61,7 +61,7 @@
             <a style="text-decoration: none; color: black" href="{% url 'categories:subcategories' cat.slug %} " >
 
             <div class="color_block" style="background-color: {{ cat.color }};">
-                <span>{{cat.icon}}</span>
+                <span>{{cat.icon|safe}}</span>
 
                 <span style="margin: 0 5px;">{{ cat }}</span>
             </div>

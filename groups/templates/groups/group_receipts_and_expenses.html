@@ -1,0 +1,54 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+    <div>
+        <h3>Paragony</h3>
+        {% for receipt in group_receipts %}
+            <p>{{ receipt  }}  -------> {{ receipt.amount }}zł</p>
+        {% empty %}
+            <p>Brak wydatków grupy</p>
+        {% endfor %}
+            <p>Suma z paragonów: {{ suma_paragony }} zł</p>
+    </div>
+
+        <h2>Wydatki</h2>
+
+        <div class="container">
+            {% for expense in group_expenses %}
+                <div>
+                <div style="display: inline-block">
+                    <h3>{{expense.expense_name}} &nbsp; &nbsp; &nbsp; &nbsp;{{expense.amount}} zł</h3>
+                    <p>
+                        <div>Data dodania: {{ expense.date_added }}</div>
+                        <div>Dodał: {{ expense.owner }}</div>
+                        <div>
+                            {% if expense.is_recurrent  %}
+                                Powtarzalny
+                                {% else %}
+                                Jednorazowy
+                            {% endif %}
+                        </div>
+                        <div>
+                            Kategoria: {{ expense.category }}
+                        </div>
+
+                    </p>
+                </div>
+
+                </div>
+             {% endfor %}
+        </div>
+
+        {%if page_obj.has_previous %} {# whether the previous page exists #}
+            <a href="?page={{page_obj.previous_page_number}}"><</a> {# link to the prev page #}
+        {% endif %}
+        <span>{{page_obj.number}}</span> {# the current page number #}
+
+        {%if page_obj.has_next %} {# whether the next page exists #}
+            <a href="?page={{page_obj.next_page_number}}">></a> {# link to the next page #}
+        {% endif %}
+
+    <p>Suma wydatków: {{ suma_wydatki }} zł</p>
+
+{% endblock content %}

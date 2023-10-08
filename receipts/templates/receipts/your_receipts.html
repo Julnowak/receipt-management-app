@@ -7,11 +7,25 @@
     </div>
 
     <div>
-        <a href="{% url 'receipts:new_receipt' %}" >Dodaj nowy paragon</a>
-        <p></p>
-        <a href="{% url 'receipts:costs_by_hand' %}" >Dodaj wydatki ręcznie</a>
-        <p></p>
-        <a href="{% url 'categories:categories' %}" >Kategorie</a>
+        {% for receipt in receipts %}
+            <img src="{{ receipt.receipt_img.url }}" alt="Lights" style="width:100%">
+
+        {% empty %}
+            Brak obrazów
+        {% endfor %}
+        <p>Twoje paragony</p>
+        <p>Twoje wydatki</p>
+
+        <p>
+            <a href="{% url 'receipts:new_receipt' %}" >Dodaj nowy paragon</a>
+        </p>
+        <p>
+            <a href="{% url 'receipts:costs_by_hand' %}" >Dodaj wydatki ręcznie</a>
+        </p>
+        <p>
+            <a href="{% url 'categories:categories' %}" >Kategorie</a>
+        </p>
+
     </div>
 
 {% endblock content %}

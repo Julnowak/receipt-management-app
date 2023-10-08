@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core import validators
 
 
-
 class CommonGroupsForm(forms.ModelForm):
     class Meta:
         model = CommonGroups
@@ -35,7 +34,6 @@ class CommonGroupsForm(forms.ModelForm):
                 'label': "Hasło"
             })
         }
-
 
     def clean(self):
         # data is feteched using the super function of django

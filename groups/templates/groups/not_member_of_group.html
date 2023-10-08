@@ -1,0 +1,23 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+
+    <div>
+        Nie jesteś aktualnie członkiem grupy {{ group }}!
+    </div>
+
+    <div>
+        Możesz wysłać prośbę do właściciela grupy w celu dołączenia, naciskając poniższy przycisk.
+    </div>
+
+    <div>
+        <form method="post" novalidate action="{% url 'groups:groups' %}"  style="text-align: center">
+        {% csrf_token %}
+            {{ form.title.as_hidden }}
+            <button name="send">Wyślij</button>
+        </form>
+    </div>
+
+
+{% endblock content %}

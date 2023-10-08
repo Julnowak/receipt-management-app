@@ -2,10 +2,6 @@
 
 {% block content %}
 
-    <!DOCTYPE html>
-    <html lang="pl">
-    <head>
-
         <title>Zebragon</title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
         <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
@@ -29,12 +25,25 @@
                 text-align: center;
             }
 
+            .x_button{
+                background-color: red;
+                color: white;
+                text-decoration: none;
+                padding: 2px 8px;
+                border-radius: 10px;
+                margin-left: 30px;
+                transition: 0.5s;
+                display: none;
+            }
+
+            .x_button:hover{
+                filter: brightness(85%);
+                transition: 0.5s;
+            }
+
 
 
         </style>
-    </head>
-
-    <body>
 
     <div id="text_your_lists" class="container_2" >
         <h1 id="title">Twoje listy</h1>
@@ -44,10 +53,13 @@
     </div>
     <div id="lista" class="container" >
 
-        <ol>
+        <ol >
             {% for list in your_lists %}
-                <li>
-                    <a href="{% url 'single_list' list.id %}">{{ list }}</a>
+                <li >
+                    <div style="padding: 30px">
+                        <a href="{% url 'single_list' list.id %}">{{ list }}</a>
+                        <a class="x_button" href="{% url 'list_removed' list.id %}">✕</a>
+                    </div>
                 </li>
             {% empty %}
             <li>Nie została jeszcze dodana żadna lista!</li>
@@ -56,11 +68,31 @@
     </div>
 
      <a href="{% url 'new_list' %}">Dodaj nową listę</a>
+     <button id="delete_btn">Usuń listę</button>
 
+    <script>
+    var btn = document.getElementById("delete_btn")
+    var del_btns = document.getElementsByClassName("x_button")
+    var flag = false;
 
+    btn.addEventListener('click', function (e) {
+        if(flag){
+            for (let i = 0; i < del_btns.length; i++)
+            {
+                del_btns[i].style.display = "inline-block";
+            }
+            flag = false;
+        }
+        else
+        {
+            for (let i = 0; i < del_btns.length; i++)
+            {
+                del_btns[i].style.display = "none";
+            }
+            flag = true;
+        }
 
-    </body>
-    
-</html>
+        })
 
+    </script>
 {% endblock content %}

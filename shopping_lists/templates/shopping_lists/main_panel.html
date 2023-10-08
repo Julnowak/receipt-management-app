@@ -19,31 +19,24 @@
             background-color: darkgrey;
             padding: 10px;
             margin: 5px 5px 0 5px;
-            transition: 0.5s;
+            transition: 0.5s, opacity 1s;
             border-radius: 10px 10px 0 0;
             cursor: pointer;
+            width: 30px;
+            display: inline-block;
         }
 
-        .chosen_one_box:hover, .chosen_one_box_first{
+        .chosen_one_box:hover{
             filter: brightness(85%);
-            transition: 0.5s;
+            transition: 0.5s, opacity 1s;
         }
 
         .main_expenses_field{
             margin: 0 5px;
             background-color: red;
             padding: 10px;
-            border-radius: 0 0 10px 10px;
+            border-radius: 10px;
 
-
-        }
-        .chosen_one_box_first{
-            background-color: red;
-            padding: 10px;
-            margin: 5px 5px 0 5px;
-            transition: 0.5s;
-            border-radius: 10px 10px 0 0;
-            cursor: pointer;
         }
 
     </style>
@@ -83,12 +76,12 @@
 
     <div class="basic_white">
         <h4>Wydatki</h4>
-        <div style="display: grid;grid-template-columns: auto auto auto auto auto">
-            <div id="year_box" class="chosen_one_box_first">Roczne</div>
-            <div id="month_box" class="chosen_one_box">Miesięczne</div>
-            <div id="week_box" class="chosen_one_box">Tygodniowe</div>
-            <div id="day_box" class="chosen_one_box"> Dzisiaj</div>
-            <div id="custom_box" class="chosen_one_box">Wybierz zakres</div>
+        <div>
+            <div id="year_box" class="chosen_one_box">Roczne</div>
+            <div id="month_box" class="chosen_one_box">M</div>
+            <div id="week_box" class="chosen_one_box">T</div>
+            <div id="day_box" class="chosen_one_box"> D</div>
+            <div id="custom_box" class="chosen_one_box">W</div>
         </div>
         <div class="main_expenses_field">
             <h4 id="expenses_title">Content</h4>
@@ -118,28 +111,56 @@
             day_box,
             custom_box,
              ];
-        boxes.forEach((item) => {item.addEventListener('click', wrapper)});s
+
+        var names = ["Roczne", "Miesięczne", "Tygodniowe", "Dzienne", "Wybrane"];
+        var short_names = ["R", "M", "T", "D", "W"];
+
+        year_box.style.transition = "0";
+        year_box.style.backgroundColor = "red";
+        year_box.style.width = "100px";
+        boxes.forEach((item) => {item.addEventListener('click', wrapper)});
 
           function wrapper(){
               on_click(event.target)
-              console.log(event.target)
           }
 
           function on_click(box){
+              var counter = 0
               box.style.backgroundColor = "red";
               boxes.forEach((item) => {
                   if (item === box){
                       item.style.backgroundColor = "red";
+                      item.style.width = "100px";
+
+                      item.style.opacity = '100%';
+                      let temp = names[counter];
+                      setTimeout(function() {
+                          item.innerHTML = temp
+                        }, 250);
                   }
                   else
                   {
                       item.style.backgroundColor = "darkgray";
-                  }
+                      item.style.width = "30px";
 
+
+                      item.style.opacity = '50%';
+
+                      item.innerHTML = short_names[counter]
+
+
+                  }
+                  counter += 1;
               });
               exp_title.innerHTML = box.innerText + " wydatki"
           }
 
+
     </script>
+
+    <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="run_script">Run script</button>
+</form>
 
 {% endblock content %}

@@ -5,9 +5,9 @@ from .forms import ShoppingListForm, ProductForm
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from my_messages.models import Message
-
+from categories.models import BaseCategories
+from django.http import HttpResponseRedirect
 import pandas as pd
-# Create your views here.
 
 
 def homepage(request):
@@ -90,29 +90,62 @@ def edit_product(request, product_id):
 
 import plotly.express as px
 from django.shortcuts import render
+from datetime import datetime
 
 @login_required
 def main_panel(request):
-
     expenses = Expense.objects.filter(owner=request.user).values_list("category","amount")
+    dates_added = Expense.objects.filter(owner=request.user).values_list( "date_added")
     new_messages_number = Message.objects.filter(receiver=request.user, new=True).count()
+    categories = BaseCategories.objects.values_list("id","category_name")
+
+    if request.method == 'POST' and 'run_script' in request.POST:
+
+        # import function to run
+        # call function
+        print('Hello')
+        now = datetime.today()
+        print(now)
+        uk = now - dates_added[3][0].replace(tzinfo=None)
+        print(uk)
+
+        # return user to required page
+        return redirect(reverse("main_panel"))
+
+
 
     # Pie Chart
-    df = pd.DataFrame(list(expenses))
-    df.columns = ['category','amount']
-    print(df)
-    fig_pie = px.pie(df, values='amount', names='category', height=300,title="Wydatki stałe")
+    try:
+        df = pd.DataFrame(list(expenses))
+        df.columns = ['category','amount']
+        df_temp = pd.DataFrame(list(categories))
+        df_temp.columns = ['category', 'category_name']
+        df2 = pd.merge(df, df_temp, on=['category'])
+        fig_pie = px.pie(df2, values='amount', names='category_name', height=300,title="Wydatki stałe")
 
-    pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
+        pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
 
-    labels = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"]
+        labels = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"]
+
+
+    except:
+        pie_chart = "None"
+        labels = "None"
 
     context = {"pie_chart": pie_chart, 'labels': labels, 'new_messages_number': new_messages_number}
-
     return render(request, 'shopping_lists/main_panel.html', context)
 
 
 def removed(request, product_id):
         current_product = Product.objects.get(id=product_id)
+        sh_list = current_product.selected_list
         current_product.delete()
-        return render(request, 'shopping_lists/shopping_list_page.html')
+
+        return HttpResponseRedirect(reverse('single_list', kwargs={'list_id': sh_list.id}))
+
+
+def list_removed(request, list_id):
+    current_list = ShoppingList.objects.get(id=list_id)
+    current_list.delete()
+
+    return HttpResponseRedirect(reverse('your_lists'))

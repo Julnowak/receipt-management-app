@@ -1,0 +1,14 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+    <h3>Nowa wiadomość</h3>
+    <div>
+        <form method = "post" enctype="multipart/form-data">
+        {% csrf_token %}
+            {{ form.as_p }}
+        <button type="send">Wyślij</button>
+        </form>
+    </div>
+
+{% endblock content %}

@@ -75,6 +75,18 @@
 
     </style>
 
+    <div style="height:40px">
+
+        {% if messages %}
+            <div id="messages" class="messages">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+
     <div class="white_block" style="">
     <h1>
     {{ group}}
@@ -114,22 +126,23 @@
 
     </div>
     <div>
-        Paragony grupy
+        <a href="{% url 'groups:group_receipts_and_expenses' group.id %}">
+            Paragony i wydatki grupy
+        </a>
     </div>
     <div>
-        Łączna suma do podziału:
+        Łączna suma do podziału: {{ suma }}
     </div>
     <div>
-        Suma na jednego członka:
-    </div>
-    <div>
-    Ustawienia
+        Suma na jednego członka: {{ amount_per_member }}
     </div>
 
     {% if group.owner == user %}
         <a href="{% url 'groups:manage_group' group.id %}">
             Zarządzaj grupą
         </a>
+    {% else %}
+        Ustawienia
     {% endif %}
 
     <div class="invite_btn">

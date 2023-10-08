@@ -28,11 +28,15 @@
     <div>
         <p>Opis</p>
         <p>Wiek</p>
-        <p>Email</p>
+        <p>Członek od: {{ user.date_joined }}</p>
+        <p>Ostatnie logowanie: {{ user.last_login }}</p>
+        <p>Email: {{ user.email }}</p>
     </div>
 
     <div>
-        <p>Usuń konto</p>
+        <p>
+            <a href="{% url 'account_deletion' %}">Usuń konto</a>
+        </p>
     </div>
 
 

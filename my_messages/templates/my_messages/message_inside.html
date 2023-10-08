@@ -13,5 +13,15 @@
         {{ message.text }}
     </p>
 
+    <div>
+        {% if message.group %}
+            {% if message.message_type == "invitation" %}
+                <a >Dołącz do grupy!</a>
+            {% elif message.message_type == "request" %}
+                <a >Zaakceptuj</a>
+            {% endif %}
+        {% endif %}
+    </div>
+
 
 {% endblock content %}
