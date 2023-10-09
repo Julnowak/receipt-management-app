@@ -16,9 +16,11 @@
     <div>
         {% if message.group %}
             {% if message.message_type == "invitation" %}
-                <a >Dołącz do grupy!</a>
+                <a href="{% url 'my_messages:membership_accepted' message.id %}">Dołącz do grupy!</a>
+                <a href="{% url 'my_messages:membership_rejected' message.id %}">Odrzuć</a>
             {% elif message.message_type == "request" %}
-                <a >Zaakceptuj</a>
+                <a href="{% url 'my_messages:member_accepted' message.id %}">Zaakceptuj</a>
+                <a href="{% url 'my_messages:member_rejected' message.id %}">Odrzuć</a>
             {% endif %}
         {% endif %}
     </div>

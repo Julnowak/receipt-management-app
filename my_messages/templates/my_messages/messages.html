@@ -7,13 +7,35 @@
             display: inline-block;
             margin: 10px;
         }
+            .messages{
+            background-color: palegreen;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            opacity: 100%;
+        }
+
     </style>
+
+    <div style="height:40px">
+
+
+    {% if messages %}
+        <div id="messages" class="messages">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+        </div>
+    {% endif %}
+
+
+    </div>
 
     <div>
         <h1 style="text-align: center">Twoje wiadomości</h1>
     </div>
     <div>
-        <a href="{% url 'my_messages:my_messages' %}">
+        <a href="{% url 'my_messages:your_messages' %}">
             <div class="box">Odebrane</div>
         </a>
         <div class="box">
@@ -32,7 +54,7 @@
     </div>
 
     <ul>
-        {% for message in messages %}
+        {% for message in all_messages %}
             <li>
                 <a style="text-decoration: none;" href="{% url "my_messages:message_inside" message.id %}">
                     {% if message.new %}

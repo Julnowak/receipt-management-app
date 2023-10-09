@@ -2,16 +2,46 @@
 
 {% block content %}
 
+    <style>
+        div{
+            text-align: center;
+        }
+
+        .messages{
+            background-color: crimson;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            opacity: 100%;
+        }
+
+    </style>
+
+    <div style="height:40px">
+
+
+    {% if messages %}
+        <div id="messages" class="messages">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+        </div>
+    {% endif %}
+
+
+    </div>
 
     <div>
-        Nie jesteś aktualnie członkiem grupy {{ group }}!
+        <h4>
+            Nie jesteś aktualnie członkiem grupy {{ group }}!
+        </h4>
     </div>
 
     <div>
         Możesz wysłać prośbę do właściciela grupy w celu dołączenia, naciskając poniższy przycisk.
     </div>
 
-    <div>
+    <div style="margin-top: 30px">
         <form method="post" novalidate action="{% url 'groups:groups' %}"  style="text-align: center">
         {% csrf_token %}
             {{ form.title.as_hidden }}
@@ -19,5 +49,15 @@
         </form>
     </div>
 
+   <div>
+        Możesz też wpisać hasło, jeśli wcześniej zostało ono podane przez właściciela.
+   </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="pswd_inpt">Hasło:</label>
+        <input type="text" name="Hasło" id="pswd_inpt">
+        <button name="send_pswd" id="send_pswd">Wyślij</button>
+    </form>
 
 {% endblock content %}

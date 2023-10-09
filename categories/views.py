@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import BaseCategories, SubCategories
 from .forms import NewCategoryForm
+from groups.models import CommonGroups
 from django.utils.text import slugify
 
 # Create your views here.
@@ -8,8 +9,8 @@ from django.utils.text import slugify
 
 def categories(request):
     base_main_categories = BaseCategories.objects.all()
-    cat_public = base_main_categories.filter(public=True)
-    cat_private = base_main_categories.filter(public=False, owner=request.user)
+    cat_public = base_main_categories.filter(owner=None)
+    cat_private = base_main_categories.filter(owner=request.user)
 
     context = {'main_categories': base_main_categories, "cat_public": cat_public, "cat_private":cat_private}
     return render(request, 'categories/categories.html', context)
@@ -56,3 +57,5 @@ def new_subcategory(request, category_slug):
 def edit_subcategory(request, category_slug):
     category = BaseCategories.objects.get(slug=category_slug)
     return render(request, 'categories/edit_subcategory.html')
+
+

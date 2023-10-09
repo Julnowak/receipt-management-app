@@ -30,8 +30,17 @@
                 font-family: "Montserrat", sans-serif;
             }
 
-            h1,p{
+            h1{
                 text-align: center;
+            }
+
+            svg{
+                transition: 0.5s;
+            }
+
+            svg:hover{
+                filter: brightness(70%);
+                transition: 0.5s;
             }
 
             .stripez
@@ -173,7 +182,7 @@
 
             #login_btn_topbar:hover,#logout_btn_topbar:hover{
                 text-decoration: none;
-                color: #949494;
+                filter: brightness(70%);
                 transition: 0.5s;
             }
 
@@ -212,10 +221,10 @@
         <a href="{% url 'main_panel' %}" >Panel główny</a>
         <a href="{% url 'your_lists' %}">Twoje listy</a>
         <a href="{% url 'groups:groups' %}">Twoje grupy</a>
-        <a href="{% url 'receipts:your_receipts' %}">Twoje paragony</a>
+        <a href="{% url 'receipts:your_receipts' %}">Twoje wydatki</a>
         <a href="#">Statystyki</a>
 
-        <a href="{% url 'my_messages:my_messages' %}">
+        <a href="{% url 'my_messages:your_messages' %}">
             {% load tags %}
                 ({% message_alert request %})
         &nbsp; Wiadomości
@@ -223,10 +232,10 @@
 
         <div id="profile_img" style="border-radius: 20px; margin: 100px auto;">
         <div style=" margin: auto; width: 180px ">
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-              <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-              <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-            </svg>
+            {% autoescape off %}
+                {% profile_picture request %}
+            {% endautoescape %}
+
             <h5>
                 {{ user.username }}
             </h5>

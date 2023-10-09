@@ -241,8 +241,6 @@ def not_member_of_group(request,group_id):
         req_temp = request.POST.copy()
         req_temp.update({'receiver': User.objects.get(username=group.owner)})
         form = HiddenMessageForm(req_temp, user=request.user, members=group.members)
-        print(form.errors)
-        print(group.owner)
         if form.is_valid():
             new_message = form.save(commit=False)
             new_message.sender = request.user
@@ -262,3 +260,16 @@ def not_member_of_group(request,group_id):
 
     context = {"group": group, "code": group.password, "form": form}
     return render(request, "groups/not_member_of_group.html", context)
+
+
+def password_check(request, group_id):
+    group = CommonGroups.objects.get(id=group_id)
+    if request.method == "POST":
+        pswd = "csvvdscsvvdve"
+        print(request.POST)
+        if pswd == group.password:
+            messages.success(request, "Zostałeś dodany do grupy.")
+        else:
+            messages.error(request, "Złe hasło.")
+    context = {"group": group, "code": group.password}
+    return redirect("groups:groups")

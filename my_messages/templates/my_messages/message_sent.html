@@ -1,12 +1,65 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
-    <h3>Wysłane</h3>
-    {%  for message in messages %}
+
+        <style>
+        .box{
+            display: inline-block;
+            margin: 10px;
+        }
+            .messages{
+            background-color: palegreen;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            opacity: 100%;
+        }
+
+    </style>
+
+    <div style="height:40px">
+
+
+    {% if messages %}
+        <div id="messages" class="messages">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+        </div>
+    {% endif %}
+
+
+    </div>
+
+    <div>
+        <h1 style="text-align: center">Wysłane</h1>
+    </div>
+    <div>
+        <a href="{% url 'my_messages:your_messages' %}">
+            <div class="box">Odebrane</div>
+        </a>
+        <div class="box">
+            <a href="{% url 'my_messages:message_sent' %}">
+                Wysłane
+            </a>
+        </div>
+        <div class="box">
+            <a href="{% url 'my_messages:new_message' %}">
+                Utwórz wiadomość
+            </a>
+        </div>
+        <div class="box">Ustawienia</div>
+        <div class="box">Czarna lista</div>
+        <div class="box">Usuń wiadomości</div>
+    </div>
+
+
+
+    {%  for mess in all_messages %}
         <ul>
             <li>
-                <a href="{% url 'my_messages:message_inside' message.id %}">
-                    {{ message }}
+                <a href="{% url 'my_messages:message_inside' mess.id %}">
+                    {{ mess }}
                 </a>
             </li>
         </ul>

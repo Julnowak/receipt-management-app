@@ -6,12 +6,12 @@ class ShoppingListForm(forms.ModelForm):
     class Meta:
         model = ShoppingList
         fields = ['text']
-        labels = {'text': ''}
+        labels = {'text': 'Nazwa listy:'}
 
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ['product']
-        labels = {'product': 'Nazwa produktu'}
+        labels = {'product': 'Nazwa produktu:'}
 

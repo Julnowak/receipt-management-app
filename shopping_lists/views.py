@@ -8,6 +8,7 @@ from my_messages.models import Message
 from categories.models import BaseCategories
 from django.http import HttpResponseRedirect
 import pandas as pd
+from django.http import JsonResponse
 
 
 def homepage(request):
@@ -19,8 +20,47 @@ def homepage(request):
 def your_lists(request):
     """ Your shopping lists page"""
     your_shopping_lists = ShoppingList.objects.filter(owner=request.user).order_by('-date_added')
-    context = {'your_lists': your_shopping_lists}
+    form = ShoppingListForm()
+    context = {'your_lists': your_shopping_lists, 'form': form}
     return render(request, 'shopping_lists/your_lists.html', context)
+
+
+@login_required
+def add_shopping_list(request):
+    if request.method == 'POST':
+        form = ShoppingListForm(data=request.POST)
+        if form.is_valid():
+            new_l = form.save(commit=False)
+            new_l.owner = request.user
+            new_l.save()
+
+            return JsonResponse({'message': f'Successfully saved: {new_l.text}'})
+        else:
+            return JsonResponse({'error': 'Form is not valid'})
+    return JsonResponse({'error': 'Invalid request method'})
+
+
+@login_required
+def del_shopping_lists(request):
+    if request.method == 'POST':
+        fruits = request.POST.getlist('fruits')
+        return JsonResponse({'message': f'Successfully saved.{fruits}'})
+    return JsonResponse({'error': 'Something went wrong'})
+
+
+@login_required
+def edit_shopping_lists(request, list_id):
+    current_list = ShoppingList.objects.get(id=list_id)
+
+    if request.method == 'POST':
+        form = ShoppingListForm(instance=current_list, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'message': f'Successfully saved.'})
+        else:
+            return JsonResponse({'error': 'Form is not valid'})
+
+    return JsonResponse({'error': 'Something went wrong'})
 
 
 @login_required
@@ -35,22 +75,6 @@ def single_list(request, list_id):
 
     context = {'current_list': sh_list, 'products': products}
     return render(request, 'shopping_lists/shopping_list_page.html', context)
-
-
-@login_required
-def new_list(request):
-    if request.method == 'POST':
-        form = ShoppingListForm(data=request.POST)
-        if form.is_valid():
-            new_l = form.save(commit=False)
-            new_l.owner = request.user
-            new_l.save()
-            return redirect('your_lists')
-    else:
-        form = ShoppingListForm()
-
-    context = {'form': form}
-    return render(request, 'shopping_lists/new_list.html', context)
 
 
 @login_required

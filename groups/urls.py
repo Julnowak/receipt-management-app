@@ -13,5 +13,6 @@ urlpatterns = [
     path('<int:group_id>/manage_group/', views.manage_group, name='manage_group'),
     path('<int:group_id>/group_receipts_and_expenses/', views.group_receipts_and_expenses, name='group_receipts_and_expenses'),
     path('search_group/', views.search_group, name='search_group'),
+    path('<int:group_id>/password_check/', views.password_check, name='password_check'),
     path('<int:group_id>/not_member_of_group/', views.not_member_of_group, name='not_member_of_group'),
 ]
