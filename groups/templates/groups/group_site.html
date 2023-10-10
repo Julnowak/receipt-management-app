@@ -87,13 +87,13 @@
 
     </div>
 
-    <div class="white_block" style="">
-    <h1>
+    <div class="white_block">
+    <h2>
     {{ group}}
-    </h1>
+    </h2>
 
     <h5 style="margin-top: -10px; color: #545454">
-        Utworzono:&nbsp&nbsp{{ group.date_created }}
+        Utworzono:&nbsp&nbsp{{ group.date_created|date:'d.m.Y' }}
     </h5>
 
     <h5 style="margin-top: -10px; color: #545454">
@@ -104,37 +104,61 @@
     </div>
 
     <div class="white_block">
+        <h3>
+            Wydatki grupy
+        </h3>
+        <h5 style="margin-top: -10px; color: #545454">
+            Podsumowanie
+        </h5>
+
+        <div>
+
+    </div>
+        <div style="display: inline-block">
+
+            <div style=" display: inline">
+                <p>Łączna suma do podziału:</p>
+                <p>{{ suma }}</p>
+            </div>
+
+            <div style=" display: inline">
+                <p>Suma na jednego członka:</p>
+                <p>{{ amount_per_member }}</p>
+            </div>
+
+        </div>
+
+
+        <div>
+            <a href="{% url 'groups:group_receipts_and_expenses' group.id %}">
+                Paragony i wydatki grupy
+            </a>
+        </div>
+
+    </div>
+
+    <div class="white_block">
 
 
     <div>
-    <h2>
-        Members
-    </h2>
+    <h3>
+        Członkowie
+    </h3>
     <h5 style="margin-top: -10px; color: #545454">
         {{ group.number_of_members }}/{{ group.max_number_of_members }}
     </h5>
-        <div style="background-color: olivedrab">
-    <ul>
+
+    <div>
+        <ol>
         {% for member in members %}
         <li>
-            {{ member }}
+            <a href="{% url 'profile_showcase' member.id %}">{{ member }}</a>
         </li>
         {% endfor %}
-    </ul>
+        </ol>
     </div>
 
 
-    </div>
-    <div>
-        <a href="{% url 'groups:group_receipts_and_expenses' group.id %}">
-            Paragony i wydatki grupy
-        </a>
-    </div>
-    <div>
-        Łączna suma do podziału: {{ suma }}
-    </div>
-    <div>
-        Suma na jednego członka: {{ amount_per_member }}
     </div>
 
     {% if group.owner == user %}
@@ -145,16 +169,17 @@
         Ustawienia
     {% endif %}
 
-    <div class="invite_btn">
-        <a href="{% url 'groups:invite_page' group.id %}">
-            Zaproś
-        </a>
-    </div>
-    <div class="leave_btn">
-        <a href="{% url 'groups:leaving_group_page' group.id %}">
-            Opuść grupę
-        </a>
-    </div>
+    <a href="{% url 'groups:invite_page' group.id %}" style="text-decoration: none; ">
+        <div class="invite_btn" style="transition: 0.5s" >
+                Zaproś
+        </div>
+    </a>
+
+    <a style="text-decoration: none;" href="{% url 'groups:leaving_group_page' group.id %}"  >
+        <div class="leave_btn" style="transition: 0.5s">
+                Opuść grupę
+        </div>
+    </a>
 
     </div>
 

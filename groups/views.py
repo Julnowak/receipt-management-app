@@ -8,8 +8,8 @@ from my_messages.models import Message
 from django.template.defaultfilters import slugify
 import math
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
-# Create your views here.
+from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 
 def groups(request):
@@ -20,9 +20,13 @@ def groups(request):
 
 
 def group_site(request, group_id):
-    group = CommonGroups.objects.get(id=group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
     members = group.members.all()
     user = request.user
+
+    if user not in members:
+        return redirect('groups:not_member_of_group', group_id=group_id)
+
     group_expenses = Expense.objects.filter(group=group_id)
     group_receipts = Receipt.objects.filter(group=group_id)
 
@@ -43,7 +47,7 @@ def group_site(request, group_id):
 
 
 def invite_page(request, group_id):
-    group = CommonGroups.objects.get(id=group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
     try:
         mes_last_id = Message.objects.latest('id').id
     except:
@@ -72,7 +76,7 @@ def invite_page(request, group_id):
 
 def search(request, group_id):
     text = 'noOne'
-    group = CommonGroups.objects.get(id=group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
     if request.method == 'POST':
         name = request.POST.get('textfield', None)
         try:
@@ -98,7 +102,7 @@ def search(request, group_id):
 
 
 def leaving_group_page(request, group_id):
-    group = CommonGroups.objects.get(id=group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
     if request.method == 'POST':
         name = request.POST.get('textfield', None)
 
@@ -135,12 +139,12 @@ def delete_group(request,group_id):
 
 
 def deletion(group_id):
-    group = CommonGroups.objects.get(id=group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
     group.delete()
 
 
 def left_group(request, group_id):
-    group = CommonGroups.objects.get(id=group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
     user = request.user
     if group.number_of_members == 1:
         deletion(group_id)
@@ -153,7 +157,7 @@ def left_group(request, group_id):
 
 
 def manage_group(request, group_id):
-    group = CommonGroups.objects.get(id=group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
     delete_member_fun = delete_member_from_group
     context = {"group": group, "user": request.user, 'members': group.members.all(), "delete_member_fun": delete_member_fun}
     return render(request, 'groups/manage_group.html', context)
@@ -188,14 +192,14 @@ def search_group(request):
 
 
 def delete_member_from_group(member,group_id):
-    group = CommonGroups.objects.get(id=group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
     group.members.remove(member)
     group.number_of_members -= 1
     group.save()
 
 
 def group_receipts_and_expenses(request, group_id):
-    group = CommonGroups.objects.get(id=group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
     number_of_members = group.number_of_members
     group_expenses = Expense.objects.filter(group=group_id).order_by("-date_added")
     group_receipts = Receipt.objects.filter(group=group_id).order_by("-date_added")
@@ -213,16 +217,14 @@ def group_receipts_and_expenses(request, group_id):
     suma = suma_wydatki + suma_paragony
     amount_per_member = math.ceil(suma/group.number_of_members * 100)/100
 
-    p = Paginator(group_expenses, 1)  # creating a paginator object
-    # getting the desired page number from url
-    page_number = request.GET.get('page')
+    page_number = request.GET.get('page',1)
+    p = Paginator(group_expenses, 1)
+
     try:
-        page_obj = p.get_page(page_number)  # returns the desired page object
+        page_obj = p.page(page_number)
     except PageNotAnInteger:
-        # if page_number is not an integer then assign the first page
         page_obj = p.page(1)
     except EmptyPage:
-        # if page is empty then return last page
         page_obj = p.page(p.num_pages)
 
     context = {'group': group, 'group_expenses': group_expenses, 'suma': suma, 'number_of_members': number_of_members,
@@ -232,7 +234,7 @@ def group_receipts_and_expenses(request, group_id):
 
 
 def not_member_of_group(request,group_id):
-    group = CommonGroups.objects.get(id=group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
     try:
         mes_last_id = Message.objects.latest('id').id
     except:
@@ -263,7 +265,7 @@ def not_member_of_group(request,group_id):
 
 
 def password_check(request, group_id):
-    group = CommonGroups.objects.get(id=group_id)
+    group = CommonGroups.objects.get_object_or_404(id=group_id)
     if request.method == "POST":
         pswd = "csvvdscsvvdve"
         print(request.POST)
