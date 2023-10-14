@@ -31,4 +31,19 @@
         {% endif %}
     </div>
 
+
+    <script>
+         $.ajax({
+            type: 'POST',
+            url: '{% url "add_shopping_list" %}',
+            data: $(this).serialize(),
+            success: function () {
+                location.reload();
+            },
+            error: function (data) {
+                console.log(data.error)
+            }
+        });
+    </script>
+
 {% endblock content %}

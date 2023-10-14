@@ -1,0 +1,16 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+    <h1 style="text-align: center">Gwarancje</h1>
+
+    <div>
+        <ul>
+            {% for guarantee in guarantees %}
+            <li>{{ guarantee }} </li>{{ time_left.days }} dni
+            {% empty %}
+                <p>Nie dodano jeszcze żadnej gwarancji.</p>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock content %}

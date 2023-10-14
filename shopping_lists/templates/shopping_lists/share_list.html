@@ -1,0 +1,30 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+    <h1>Przekaż listę</h1>
+
+    <form>
+    <p>
+        <label>
+            Komu przekazać listę?
+            <input type="radio" > Wybranym użytkownikom
+            <input type="radio"> Całej grupie
+        </label>
+    </p>
+    <p>
+        <label>
+            <input type="checkbox"> Przekazać kopię?
+        </label>
+    </p>
+    <p>
+        <label>
+            <input type="checkbox"> Dodać uwagi?
+        </label>
+    </p>
+
+        <button id="share_id" class="share_btn">Przekaż</button>
+    </form>
+
+
+{% endblock content %}

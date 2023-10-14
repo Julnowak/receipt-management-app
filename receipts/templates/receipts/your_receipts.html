@@ -3,18 +3,29 @@
 {% block content %}
 
     <div>
-        <h1 style="text-align: center">Twoje paragony</h1>
+        <h2 style="text-align: center">Twoje paragony</h2>
     </div>
 
     <div>
         {% for receipt in receipts %}
-            <img src="{{ receipt.receipt_img.url }}" alt="Lights" style="width:100%">
-
+            <div>
+                <a href="{% url 'receipts:receipt_site' receipt.id%}">
+                    {{ receipt.receipt_name }}
+                </a>
+            </div>
         {% empty %}
-            Brak obrazów
+            Brak paragonów
         {% endfor %}
-        <p>Twoje paragony</p>
-        <p>Twoje wydatki</p>
+    <div>
+        <h2 style="text-align: center">Twoje wydatki</h2>
+    </div>
+        {% for expense in expenses %}
+            <div>
+                {{ expense.expense_name }}
+            </div>
+        {% empty %}
+            Brak wydatków
+        {% endfor %}
 
         <p>
             <a href="{% url 'receipts:new_receipt' %}" >Dodaj nowy paragon</a>

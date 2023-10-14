@@ -34,15 +34,6 @@
                 text-align: center;
             }
 
-            svg{
-                transition: 0.5s;
-            }
-
-            svg:hover{
-                filter: brightness(70%);
-                transition: 0.5s;
-            }
-
             .stripez
             {
                 background: rgba(0,0,0,0.8);
@@ -78,7 +69,7 @@
                 background-color: #0f0614;
                 color: #fff;
                 transition: 0.5s;
-                overflow:hidden;
+                overflow: hidden scroll;
                 z-index: 2;
                 -webkit-box-shadow: 7px 0px 22px -1px rgba(0, 0, 0, 1);
                 -moz-box-shadow: 7px 0px 22px -1px rgba(0, 0, 0, 1);
@@ -94,10 +85,10 @@
                 display: block;
                 transition: 0.5s;
                 padding: 15px;
-                text-align: center;
+                margin: 20px;
                 border-radius: 40px;
-                width: 150px;
-                margin: 20px auto;
+                width: fit-content;
+                white-space: nowrap;
             }
 
             .sidebar a:hover
@@ -105,15 +96,7 @@
                 background-color: #270c28;
                 transition: 0.3s;
                 border-radius: 40px;
-                width: 150px;
-            }
-
-            .sidebar img
-            {
-                display: block;
-                margin-left: auto;
-                margin-right: auto;
-                margin-top: 20px;
+                width: fit-content;
             }
 
             .open-btn
@@ -147,21 +130,30 @@
             /* width */
             ::-webkit-scrollbar {
               width: 10px;
+
             }
 
             /* Track */
             ::-webkit-scrollbar-track {
-              background: #f1f1f1;
+              background: #0b020b;
             }
 
             /* Handle */
             ::-webkit-scrollbar-thumb {
-              background: #888;
+              background: #333333;
+              border-radius: 10px;
+
             }
 
             /* Handle on hover */
             ::-webkit-scrollbar-thumb:hover {
               background: #555;
+              border-radius: 10px;
+            }
+
+            ::-webkit-scrollbar-button{
+                background: #0b020b;
+                display: none;
             }
 
             input,
@@ -198,7 +190,9 @@
             {% if user.is_authenticated %}
                 <a id="logout_btn_topbar" href="{% url 'users:logout' %}"> Wyloguj się </a>
             {% else %}
-                <a id="login_btn_topbar" href="{% url 'users:login' %}" > Zaloguj się </a>
+                <a id="login_btn_topbar" href="{% url 'users:login' %}" >
+                    Zaloguj się
+                </a>
             {% endif %}
         </span>
 
@@ -216,56 +210,138 @@
 
 
 {% if user.is_authenticated %}
-    <div id="mySidebar" class="sidebar">
+    <div id="mySidebar" class="sidebar" >
         <div id="colorful_stripe" class="colorbar">&nbsp;</div>
-        <a href="{% url 'main_panel' %}" >Panel główny</a>
-        <a href="{% url 'your_lists' %}">Twoje listy</a>
-        <a href="{% url 'groups:groups' %}">Twoje grupy</a>
-        <a href="{% url 'receipts:your_receipts' %}">Twoje wydatki</a>
-        <a href="#">Statystyki</a>
+        <div style=" display: inline-block; horiz-align: center">
+        <a href="{% url 'main_panel' %}" >
+            <div style="display: inline-block; vertical-align: middle">
+                <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-house-heart" viewBox="0 0 16 16">
+                  <path d="M8 6.982C9.664 5.309 13.825 8.236 8 12 2.175 8.236 6.336 5.309 8 6.982Z"/>
+                  <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.707L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.646a.5.5 0 0 0 .708-.707L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z"/>
+                </svg>
+                <span style="display: inline; vertical-align: middle">&nbsp;Panel główny</span>
+            </div>
+        </a>
+
+        <a href="{% url 'your_lists' %}">
+            <div style="display: inline-block; vertical-align: middle">
+                <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-card-checklist" viewBox="0 0 16 16">
+                  <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
+                  <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
+                </svg>
+                <span style="display: inline; vertical-align: middle">&nbsp;Twoje listy</span>
+            </div>
+        </a>
+
+
+        <a href="{% url 'groups:groups' %}">
+            <div style="display: inline-block; vertical-align: middle">
+                <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                  <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                </svg>
+                <span style="display: inline; vertical-align: middle">&nbsp;Grupy</span>
+            </div>
+        </a>
+
+        <a href="{% url 'receipts:your_receipts' %}">
+            <div style="display: inline-block; vertical-align: middle">
+                <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-receipt" viewBox="0 0 16 16">
+                  <path d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .801.13l.5 1A.5.5 0 0 1 15 2v12a.5.5 0 0 1-.053.224l-.5 1a.5.5 0 0 1-.8.13L13 14.707l-.646.647a.5.5 0 0 1-.708 0L11 14.707l-.646.647a.5.5 0 0 1-.708 0L9 14.707l-.646.647a.5.5 0 0 1-.708 0L7 14.707l-.646.647a.5.5 0 0 1-.708 0L5 14.707l-.646.647a.5.5 0 0 1-.708 0L3 14.707l-.646.647a.5.5 0 0 1-.801-.13l-.5-1A.5.5 0 0 1 1 14V2a.5.5 0 0 1 .053-.224l.5-1a.5.5 0 0 1 .367-.27zm.217 1.338L2 2.118v11.764l.137.274.51-.51a.5.5 0 0 1 .707 0l.646.647.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.509.509.137-.274V2.118l-.137-.274-.51.51a.5.5 0 0 1-.707 0L12 1.707l-.646.647a.5.5 0 0 1-.708 0L10 1.707l-.646.647a.5.5 0 0 1-.708 0L8 1.707l-.646.647a.5.5 0 0 1-.708 0L6 1.707l-.646.647a.5.5 0 0 1-.708 0L4 1.707l-.646.647a.5.5 0 0 1-.708 0l-.509-.51z"/>
+                  <path d="M3 4.5a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5zm8-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+                <span style="display: inline; vertical-align: middle">&nbsp;Wydatki</span>
+            </div>
+        </a>
+
+        <a href="{% url 'receipts:guarantees' %}">
+            <div style="display: inline-block; vertical-align: middle">
+                <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-patch-check-fill" viewBox="0 0 16 16">
+                  <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.793l2.646-2.647a.5.5 0 0 1 .708.708z"/>
+                </svg>
+                <span style="display: inline; vertical-align: middle">&nbsp;Gazetki</span>
+            </div>
+
+        </a>
+
+        <a href="{% url 'statistics' %}">
+            <div style="display: inline-block; vertical-align: middle">
+                <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-bar-chart-fill" viewBox="0 0 16 16">
+                  <path d="M1 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3zm5-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V2z"/>
+                </svg>
+                <span style="display: inline; vertical-align: middle">&nbsp;Statystyki</span>
+            </div>
+
+        </a>
 
         <a href="{% url 'my_messages:your_messages' %}">
             {% load tags %}
-                ({% message_alert request %})
-        &nbsp; Wiadomości
+            <div style="display: inline-block; vertical-align: middle">
+                <span style="display: inline; vertical-align: middle">
+                    <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-envelope-heart" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l3.235 1.94a2.76 2.76 0 0 0-.233 1.027L1 5.384v5.721l3.453-2.124c.146.277.329.556.55.835l-3.97 2.443A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741l-3.968-2.442c.22-.28.403-.56.55-.836L15 11.105V5.383l-3.002 1.801a2.76 2.76 0 0 0-.233-1.026L15 4.217V4a1 1 0 0 0-1-1H2Zm6 2.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132Z"/>
+                    </svg>
+                    <span style="display: inline; vertical-align: middle">
+                        &nbsp;Wiadomości
+                    </span>
+                    <span style="display: inline; vertical-align: middle">({% message_alert request %})</span>
+                </span>
+            </div>
+
         </a>
 
-        <div id="profile_img" style="border-radius: 20px; margin: 100px auto;">
-        <div style=" margin: auto; width: 180px ">
-            {% autoescape off %}
-                {% profile_picture request %}
-            {% endautoescape %}
+        <a id="profile_btn" href="{% url 'profile_management_site' %}">
+            <div style="display: inline-block; vertical-align: middle">
+                <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person-fill-gear" viewBox="0 0 16 16">
+                <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-9 8c0 1 1 1 1 1h5.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4Zm9.886-3.54c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.045c-.613-.18-.613-1.048 0-1.229l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382l.045-.148ZM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/>
+                </svg>
+                <span style="display: inline; vertical-align: middle">&nbsp;Zarządzaj kontem</span>
+            </div>
+        </a>
 
-            <h5>
-                {{ user.username }}
-            </h5>
         </div>
 
+        <div id="profile_img" style=" border-radius: 20px; margin: 15px auto;">
+            <div style=" width: 180px; display: inline-block; vertical-align: middle">
+                {% autoescape off %}
+                    {% profile_picture request %}
+                {% endautoescape %}
+                <h5>
+                    {{ user.username }}
+                </h5>
+            </div>
 
-        <div style=" display: inline-block">
-            <h5>
-                <a id="profile_btn" href="{% url 'profile_management_site' %}">Zarządzaj kontem</a>
-            </h5>
-
-            <h5 >
-                <a id="logout_btn_sidebar" style="margin-top: -20px " href="{% url 'users:logout' %}"> Wyloguj się </a>
-            </h5>
         </div>
-
-
-    </div>
+        </div>
 
 
     </div>
 {% else %}
     <div id="mySidebar" class="sidebar">
         <div id="colorful_stripe" class="colorbar">&nbsp;</div>
-        <a href="{% url 'homepage' %}" >Home</a>
-        <a href="{% url 'your_lists' %}">Your lists</a>
-        <a href="#">Contact</a>
 
-        <div id="profile_img" style="border-radius: 20px; margin: 100px auto; background-color: black">
-            <div style=" display: inline-block;left: 30px; margin-right: 40px">
+        <div style=" display: inline-block; horiz-align: center">
+        <a href="{% url 'homepage' %}">
+            <div style="display: inline-block; vertical-align: middle">
+                <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-house-heart-fill" viewBox="0 0 16 16">
+                  <path d="M7.293 1.5a1 1 0 0 1 1.414 0L11 3.793V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3.293l2.354 2.353a.5.5 0 0 1-.708.707L8 2.207 1.354 8.853a.5.5 0 1 1-.708-.707L7.293 1.5Z"/>
+                  <path d="m14 9.293-6-6-6 6V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V9.293Zm-6-.811c1.664-1.673 5.825 1.254 0 5.018-5.825-3.764-1.664-6.691 0-5.018Z"/>
+                </svg>
+                <span style="display: inline; vertical-align: middle">&nbsp;Home</span>
+            </div>
+        </a>
+
+        <a href="{% url 'contact' %}">
+            <div style="display: inline-block; vertical-align: middle">
+                <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-envelope-at-fill" viewBox="0 0 16 16">
+                  <path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2H2Zm-2 9.8V4.698l5.803 3.546L0 11.801Zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586l-1.239-.757ZM16 9.671V4.697l-5.803 3.546.338.208A4.482 4.482 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671Z"/>
+                  <path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034v.21Zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791Z"/>
+                </svg>
+                <span style="display: inline; vertical-align: middle">&nbsp;Contact</span>
+            </div>
+        </a>
+
+        <div id="profile_img" style="border-radius: 20px; margin: 60px auto;">
+            <div style=" display: inline-block;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
                   <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                   <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
@@ -273,21 +349,34 @@
                 <h5 style="color: darkgrey">
                     Nie zalogowano
                 </h5>
-            </div>
-
-
-            <div style=" display: inline-block;">
-                <h5 style=" padding-bottom: 5px">
-                    <a id="login_sidebar_btn" href="{% url 'users:login' %}">Zaloguj się</a>
-                </h5>
-
-                <h5 >
-                    <a id="register_btn_sidebar" style="margin-top: -20px " href="{% url 'users:register' %}"> Zarejestruj się </a>
-                </h5>
-            </div>
         </div>
-{% endif %}
 
+
+        <div>
+                <a id="login_btn_sidebar" href="{% url 'users:login' %}">
+                    <div style="display: inline-block; vertical-align: middle">
+                        <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/>
+                          <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                        </svg>
+                        <span style="display: inline; vertical-align: middle">&nbsp;
+                            Zaloguj się
+                        </span>
+                    </div>
+                </a>
+
+                <a id="register_btn_sidebar" href="{% url 'users:register' %}">
+                    <div style="display: inline-block; vertical-align: middle">
+                    <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                      <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                    </svg>
+                    <span style="display: inline; vertical-align: middle">&nbsp;Zarejestruj się</span>
+                    </div>
+                </a>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 
     <script>
@@ -335,26 +424,15 @@
             }
         }
 
-
     </script>
 </div>
-    </div>
+</div>
 
 {% block content %}
 
 {% endblock content %}
 
-<div style="bottom: 20px; text-align: center; margin: 10px">
-    <input type="button" value="Powrót" onclick="powrot()">
-    <script>
-        function powrot() {
-            window.history.back()
-            window.location=document.referrer;
-            }
-    </script>
-</div>
 
 <footer style="text-align:center; background-color: black;color: white; min-height: 50px; bottom: 20px">
-    <p>Copyrights</p>
-
+    <p>© Copyrights</p>
 </footer>

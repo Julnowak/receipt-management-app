@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 class BaseCategories(models.Model):
     category_name = models.CharField(max_length=200)
-    color = models.CharField(max_length=7)
+    color = models.CharField(max_length=7, default="#233423")
     date_added = models.DateField(auto_now_add=True)
     slug = models.SlugField(unique=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='category_owner', blank=True, null=True)
@@ -24,6 +24,7 @@ class SubCategories(models.Model):
     subcategory_name = models.CharField(max_length=200)
     color = models.CharField(max_length=7)
     date_added = models.DateField(auto_now_add=True)
+    icon = models.CharField(max_length=1500, default="", blank=True)
     category = models.ForeignKey(BaseCategories, on_delete=models.CASCADE, null=True)
     slug = models.SlugField(unique=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subcategory_owner')

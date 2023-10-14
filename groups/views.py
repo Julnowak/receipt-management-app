@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,reverse
 from .models import CommonGroups, User
 from groups.forms import CommonGroupsForm
 from django.contrib import messages
@@ -9,13 +9,25 @@ from django.template.defaultfilters import slugify
 import math
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
 from django.http import Http404
 
 
 def groups(request):
     your_groups = CommonGroups.objects.filter(owner=request.user)
     member_of_groups = CommonGroups.objects.filter(members=request.user)
-    context = {'your_groups': your_groups, "member_of_groups":member_of_groups}
+
+    page_number = request.GET.get('page',1)
+    p = Paginator(member_of_groups, 5)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
+    context = {'your_groups': your_groups, "member_of_groups":member_of_groups, 'pages': pages}
     return render(request, 'groups/your_groups.html', context)
 
 
@@ -97,9 +109,6 @@ def search(request, group_id):
     context = {'text': text, 'group': group}
     return render(request, 'groups/search.html', context)
 
-    # context = {"group": group, "code": group.password,'form': form}
-    # return render(request, 'groups/invite_page.html', context)
-
 
 def leaving_group_page(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
@@ -158,8 +167,7 @@ def left_group(request, group_id):
 
 def manage_group(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
-    delete_member_fun = delete_member_from_group
-    context = {"group": group, "user": request.user, 'members': group.members.all(), "delete_member_fun": delete_member_fun}
+    context = {"group": group, "user": request.user, 'members': group.members.all()}
     return render(request, 'groups/manage_group.html', context)
 
 
@@ -177,7 +185,6 @@ def search_group(request):
         except :
             groups_searched = "Nie ma takiej grupy"
 
-
     if number == 0:
         text = "Brak wyników."
     elif number == 1:
@@ -187,15 +194,18 @@ def search_group(request):
     else:
         text = f"Znaleziono {number} wyników"
 
-    context = {"text":text,"user": request.user, 'exists': exists, 'groups': groups_searched, 'number': number}
+    page_number = request.GET.get('page',1)
+    p = Paginator(groups_searched, 5)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
+    context = {"pages": pages, "text": text, "user": request.user, 'exists': exists, 'groups': groups_searched, 'number': number}
     return render(request, 'groups/search_group.html', context)
-
-
-def delete_member_from_group(member,group_id):
-    group = get_object_or_404(CommonGroups, id=group_id)
-    group.members.remove(member)
-    group.number_of_members -= 1
-    group.save()
 
 
 def group_receipts_and_expenses(request, group_id):
@@ -265,13 +275,17 @@ def not_member_of_group(request,group_id):
 
 
 def password_check(request, group_id):
-    group = CommonGroups.objects.get_object_or_404(id=group_id)
+    ###!
+    group = get_object_or_404(CommonGroups, id=group_id)
     if request.method == "POST":
         pswd = "csvvdscsvvdve"
-        print(request.POST)
         if pswd == group.password:
             messages.success(request, "Zostałeś dodany do grupy.")
         else:
             messages.error(request, "Złe hasło.")
     context = {"group": group, "code": group.password}
     return redirect("groups:groups")
+
+
+def remove_member(request, member_id):
+    pass

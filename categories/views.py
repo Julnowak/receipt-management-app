@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from .models import BaseCategories, SubCategories
-from .forms import NewCategoryForm
+from .forms import NewCategoryForm,NewSubCategoryForm
 from groups.models import CommonGroups
 from django.utils.text import slugify
+from django.shortcuts import get_object_or_404
+from django.template.defaultfilters import slugify
 
 # Create your views here.
 
@@ -18,20 +20,19 @@ def categories(request):
 
 def new_category(request):
     if request.method == 'POST':
+        print(request.POST)
         form = NewCategoryForm(data=request.POST)
-        cat = form.save(commit=False)
-
-        ########################
-        if request.user.is_superuser:
-            cat.public = True
-
-        cat.owner = request.user
-        cat.slug = slugify(cat.category_name)
-        cat.save()
-        return redirect('categories:categories')
+        if form.is_valid():
+            cat = form.save(commit=False)
+            if 'public' not in request.POST:
+                cat.owner = request.user
+            cat.color = request.POST["color"]
+            cat.slug = slugify(cat.category_name)
+            cat.save()
+            return redirect('categories:categories')
     else:
         form = NewCategoryForm()
-    context = {'form':form}
+    context = {'form':form, 'user': request.user}
     return render(request, 'categories/new_category.html', context)
 
 
@@ -51,7 +52,19 @@ def subcategories(request, category_slug):
 
 def new_subcategory(request, category_slug):
     category = BaseCategories.objects.get(slug=category_slug)
-    return render(request, 'categories/new_subcategory.html')
+    if request.method == "POST":
+        form = NewSubCategoryForm()
+        if form.is_valid():
+            new_subcat = form.save(commit=False)
+            new_subcat.owner = request.user
+            new_subcat.category = category
+            new_subcat.slug = slugify(new_subcat.subcategory_name)
+            new_subcat.save()
+            return redirect('categories:subcategories', category_slug=category_slug)
+    else:
+        form = NewSubCategoryForm()
+    context = {'form': form, 'category': category}
+    return render(request, 'categories/new_subcategory.html', context)
 
 
 def edit_subcategory(request, category_slug):

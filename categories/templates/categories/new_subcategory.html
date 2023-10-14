@@ -1,10 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "shopping_lists/base.html" %}
 
-</body>
-</html>
+{% block content %}
+
+    <h1>Nowa podkategoria</h1>
+
+    <form action="{% url 'categories:new_subcategory' category.slug %}" method="post">
+        {% csrf_token %}
+        {{ form.subcategory_name.label }}
+        {{ form.subcategory_name }}
+        {{ form.color.label }}
+        {{ form.color }}
+        {{ form.icon.label }}
+        {{ form.icon }}
+        <button name="post_btn">Utwórz</button>
+    </form>
+{% endblock content %}

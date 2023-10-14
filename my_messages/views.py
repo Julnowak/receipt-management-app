@@ -4,12 +4,23 @@ from groups.models import CommonGroups
 from .forms import NewMessageForm
 from django.template.defaultfilters import slugify
 from django.contrib import messages
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # Create your views here.
 
 
 def your_messages(request):
     all_messages = Message.objects.filter(receiver=request.user).order_by('-date_created')
-    context = {'all_messages': all_messages}
+    page_number = request.GET.get('page',1)
+    p = Paginator(all_messages, 10)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
+    context = {'all_messages': all_messages, 'pages': pages}
     return render(request, 'my_messages/messages.html', context)
 
 
@@ -23,7 +34,17 @@ def message_inside(request, message_id):
 
 def message_sent(request):
     all_messages = Message.objects.filter(sender=request.user, group=None).order_by('-date_created')
-    context = {'all_messages': all_messages}
+    page_number = request.GET.get('page',1)
+    p = Paginator(all_messages, 10)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
+    context = {'all_messages': all_messages, 'pages': pages}
     return render(request, 'my_messages/message_sent.html', context)
 
 
@@ -172,3 +193,11 @@ def membership_rejected(request, message_id):
     messages.success(request, 'Wiadomość została wysłana.')
 
     return redirect('my_messages:your_messages')
+
+
+def delete_messages(request):
+    if request.method == 'POST':
+        print(request.POST)
+
+    context = {}
+    return render(request, 'my_messages/new_message.html', context)

@@ -14,7 +14,7 @@
         <p>Brak podkategorii</p>
     {% endfor %}
 
-    <a href="{% url 'categories:new_subcategory' category.slug %}" >Dodaj kategorię</a>
-    <a href="{% url 'categories:edit_subcategory' category.slug %}" >Edytuj kategorię</a>
+    <a href="{% url 'categories:new_subcategory' category.slug %}" >Dodaj podkategorię</a>
+    <a href="{% url 'categories:edit_subcategory' category.slug %}" >Edytuj podkategorię</a>
 
 {% endblock content %}

@@ -21,6 +21,7 @@ class Receipt(models.Model):
     receipt_img = models.ImageField(upload_to='images/')
     date_added = models.DateField(auto_now_add=True)
     amount = models.DecimalField(default=0.00, decimal_places=2, max_digits=20, validators=[MinValueValidator(0.00)], blank=True, null=True)
+    receipt_info = models.TextField(default="", null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     group = models.ForeignKey(CommonGroups, on_delete=models.CASCADE, blank=True, null=True)
 
@@ -41,3 +42,14 @@ class Expense(models.Model):
 
     def __str__(self):
         return self.expense_name
+
+
+class Guarantee(models.Model):
+    guarantee_name = models.CharField(max_length=200)
+    date_added = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateField()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    regards = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.guarantee_name

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from categories.models import BaseCategories, SubCategories
 # Create your models here.
 
 
@@ -15,7 +16,7 @@ class ShoppingList(models.Model):
 
 
 class Product(models.Model):
-    selected_list = models.ForeignKey(ShoppingList,on_delete=models.CASCADE)
+    selected_list = models.ForeignKey(ShoppingList, on_delete=models.CASCADE)
     product = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
     quantity = models.CharField(max_length=100, default="1szt.", blank=True, null=True)

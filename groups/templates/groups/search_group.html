@@ -2,23 +2,86 @@
 
 {% block content %}
 
+<body style="margin-top: auto; display: flex;flex-direction:column;">
+    <a href="{% url 'groups:groups' %}">
+        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+            </svg>
+        </div>
+    </a>
+
+    <h1>Wyniki</h1>
     <h3> {{ text }}: </h3>
     {% if exists %}
-        {% for group in groups %}
-            <p>
+        {% for group in pages %}
+
                 {% if user in group.members %}
-                <a href="{% url 'groups:group_site' group.id %}">
-                    {{group}}
-                </a>
+                    <div style="margin: 20px; ">
+                        <a href="{% url 'groups:group_site' group.id %}" style="text-decoration: none; color: black">
+                            <div style="background-color: lightgray; padding: 15px; border-radius: 10px">
+                                {{ group }}
+                            </div>
+                        </a>
+                    </div>
                 {% else %}
-                    <a href="{% url 'groups:not_member_of_group' group.id %}">
-                        {{group}}
-                    </a>
+                    <div style="margin: 20px; ">
+                        <a href="{% url 'groups:not_member_of_group' group.id %}" style="text-decoration: none; color: black">
+                            <div style="background-color: lightgray; padding: 15px; border-radius: 10px">
+                                {{ group }}
+                            </div>
+                        </a>
+                    </div>
+
                 {% endif %}
-            </p>
         {% endfor %}
     {% else %}
         <p>Brak wyników.</p>
     {% endif %}
+
+</body>
+
+    <div style="text-align:center; position: sticky; flex: 1; margin-top: auto; display: flex; flex-direction: column-reverse;">
+        <div style="display: inline-block">
+       {% if pages.has_other_pages %}
+            {% if pages.has_previous %}
+                <div style="display: inline;">
+                  <a style=" text-decoration:none; vertical-align: middle" href="?page={{ pages.previous_page_number }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="black" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+                      <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                    </svg>
+                  </a>
+                </div>
+            {% else %}
+                <div style="display: inline;">
+                  <a style="text-decoration:none; vertical-align: middle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="lightgray" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+                      <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                    </svg>
+                  </a>
+                </div>
+
+            {% endif %}
+
+
+
+            <span style="display: inline; vertical-align: middle; color: slategrey; font-size: 200%; ">{{ pages.number }} z {{ pages.paginator.num_pages }} </span>
+
+            {% if pages.has_next %}
+                  <a style="display: inline; vertical-align: middle"  href="?page={{ pages.next_page_number }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="black" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                    </svg>
+                  </a>
+            {% else %}
+                  <a style="display: inline; vertical-align: middle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="lightgray" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                    </svg>
+                  </a>
+            {% endif %}
+        {% endif %}
+        </div>
+    </div>
 
 {% endblock content %}

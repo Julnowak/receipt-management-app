@@ -1,7 +1,8 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
-        <!-- Nadanie stylu -->
+
+    <!-- Nadanie stylu -->
         <style>
 
 
@@ -32,14 +33,11 @@
             }
 
             .add_btn{
-                width: 100px;
-                height: 40px;
                 border-radius: 30px;
                 border: none;
-                background-color: #3f4952;
                 transition: 0.5s;
-                margin: 20px;
-                color: white;
+                color: black;
+                background-color: transparent;
             }
 
 
@@ -68,24 +66,23 @@
 
         </style>
 
-    <!-- Biblioteka jquery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Biblioteka jquery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Nadanie stylu -->
+<body style="margin-top: auto; display: flex;flex-direction:column;">
+
     <div id="text_your_lists" >
         <h1 id="title">Twoje listy</h1>
     </div>
 
     <div id="lista" class="lista" >
 
-        <ol >
-            {% for list in your_lists %}
-                <li>
-                    <div>
-                        <a href="{% url 'single_list' list.id %}" style="line-height: 500%;">{{ list }}</a>
+            {% for list in pages %}
+                    <div style=" border-radius: 20px; margin:10px; padding: 10px; display: block; background-color: lightgray;">
+                        <a style="text-decoration: none; color: black; display: inline; vertical-align: middle; line-height: 32px;%" href="{% url 'single_list' list.id %}" >{{ list }}</a>
 
-                        <button class="edit_small_button" id="{{ list.id }}" style="margin-left: 20px;" >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                        <button class="edit_small_button" id="{{ list.id }}" style="margin-left: 20px;background-color: transparent; display: none; border: none; vertical-align: middle" >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
                               <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
                             </svg>
                         </button>
@@ -114,32 +111,98 @@
                             });
                         </script>
 
-                        <a class="x_button" href="{% url 'list_removed' list.id %}" style="margin-left: 20px;">
+                        <a class="x_button" href="{% url 'list_removed' list.id %}" style="margin-left: 20px; display: none; vertical-align: middle">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
                               <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
                             </svg>
                         </a>
                     </div>
-                </li>
             {% empty %}
-            <li>Nie została jeszcze dodana żadna lista!</li>
+            <p>Nie została jeszcze dodana żadna lista!</p>
             {% endfor %}
         </ol>
     </div>
 
+    <div id="btns_container" class="btn_container" style="text-align:center; margin: 10px; display: inline-block; vertical-align: middle; horiz-align: center">
+        <button id="edit_btn" class="edit_btn" style="display: inline">Edytuj listę</button>
+        <button id="add_btn" class="add_btn" style=" display:inline; vertical-align: middle;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+            </svg>
+        </button>
+        <button id="delete_btn" class="del_btn" style="display: inline">Usuń listę</button>
+    </div>
+
     <!-- Formularz dodawania listy-->
-    <form style="display: none; text-align: center" id="add_form">
+    <form style="display: none; text-align: center;" id="add_form">
         {% csrf_token %}
-        {{ form.text.label }}
-        <p>{{ form.text }}</p>
-        <button type="submit" name="add_btn" id="add_button">Dodaj</button>
+        <div >
+            {{ form.text.label }}
+            {{ form.text }}
+        </div>
+
+        <div style="margin: auto;text-align: center; padding: 10px">
+            <div>
+                <label id="check_fromsite_id" style="display: inline-block; padding: 10px; vertical-align: middle">
+                    <input class="form-check-input mt-0" type="checkbox" id="check_from_web" name="is_from_web_checkbox">
+                    Czy z przepisu?
+                </label>
+            </div>
+            <div >
+                <label style="display: inline-block; text-align: center;">
+                    <input class="form-control" placeholder="Wklej link" style="width: 300px; display: none;box-sizing: border-box; text-align: center" type="text" value="" id="page_url" name="page_url">
+                </label>
+            </div>
+        </div>
+
+        <button class="btn btn-dark" type="submit" name="add_btn" id="add_button">Dodaj</button>
     </form>
 
-    <div id="btns_container" class="btn_container" style="margin: 20px; display: inline-block; text-align: center">
-        <button id="delete_btn" class="del_btn">Usuń listę</button>
-        <button id="edit_btn" class="edit_btn">Edytuj listę</button>
-        <button id="add_btn" class="add_btn">Dodaj listę</button>
+</body>
+
+       <div style="text-align:center; position: sticky; flex: 1; margin-top: auto; display: flex; flex-direction: column-reverse;">
+        <div style="display: inline-block">
+       {% if pages.has_other_pages %}
+            {% if pages.has_previous %}
+                <div style="display: inline;">
+                  <a style=" text-decoration:none; vertical-align: middle" href="?page={{ pages.previous_page_number }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="black" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+                      <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                    </svg>
+                  </a>
+                </div>
+            {% else %}
+                <div style="display: inline;">
+                  <a style="text-decoration:none; vertical-align: middle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="lightgray" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+                      <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                    </svg>
+                  </a>
+                </div>
+
+            {% endif %}
+
+
+
+            <span style="display: inline; vertical-align: middle; color: slategrey; font-size: 200%; ">{{ pages.number }} z {{ pages.paginator.num_pages }} </span>
+
+            {% if pages.has_next %}
+                  <a style="display: inline; vertical-align: middle"  href="?page={{ pages.next_page_number }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="black" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                    </svg>
+                  </a>
+            {% else %}
+                  <a style="display: inline; vertical-align: middle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="lightgray" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                    </svg>
+                  </a>
+            {% endif %}
+        {% endif %}
+        </div>
     </div>
+
 
 
     <!-- Skrypt obsługi eventów przycisków-->
@@ -159,6 +222,21 @@
 
     var is_edited = [];
     for (var i = 0; i < edit_btns_pencil.length; i++) {is_edited.push(false);}
+
+    var is_from_web_checked = true;
+
+    $('#check_from_web').on( "click", function() {
+        if(is_from_web_checked){
+            $('#page_url').css("display","block");
+               is_from_web_checked = false;
+        }
+        else {
+            $('#page_url').css("display","none");
+               is_from_web_checked = true;
+        }
+
+    } );
+
 
 
     del_btn.addEventListener('click', function (e) {
@@ -220,7 +298,10 @@
 
     add_btn.addEventListener('click', function (e) {
         if(flag_add){
-            add_btn.innerHTML = "Anuluj"
+            add_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>`
             add_form.style.display = "inline-block";
             flag_add = false;
             edit_btn.disabled = true;
@@ -230,7 +311,9 @@
         }
         else
         {
-            add_btn.innerHTML = "Dodaj listę";
+            add_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                                </svg>`;
             add_form.style.display = "none";
             flag_add = true;
             edit_btn.disabled = false;
@@ -275,6 +358,7 @@
                 }
             })
         }
+
 
     </script>
 

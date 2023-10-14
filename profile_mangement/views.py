@@ -7,7 +7,10 @@ from .models import User
 
 @login_required
 def profile_management_site(request):
-    my_profile = ProfileInfo.objects.get(user=request.user)
+    try:
+        my_profile = ProfileInfo.objects.get(user=request.user)
+    except:
+        my_profile = ProfileInfo.objects.create(user=request.user)
     context = {'user': request.user, "my_profile": my_profile}
     return render(request, "profile_management/profile_management_site.html", context)
 

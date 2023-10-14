@@ -11,43 +11,41 @@
 
         <style>
 
+            .container {
+                background-color: #fff;
+                padding: 30px;
+                border-radius: 5px;
+                margin: 100px auto 20px;
+                transition: 0.5s;
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+            }
 
 
-                .container {
-                    background-color: #fff;
-                    padding: 30px;
-                    border-radius: 5px;
-                    text-align: center;
-                    margin: 100px auto 20px;
-                    transition: 0.5s;
-                    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
-                }
+            .container h1 {
+                font-size: 48px;
+                color: #333;
+                letter-spacing: 3px;
+                margin-bottom: 20px;
+            }
 
+            .container p {
+                font-size: 18px;
+                color: #0d0716;
+            }
 
-                .container h1 {
-                    font-size: 48px;
-                    color: #333;
-                    letter-spacing: 3px;
-                    margin-bottom: 20px;
-                }
+            .container_2 {
+                background-color: #0f0614;
+                padding: 30px;
+                text-align: justify;
+            }
 
-                .container p {
-                    font-size: 18px;
-                    color: #0d0716;
-                }
-
-                .container_2 {
-                    background-color: #0f0614;
-                    padding: 30px;
-                }
-
-                .image_container {
-                    background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
-                    padding: 30px;
-                    align-content: center;
-                    margin-top: -80px;
-                    height: auto;
-                }
+            .image_container {
+                background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+                padding: 30px;
+                align-content: center;
+                margin-top: -80px;
+                height: auto;
+            }
 
         </style>
     </head>
@@ -55,48 +53,55 @@
     <body>
 
     <div class="image_container">
-        <div class="container">
+        <div class="container" style="text-align: center;">
             <h1 id="title">Zebragon</h1>
-            <p>Your receipt management app </p>
+            <p>Aplikacja do zarządzania paragonami</p>
         </div>
     </div>
 
     <div id="text_1" class="container_2" style="color: white">
-        <h1 id="title">Control your money</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-            magna aliqua.
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-            voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-            deserunt mollit anim id est laborum.</p>
+        <div style="border-style: dashed; padding: 20px;">
+            <h1 id="title">Kontroluj wydatki</h1>
+            <p>
+                Aplikacja ma na celu zapewnić wygodę w zarządzaniu wydatkami
+                w Twoim gospodarstwie domowym i nie tylko. Dzięki przygotowanym statystykom, znacznie łatwiej będziesz mógł
+                podjąć decyzję, które wydatki ograniczyć, aby zaoszczędzić jak najwięcej.
+            </p>
+        </div>
+
     </div>
 
     <div id="text_2" class="container_2" style="color: white; background-color: #491139">
-        <h1 id="title">Create groups</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-            magna aliqua.
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-            voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-            deserunt mollit anim id est laborum.</p>
+        <div style="border-style: dashed; padding: 20px;">
+        <h1 id="title">Twórz grupy</h1>
+        <p>
+            Wspólnie ze znajomymi i członkami rodziny twórz grupy, które umożliwią szybki podział wydatków,
+            i zlecanie zadań. Z Zebragonem podział wydatków na wspólnych wyjazdach stanie się znacznie prostszy.
+        </p>
+        </div>
     </div>
 
     <div id="text_3" class="container_2" style="color: white;">
-        <h1 id="title">Make shopping easier</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-            magna aliqua.
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-            voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-            deserunt mollit anim id est laborum.</p>
+        <div style="border-style: dashed; padding: 20px;">
+        <h1 id="title">Rób zakupy wygodniej</h1>
+        <p>
+            Listy produktów, podział na kategorię oraz śledzenie miejsc najbardziej korzystnych cenowo sprawi,
+            że łatwiej będzie kontrolować wydatki - czy to samodzielne, czy też w większe grupie.
+        </p>
+        </div>
     </div>
 
 
-    <div id="text_4" class="container_2" style="background-color: #ba1540; color: white; text-align: center">
-        <h2>Join today!</h2>
+    <div id="text_4" class="container_2" style="background-color: crimson; color: white; text-align: center">
+        <h2>Dołącz już teraz!</h2>
+
+        <a style="text-decoration: none; color: black" href="{% url 'users:register' %}">
+            <div id="join_text" class="container_2" style="background-color: white; border-radius: 10px; text-align: center">
+                <h2>
+                    Zarejestruj się
+                </h2>
+            </div>
+        </a>
     </div>
 
     </body>

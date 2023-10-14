@@ -55,7 +55,7 @@
 
         <div style="margin: 20px">
             <h3>Wiek:</h3>
-            <p> -- </p>
+            <p> --s </p>
         </div>
 
         <div style="margin: 20px">
@@ -71,11 +71,13 @@
 
     </div>
 
-    <div>
+    <div style="text-align: center">
         {% if user == my_profile.user %}
         <p>
             <a href="{% url 'account_management' %}">Zarządzaj kontem</a>
-            <a href="{% url 'account_deletion' %}">Usuń konto</a>
+                    </p>
+        <p>
+        <a href="{% url 'account_deletion' %}">Usuń konto</a>
         </p>
         {% endif %}
     </div>

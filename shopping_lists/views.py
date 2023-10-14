@@ -8,6 +8,9 @@ from my_messages.models import Message
 from categories.models import BaseCategories
 from django.http import HttpResponseRedirect
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 
 
@@ -16,12 +19,26 @@ def homepage(request):
     return render(request, 'shopping_lists/homepage.html')
 
 
+def contact(request):
+    return render(request, 'shopping_lists/contact.html')
+
 @login_required
 def your_lists(request):
     """ Your shopping lists page"""
     your_shopping_lists = ShoppingList.objects.filter(owner=request.user).order_by('-date_added')
     form = ShoppingListForm()
-    context = {'your_lists': your_shopping_lists, 'form': form}
+
+    page_number = request.GET.get('page', 1)
+    p = Paginator(your_shopping_lists, 4)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
+    context = {'your_lists': your_shopping_lists, 'form': form, 'pages': pages}
     return render(request, 'shopping_lists/your_lists.html', context)
 
 
@@ -33,6 +50,27 @@ def add_shopping_list(request):
             new_l = form.save(commit=False)
             new_l.owner = request.user
             new_l.save()
+            if 'is_from_web_checkbox' in request.POST:
+                # Webscraping for products
+                url = request.POST['page_url']
+                data = requests.get(url)
+                html = BeautifulSoup(data.text, 'html.parser')
+
+                if "www.kwestiasmaku.com" in url:
+                    ingredients = html.find("div", {"class": "field field-name-field-skladniki field-type-text-long field-label-hidden"})
+                    starter = 7
+                elif "aniagotuje.pl" in url:
+                    ingredients = html.find("ul", {"class": "recipe-ing-list"})
+                    starter = 32
+                else:
+                    return JsonResponse({'error': 'Strona nie jest obsługiwana.'})
+                try:
+                    unordered_list = (ingredients.find_all("li"))
+                    for ing in list(unordered_list):
+                        new_prod = Product.objects.create(selected_list=new_l, product=str(ing)[starter:len(ing)-6])
+                        new_prod.save()
+                except:
+                    return JsonResponse({'error': 'Something went wrong.'})
 
             return JsonResponse({'message': f'Successfully saved: {new_l.text}'})
         else:
@@ -85,7 +123,6 @@ def new_product(request, list_id):
         if form.is_valid():
             new_prod = form.save(commit=False)
             new_prod.selected_list = current_list
-            print(new_prod.selected_list)
             new_prod.save()
             return redirect('single_list', list_id=list_id)
     else:
@@ -124,15 +161,8 @@ def main_panel(request):
     categories = BaseCategories.objects.values_list("id","category_name")
 
     if request.method == 'POST' and 'run_script' in request.POST:
-
-        # import function to run
-        # call function
-        print('Hello')
         now = datetime.today()
-        print(now)
         uk = now - dates_added[3][0].replace(tzinfo=None)
-        print(uk)
-
         # return user to required page
         return redirect(reverse("main_panel"))
 
@@ -173,3 +203,8 @@ def list_removed(request, list_id):
     current_list.delete()
 
     return HttpResponseRedirect(reverse('your_lists'))
+
+@login_required
+def share_list(request, list_id):
+    context = {}
+    return render(request, 'shopping_lists/share_list.html', context)

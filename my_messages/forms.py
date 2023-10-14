@@ -47,7 +47,17 @@ class NewMessageForm(forms.ModelForm):
         labels = {'receiver': 'Odbiorca', 'text': "Treść wiadomości", 'title': "Tytuł"}
 
         widgets = {
-            'receiver': forms.TextInput()
+            'receiver': forms.TextInput(
+                attrs={'class': "form-control",}
+            ),
+
+            'title': forms.TextInput(
+                attrs={'class': "form-control", }
+            ),
+
+            'text': forms.Textarea(
+                attrs={'class': "form-control", }
+            ),
         }
 
     def clean(self):

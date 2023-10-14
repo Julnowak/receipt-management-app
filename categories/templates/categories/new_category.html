@@ -9,7 +9,30 @@
 
     <form action="{% url 'categories:new_category' %}" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button name="post_btn">Utwórz</button>
+        <div>
+            {{ form.category_name.label }}
+            {{ form.category_name }}
+        </div>
+
+        <div>
+            {{ form.icon.label }}
+            {{ form.icon }}
+        </div>
+
+        {% if user.is_superuser %}
+        <div>
+            {{ form.public }}{{ form.public.label }}
+        </div>
+        {% endif %}
+
+        <div>
+            <label class="form-label">Kolor
+                <input name="color" type="color" class="form-control form-control-color" id="exampleColorInput" value="#563d7c" title="Choose your color">
+            </label>
+        </div>
+
+        <div>
+            <button name="post_btn">Utwórz</button>
+        </div>
     </form>
 {% endblock content %}

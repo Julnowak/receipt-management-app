@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-+v@4ej35djtnvdz@i1mep91=ddg19rb1ash_77ns(8(7k5n+6c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = ["127.0.0.1", "192.168.137.175", "192.168.83.138"]
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'categories',
     'my_messages',
     'profile_mangement',
+    'statistics_and_plots',
 
     # From beginning
     'django.contrib.admin',

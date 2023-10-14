@@ -22,7 +22,7 @@
             transition: 0.5s, opacity 1s;
             border-radius: 10px 10px 0 0;
             cursor: pointer;
-            width: 30px;
+            width: 15px;
             display: inline-block;
         }
 
@@ -32,10 +32,10 @@
         }
 
         .main_expenses_field{
-            margin: 0 5px;
+            margin: 0 7px;
             background-color: red;
-            padding: 10px;
-            border-radius: 10px;
+            padding: 11px;
+            border-radius: 0 0 10px 10px;
 
         }
 
@@ -96,6 +96,10 @@
         {% endautoescape %}
     </div>
 
+    <div class="basic_white">
+        <h3> Porównaj się z innymi! </h3>
+    </div>
+
     <script>
         var year_box = document.getElementById("year_box")
         var month_box = document.getElementById("month_box")
@@ -141,7 +145,7 @@
                   else
                   {
                       item.style.backgroundColor = "darkgray";
-                      item.style.width = "30px";
+                      item.style.width = "15px";
 
 
                       item.style.opacity = '50%';

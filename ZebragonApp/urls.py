@@ -27,5 +27,6 @@ urlpatterns = [
     path('categories/', include('categories.urls')),
     path('my_messages/', include('my_messages.urls')),
     path('profile_mangement/', include('profile_mangement.urls')),
+    path('statistics/', include('statistics_and_plots.urls')),
     path('', include('shopping_lists.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
