@@ -27,12 +27,31 @@
             Brak wydatków
         {% endfor %}
 
+    <div>
+        <h2 style="text-align: center">Gwarancje</h2>
+    </div>
+
+    <div>
+        <ul>
+            {% for guarantee in guarantees %}
+            <li>{{ guarantee }} </li>{{ time_left.days }} dni
+            {% empty %}
+                <p>Nie dodano jeszcze żadnej gwarancji.</p>
+            {% endfor %}
+        </ul>
+    </div>
+
         <p>
             <a href="{% url 'receipts:new_receipt' %}" >Dodaj nowy paragon</a>
         </p>
         <p>
             <a href="{% url 'receipts:costs_by_hand' %}" >Dodaj wydatki ręcznie</a>
         </p>
+
+        <p>
+            <a href="{% url 'receipts:new_guarantee' %}" >Dodaj gwarancję</a>
+        </p>
+
         <p>
             <a href="{% url 'categories:categories' %}" >Kategorie</a>
         </p>

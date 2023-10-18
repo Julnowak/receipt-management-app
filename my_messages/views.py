@@ -5,13 +5,15 @@ from .forms import NewMessageForm
 from django.template.defaultfilters import slugify
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-# Create your views here.
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, Http404
 
 
+@login_required
 def your_messages(request):
     all_messages = Message.objects.filter(receiver=request.user).order_by('-date_created')
     page_number = request.GET.get('page',1)
-    p = Paginator(all_messages, 10)
+    p = Paginator(all_messages, 5)
 
     try:
         pages = p.page(page_number)
@@ -20,18 +22,24 @@ def your_messages(request):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
-    context = {'all_messages': all_messages, 'pages': pages}
+    context = {'all_messages': all_messages, 'pages': pages, 'user': request.user}
     return render(request, 'my_messages/messages.html', context)
 
-
+@login_required
 def message_inside(request, message_id):
     message = Message.objects.get(id=message_id)
-    message.new = False
-    message.save()
-    context = {'message': message}
-    return render(request, 'my_messages/message_inside.html', context)
+    if request.user.username == message.receiver.username or request.user.username == message.sender.username:
+        if request.user.username == message.receiver.username:
+            message.new = False
+
+        message.save()
+        context = {'message': message, 'user': request.user}
+        return render(request, 'my_messages/message_inside.html', context)
+    else:
+        return Http404
 
 
+@login_required
 def message_sent(request):
     all_messages = Message.objects.filter(sender=request.user, group=None).order_by('-date_created')
     page_number = request.GET.get('page',1)
@@ -47,7 +55,7 @@ def message_sent(request):
     context = {'all_messages': all_messages, 'pages': pages}
     return render(request, 'my_messages/message_sent.html', context)
 
-
+@login_required
 def new_message(request):
     try:
         mes_last_id = Message.objects.latest('id').id
@@ -69,10 +77,11 @@ def new_message(request):
     else:
         form = NewMessageForm()
 
-    context = {'form': form}
+    context = {'form': form, 'user': request.user}
     return render(request, 'my_messages/new_message.html', context)
 
 
+@login_required
 def member_accepted(request, message_id):
     message = Message.objects.get(id=message_id)
 
@@ -106,7 +115,7 @@ def member_accepted(request, message_id):
         messages.error(request, 'Nie można dodać członka!')
         return redirect('my_messages:your_messages')
 
-
+@login_required
 def membership_accepted(request, message_id):
     message = Message.objects.get(id=message_id)
     group = CommonGroups.objects.get(id=message.group.id)
@@ -140,7 +149,7 @@ def membership_accepted(request, message_id):
                                 'Skontaktuj się z właścicielem grupy w celu wyjaśnienia sytuacji.')
         return redirect('my_messages:your_messages')
 
-
+@login_required
 def member_rejected(request, message_id):
     message = Message.objects.get(id=message_id)
 
@@ -167,7 +176,7 @@ def member_rejected(request, message_id):
 
     return redirect('my_messages:your_messages')
 
-
+@login_required
 def membership_rejected(request, message_id):
     message = Message.objects.get(id=message_id)
 
@@ -195,9 +204,19 @@ def membership_rejected(request, message_id):
     return redirect('my_messages:your_messages')
 
 
+@login_required
 def delete_messages(request):
     if request.method == 'POST':
-        print(request.POST)
+        keys = list(request.POST.keys())[1:]
+        for key_id in keys:
+            Message.objects.get(id=int(key_id)).delete()
+        return redirect("my_messages:your_messages")
 
-    context = {}
-    return render(request, 'my_messages/new_message.html', context)
+
+@login_required
+def delete_sent_messages(request):
+    if request.method == 'POST':
+        keys = list(request.POST.keys())[1:]
+        for key_id in keys:
+            Message.objects.get(id=int(key_id)).delete()
+        return redirect("my_messages:message_sent")

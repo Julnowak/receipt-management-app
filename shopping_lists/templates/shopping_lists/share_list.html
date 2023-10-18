@@ -4,23 +4,43 @@
 
     <h1>Przekaż listę</h1>
 
-    <form>
+    <form method="post" action="share_list.html">
+    {{ csrf.token }}
     <p>
-        <label>
+        <div>
             Komu przekazać listę?
-            <input type="radio" > Wybranym użytkownikom
-            <input type="radio"> Całej grupie
+        </div>
+
+        <div>
+        <label>
+            <input type="radio" name="chosen_users_or_whole_group" checked="checked"> Wybranym użytkownikom
+        </label>
+        </div>
+
+        <div>
+        <label>
+            <input type="radio" name="chosen_users_or_whole_group"> Całej grupie
+        </label>
+        </div>
+
+
+
+
+    </p>
+    <p>
+        <label>
+            <input type="checkbox" name="share_copy"> Przekazać kopię?
         </label>
     </p>
     <p>
         <label>
-            <input type="checkbox"> Przekazać kopię?
+            <input type="checkbox" name="are_regards_added"> Dodać uwagi?
         </label>
-    </p>
-    <p>
         <label>
-            <input type="checkbox"> Dodać uwagi?
+            Uwagi
+            <input type="text" name="regards">
         </label>
+
     </p>
 
         <button id="share_id" class="share_btn">Przekaż</button>

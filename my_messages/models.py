@@ -17,4 +17,7 @@ class Message(models.Model):
     group = models.ForeignKey(CommonGroups, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
-        return self.title
+        if len(self.title) < 20:
+            return self.title
+        else:
+            return self.title[:20] + "..."

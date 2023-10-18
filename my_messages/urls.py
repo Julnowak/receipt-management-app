@@ -10,5 +10,7 @@ urlpatterns = [
     path('membership_accepted/<int:message_id>/', views.membership_accepted, name='membership_accepted'),
     path('membership_rejected/<int:message_id>/', views.membership_rejected, name='membership_rejected'),
     path('new_message/', views.new_message, name='new_message'),
-    path('<int:message_id>/', views.message_inside, name='message_inside')
+    path('<int:message_id>/', views.message_inside, name='message_inside'),
+    path('delete_messages/', views.delete_messages, name='delete_messages'),
+    path('delete_sent_messages/', views.delete_sent_messages, name='delete_sent_messages'),
 ]

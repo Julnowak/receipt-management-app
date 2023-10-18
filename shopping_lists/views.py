@@ -6,7 +6,7 @@ from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from my_messages.models import Message
 from categories.models import BaseCategories
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,Http404
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -21,6 +21,7 @@ def homepage(request):
 
 def contact(request):
     return render(request, 'shopping_lists/contact.html')
+
 
 @login_required
 def your_lists(request):
@@ -203,6 +204,7 @@ def list_removed(request, list_id):
     current_list.delete()
 
     return HttpResponseRedirect(reverse('your_lists'))
+
 
 @login_required
 def share_list(request, list_id):

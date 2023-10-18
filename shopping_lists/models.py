@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from categories.models import BaseCategories, SubCategories
+from groups.models import CommonGroups
 # Create your models here.
 
 
@@ -28,3 +29,14 @@ class Product(models.Model):
     def __str__(self):
         return self.product
 
+
+class SharedShoppingList(models.Model):
+    """One of the user's shopping lists"""
+    base_list = models.ForeignKey(ShoppingList, on_delete=models.SET_NULL, null=True)
+    provider = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_in_realization = models.BooleanField(default=False)
+    realizators = models.ManyToManyField(User, related_name="realizators")
+    group = models.ForeignKey(CommonGroups, on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return self.base_list

@@ -10,9 +10,14 @@ text = """<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" fill=
 
 class ProfileInfo(models.Model):
     profile_image = models.CharField(max_length=1500, blank=True, null=True, default=text)
+    profile_image_color = models.CharField(max_length=7, default="#000000")
+    profile_image_background_color = models.CharField(max_length=7, default="#FFFFFF")
     date_added = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True)
+    email = models.EmailField()
+    date_of_birth = models.DateField(blank=True, null=True)
+    is_public = models.BooleanField(default=True)
 
     def __str__(self):
         return self.user.username

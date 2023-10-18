@@ -1,0 +1,20 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+
+    <h1 style="text-align: center">Promocje</h1>
+    <h3 style="text-align: center">Dostępne sklepy:</h3>
+
+    {% for shop in shops %}
+        <div style="margin: 10px; padding: 20px; background-color: lightgray;border-radius: 10px">
+            <a href="{% url 'promotions_and_discounts:shop_site' shop.slug %}">
+                {{ shop }}
+            </a>
+        </div>
+
+    {% empty %}
+        Nie ma jeszcze dostępnych sklepów
+    {% endfor %}
+
+
+{% endblock content %}

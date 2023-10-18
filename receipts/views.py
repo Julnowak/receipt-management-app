@@ -14,7 +14,11 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 def your_receipts(request):
     receipts = Receipt.objects.filter(owner=request.user)
     expenses = Expense.objects.filter(owner=request.user)
-    context = {'receipts': receipts, 'expenses': expenses}
+    guarantees = Guarantee.objects.filter(owner=request.user)
+    left = None
+    for guarantee in guarantees:
+        left = guarantee.end_date - datetime.date.today()
+    context = {'receipts': receipts, 'expenses': expenses, 'guarantees': guarantees, 'time_left': left}
     return render(request, 'receipts/your_receipts.html', context)
 
 
@@ -69,4 +73,10 @@ def receipt_site(request, receipt_id):
     print(text)
     context = {'receipt': receipt, 'text': text}
     return render(request, 'receipts/receipt_site.html', context)
+
+
+@login_required
+def new_guarantee(request):
+    context = {}
+    return render(request, 'receipts/new_guarantee.html', context)
 

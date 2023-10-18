@@ -28,5 +28,6 @@ urlpatterns = [
     path('my_messages/', include('my_messages.urls')),
     path('profile_mangement/', include('profile_mangement.urls')),
     path('statistics/', include('statistics_and_plots.urls')),
+    path('promotions/', include('promotions_and_discounts.urls')),
     path('', include('shopping_lists.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
