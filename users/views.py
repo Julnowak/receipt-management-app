@@ -13,7 +13,7 @@ def register(request):
             new_profile = ProfileInfo.objects.create(user=new_user, date_of_birth=request.POST['date_of_birth'], email=request.POST['email'])
             new_profile.save()
             login(request, new_user)
-            return redirect('homepage')
+            return redirect('main_panel')
     else:
         form = RegistrationForm()
 

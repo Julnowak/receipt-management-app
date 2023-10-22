@@ -21,14 +21,20 @@
 
 <body style="margin-top: auto; display: flex;flex-direction:column;">
 
-    <div style="height:30px">
-    {% if messages %}
-        <div id="messages" class="messages">
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
-        </div>
-    {% endif %}
+    <div style="height:60px">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                     <div id="messages" class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% else %}
+                     <div id="messages" class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
     </div>
 
     <form method="POST" action="search_group/" style="margin-top: 30px">
@@ -56,20 +62,14 @@
         </div>
         </a>
     {% empty %}
-        Nie jesteś jeszcze członkiem żadnej grupy.
+        <div style="margin: 10px; text-align: center">
+           <div style="background-color: lightblue; padding: 15px; border-radius: 10px">
+                Nie jesteś jeszcze członkiem żadnej grupy.
+            </div>
+        </div>
     {% endfor %}
 
 
-    <div style=" text-align: center; margin: 20px">
-        <a href="{% url 'groups:add_group' %}" style=" text-decoration: none; color: black;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
-            </svg>
-            <div style="display: inline-block; vertical-align: middle; font-size: 20px">
-                Nowa grupa
-            </div>
-        </a>
-    </div>
 
     <script>
         var message_container = document.getElementById("messages")
@@ -82,7 +82,20 @@
         }
     </script>
 
+    <div style=" text-align: center; position:absolute; bottom:150px;width:100%;height:60px; z-index: 1">
+        <a href="{% url 'groups:add_group' %}" style=" text-decoration: none; color: black;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+            </svg>
+            <div style="display: inline-block; vertical-align: middle; font-size: 20px">
+                Nowa grupa
+            </div>
+        </a>
+    </div>
+
 </body>
+
+
 
     <div style="text-align:center; position: sticky; flex: 1; margin-top: auto; display: flex; flex-direction: column-reverse;">
         <div style="display: inline-block">

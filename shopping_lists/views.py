@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, reverse
-from .models import ShoppingList, Product
+from .models import ShoppingList, ListProduct
 from receipts.models import Expense
 from .forms import ShoppingListForm, ProductForm
 from django.http import Http404
@@ -68,7 +68,7 @@ def add_shopping_list(request):
                 try:
                     unordered_list = (ingredients.find_all("li"))
                     for ing in list(unordered_list):
-                        new_prod = Product.objects.create(selected_list=new_l, product=str(ing)[starter:len(ing)-6])
+                        new_prod = ListProduct.objects.create(selected_list=new_l, product=str(ing)[starter:len(ing)-6])
                         new_prod.save()
                 except:
                     return JsonResponse({'error': 'Something went wrong.'})
@@ -109,8 +109,8 @@ def single_list(request, list_id):
 
     if sh_list.owner != request.user:
         return Http404
-    # Minus changes way of displaying elements
-    products = sh_list.product_set.order_by('-date_added')
+
+    products = sh_list.listproduct_set.order_by('-date_added')
 
     context = {'current_list': sh_list, 'products': products}
     return render(request, 'shopping_lists/shopping_list_page.html', context)
@@ -135,7 +135,7 @@ def new_product(request, list_id):
 
 @login_required
 def edit_product(request, product_id):
-    current_product = Product.objects.get(id=product_id)
+    current_product = ListProduct.objects.get(id=product_id)
     current_list = current_product.selected_list
 
     if request.method == 'POST':
@@ -192,7 +192,7 @@ def main_panel(request):
 
 
 def removed(request, product_id):
-        current_product = Product.objects.get(id=product_id)
+        current_product = ListProduct.objects.get(id=product_id)
         sh_list = current_product.selected_list
         current_product.delete()
 

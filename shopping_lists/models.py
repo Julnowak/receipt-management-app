@@ -16,15 +16,16 @@ class ShoppingList(models.Model):
         return self.text
 
 
-class Product(models.Model):
+class ListProduct(models.Model):
     selected_list = models.ForeignKey(ShoppingList, on_delete=models.CASCADE)
     product = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
     quantity = models.CharField(max_length=100, default="1szt.", blank=True, null=True)
     regards = models.TextField(max_length=400, blank=True, null=True)
+    is_bought = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name_plural = 'products'
+        verbose_name_plural = 'list products'
 
     def __str__(self):
         return self.product

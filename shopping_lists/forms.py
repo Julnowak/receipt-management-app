@@ -1,5 +1,5 @@
 from django import forms
-from .models import ShoppingList, Product
+from .models import ShoppingList, ListProduct
 
 
 class ShoppingListForm(forms.ModelForm):
@@ -11,7 +11,7 @@ class ShoppingListForm(forms.ModelForm):
 
 class ProductForm(forms.ModelForm):
     class Meta:
-        model = Product
+        model = ListProduct
         fields = ['product']
         labels = {'product': 'Nazwa produktu:'}
 

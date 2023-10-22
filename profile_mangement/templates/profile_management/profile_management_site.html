@@ -42,10 +42,10 @@
 
     <h1 style="text-align: center; margin-top: 10px">Profil użytkownika</h1>
 
-    <div style="width: fit-content; text-align: center; margin: 20px auto auto;" class="profile_image_div" id="prof_div">
+    <div style="display:inline-block; width: fit-content; text-align: center; margin: 20px auto auto;" class="profile_image_div" id="prof_div">
         {% if my_profile.profile_image %}
-            <div id="img_prof" style="background-color: {{ my_profile.profile_image_background_color }}; width: fit-content; border-radius: 64px; margin: auto; color: {{ my_profile.profile_image_color }};">
-                {{ my_profile.profile_image|safe }}
+            <div id="img_prof" style="display:inline-block;background-color: {{ my_profile.profile_image_background_color }}; border-radius: 82px; margin: auto; padding: 20px; color: {{ my_profile.profile_image_color }};">
+                {{ img|safe }}
             </div>
         {% else %}
             <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -53,7 +53,7 @@
               <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
             </svg>
         {% endif %}
-        <h3>{{ user }}</h3>
+        <h3 style="margin: 10px">{{ user }}</h3>
     </div>
 
 

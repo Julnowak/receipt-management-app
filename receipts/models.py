@@ -16,6 +16,18 @@ TIME_STAMP_CHOICES = (
 )
 
 
+class ListProduct(models.Model):
+    product_name = models.CharField(max_length=200)
+    date_added = models.DateTimeField(auto_now_add=True)
+    description = models.TextField(max_length=400, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = 'list products'
+
+    def __str__(self):
+        return self.product_name
+
+
 class Receipt(models.Model):
     receipt_name = models.CharField(max_length=200)
     receipt_img = models.ImageField(upload_to='images/')
@@ -24,6 +36,7 @@ class Receipt(models.Model):
     receipt_info = models.TextField(default="", null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     group = models.ForeignKey(CommonGroups, on_delete=models.CASCADE, blank=True, null=True)
+    products = models.ManyToManyField(ListProduct, blank=True, null=True)
 
     def __str__(self):
         return self.receipt_name

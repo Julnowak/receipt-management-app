@@ -100,7 +100,7 @@ def member_accepted(request, message_id):
         new_message.sender = request.user
         new_message.receiver = message.sender
 
-        new_message.title = "Gratulacje! Dołączyłeś " + group.group_name
+        new_message.title = "Gratulacje! Dołączyłeś do grupy " + group.group_name
         new_message.slug = slugify(new_message.title + " " + str(mes_last_id + 1))
         new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
                            "Od dzisiaj jesteś członkiem grupy " + group.group_name + "."

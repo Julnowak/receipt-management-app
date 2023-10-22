@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import ProfileInfo
-from .models import User
+from .models import ProfileInfo, Icon, User
 import datetime
 from django.http import Http404
 from django.contrib import messages
@@ -24,7 +23,12 @@ def profile_management_site(request):
     have_birthday = (datetime.date.today().month == my_profile.date_of_birth.month) and \
                     (datetime.date.today().day == my_profile.date_of_birth.day)
 
-    context = {'user': request.user, "my_profile": my_profile, "age": age, 'have_birthday': have_birthday}
+    picture = my_profile.profile_image
+    if picture:
+        img = picture.icon_code[:47] + '128" ' + picture.icon_code[51:59] + '128" ' + 'style="display:inline; vertical-align: middle;"' + picture.icon_code[62:]
+    else:
+        img = None
+    context = {'img':img, 'user': request.user, "my_profile": my_profile, "age": age, 'have_birthday': have_birthday}
     return render(request, "profile_management/profile_management_site.html", context)
 
 
@@ -51,7 +55,13 @@ def profile_showcase(request, member_id):
     have_birthday = (datetime.date.today().month == my_profile.date_of_birth.month) and \
                     (datetime.date.today().day == my_profile.date_of_birth.day)
 
-    context = {'user': user, "my_profile": my_profile, "age": age, 'have_birthday': have_birthday}
+    picture = my_profile.profile_image
+    if picture:
+        img = picture.icon_code[:47] + '128" ' + picture.icon_code[51:59] + '128" ' + 'style="display:inline; vertical-align: middle;"' + picture.icon_code[62:]
+    else:
+        img = None
+
+    context = {'img':img, 'user': user, "my_profile": my_profile, "age": age, 'have_birthday': have_birthday}
     return render(request, "profile_management/profile_showcase.html", context)
 
 
@@ -97,9 +107,26 @@ def change_email(request):
         messages.success(request, 'Email został zmieniony.')
     return redirect("profile_management_site")
 
+
 @login_required
 def change_image(request):
-    return redirect("profile_management_site")
+    my_profile = ProfileInfo.objects.get(user=request.user)
+    icons = Icon.objects.all()
+    if request.method == "POST":
+        my_profile.profile_image_background_color = request.POST["back_color"]
+        my_profile.profile_image_color = request.POST["icon_color"]
+        try:
+            picture = Icon.objects.get(id=int(request.POST["profile_img"]))
+            my_profile.profile_image = picture
+        except:
+            my_profile.profile_image = None
+        my_profile.save()
+        messages.success(request, 'Obraz został zmieniony.')
+        return redirect("profile_management_site")
+        return redirect("profile_management_site")
+
+    context = {'my_profile': my_profile, 'icons': icons}
+    return render(request,"profile_management/change_image.html", context)
 
 
 @login_required

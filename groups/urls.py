@@ -15,4 +15,5 @@ urlpatterns = [
     path('search_group/', views.search_group, name='search_group'),
     path('<int:group_id>/password_check/', views.password_check, name='password_check'),
     path('<int:group_id>/not_member_of_group/', views.not_member_of_group, name='not_member_of_group'),
+    path('profile_not_public/', views.profile_not_public, name='profile_not_public'),
 ]

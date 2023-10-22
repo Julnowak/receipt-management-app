@@ -104,12 +104,15 @@
                 font-size: 40px;
                 cursor: pointer;
                 position: fixed;
-                top: 10px;
+                top: 0;
                 color: white;
                 left: 20px;
                 z-index: 1000;
-                width:50px;
-                height: 70px;
+                width: 50px;
+                height: 80px;
+                display : flex;
+                align-items : center;
+                justify-content: center;
                 user-select: none;
             }
 
@@ -182,7 +185,12 @@
 </style>
 
     <div id="main" class="homepage">
-        <span id="hamburger" class="open-btn" onclick="toggleNav()">&#9776;</span>
+        <div id="hamburger" class="open-btn" onclick="toggleNav()">
+            <div style="display: inline; vertical-align: middle">
+                &#9776;
+            </div>
+
+        </div>
         <div id="stripez" class="stripez">
 
         </div>
@@ -296,7 +304,7 @@
                 {% autoescape off %}
                     {% profile_picture request %}
                 {% endautoescape %}
-                <h5>
+                <h5 style="margin-top: 10px">
                     {{ user.username }}
                 </h5>
             </div>

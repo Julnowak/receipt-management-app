@@ -61,18 +61,22 @@
     </div>
 
     <h3 style="text-align: center">Produkty:</h3>
-    <ul>
-        {% for product in products %}
-            <li class="prod_on_list" >
-                {{ product }}
-                <a href="{% url 'edit_product' product.id %}" onclick="loadDoc()">✎</a>
-                <a href="{% url 'removed' product.id %}" >✕</a>
-            </li>
 
-        {% empty %}
-        <li>Nie został dodany jeszcze żaden produkt!</li>
-        {% endfor %}
-    </ul>
+    {% for product in products %}
+        <div class="prod_on_list" style="margin: 10px; padding: 10px">
+            {{ product }}
+            <a href="{% url 'edit_product' product.id %}" onclick="loadDoc()">✎</a>
+            <a href="{% url 'removed' product.id %}" >✕</a>
+        </div>
+
+    {% empty %}
+        <div style="margin: 10px; text-align: center">
+           <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
+                Nie został dodany jeszcze żaden produkt!
+            </div>
+        </div>
+    {% endfor %}
+
 
 
     <script type="text/javascript">

@@ -63,9 +63,7 @@ class NewMessageForm(forms.ModelForm):
     def clean(self):
         # data is feteched using the super function of django
         super(NewMessageForm, self).clean()
-
         receiver = self.cleaned_data.get('receiver')
-        print(receiver)
         # Nazwa grupy
         if receiver is None:
             self._errors['receiver'] = self.error_class([

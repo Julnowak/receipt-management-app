@@ -1,6 +1,8 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <!-- Nadanie stylu -->
         <style>
@@ -9,37 +11,6 @@
             button{
                 font-family: "Montserrat", sans-serif;
             }
-
-            .del_btn{
-                width: 100px;
-                height: 40px;
-                border-radius: 30px;
-                border: none;
-                background-color: slategrey;
-                transition: 0.5s;
-                margin: 20px;
-                color: white;
-            }
-
-            .edit_btn{
-                width: 100px;
-                height: 40px;
-                border-radius: 30px;
-                border: none;
-                background-color: #566470;
-                transition: 0.5s;
-                margin: 20px;
-                color: white;
-            }
-
-            .add_btn{
-                border-radius: 30px;
-                border: none;
-                transition: 0.5s;
-                color: black;
-                background-color: transparent;
-            }
-
 
             .del_btn:hover,.edit_btn:hover,.add_btn:hover{
                 filter: brightness(85%);
@@ -72,27 +43,39 @@
 <body style="margin-top: auto; display: flex;flex-direction:column;">
 
     <div id="text_your_lists" >
-        <h1 id="title">Twoje listy</h1>
+        <h1 style="margin: 20px auto" id="title">Twoje listy</h1>
     </div>
 
     <div id="lista" class="lista" >
 
             {% for list in pages %}
-                    <div style=" border-radius: 20px; margin:10px; padding: 10px; display: block; background-color: lightgray;">
-                        <a style="text-decoration: none; color: black; display: inline; vertical-align: middle; line-height: 32px;%" href="{% url 'single_list' list.id %}" >{{ list }}</a>
+                    <div style="display: inline-block;vertical-align: middle;">
+                        <a style="text-decoration: none; color: black; display: inline-block; vertical-align: middle; line-height: 32px;%" href="{% url 'single_list' list.id %}" >
+                            <div style="width: 80vw; border-radius: 20px; margin:10px; padding: 10px; background-color: lightgray;">
+                                {{ list }}
+                            </div>
+                        </a>
 
-                        <button class="edit_small_button" id="{{ list.id }}" style="margin-left: 20px;background-color: transparent; display: none; border: none; vertical-align: middle" >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                              <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                            </svg>
-                        </button>
-
-                        <form class="edit_forms_after_pencil" style="display: none" id="edit_form_{{ list.id }}">
+                        <form class="edit_forms_after_pencil" style="display: none; margin: 10px" id="edit_form_{{ list.id }}">
                             {% csrf_token %}
                             {{ form.text.label }}
                             {{ form.text }}
-                            <button type="submit" name="edit_btn_btn" id="edit_btn_btn">Edytuj</button>
+                            <button type="submit" class="btn btn-dark" name="edit_btn_btn" id="edit_btn_btn">Edytuj</button>
                         </form>
+
+                    <a class="edit_small_button" id="{{ list.id }}" style=" display: none; vertical-align: middle" >
+                        <svg style="display: inline;vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                          <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                        </svg>
+                    </a>
+
+
+                        <a class="x_button" href="{% url 'list_removed' list.id %}" style=" display: none; vertical-align: middle">
+                            <svg style="display: inline;vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                            </svg>
+                        </a>
+                    </div>
 
                         <script>
                             $('#edit_form_{{ list.id }}').submit(function (e) {
@@ -111,30 +94,18 @@
                             });
                         </script>
 
-                        <a class="x_button" href="{% url 'list_removed' list.id %}" style="margin-left: 20px; display: none; vertical-align: middle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
-                            </svg>
-                        </a>
-                    </div>
-            {% empty %}
-            <p>Nie została jeszcze dodana żadna lista!</p>
-            {% endfor %}
-        </ol>
-    </div>
 
-    <div id="btns_container" class="btn_container" style="text-align:center; margin: 10px; display: inline-block; vertical-align: middle; horiz-align: center">
-        <button id="edit_btn" class="edit_btn" style="display: inline">Edytuj listę</button>
-        <button id="add_btn" class="add_btn" style=" display:inline; vertical-align: middle;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
-            </svg>
-        </button>
-        <button id="delete_btn" class="del_btn" style="display: inline">Usuń listę</button>
+            {% empty %}
+                <div style="margin: 10px; text-align: center">
+                   <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
+                        Nie została jeszcze dodana żadna lista!
+                    </div>
+                </div>
+            {% endfor %}
     </div>
 
     <!-- Formularz dodawania listy-->
-    <form style="display: none; text-align: center;" id="add_form">
+    <form style="margin-top:20px; display: none; text-align: center;" id="add_form" >
         {% csrf_token %}
         <div >
             {{ form.text.label }}
@@ -159,6 +130,34 @@
     </form>
 
 </body>
+
+    <div style="text-align:center; position: sticky; flex: 6; margin-top: auto; margin-bottom: 40px; display: flex; flex-direction: column-reverse;">
+        <div id="icons_container_id" class="icons_container">
+
+            <div id="edit_btn" class="edit_btn" style="display: inline; horiz-align: center; margin-right: 20px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                          <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                          <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                        </svg>
+            </div>
+
+            <div id="add_btn" class="add_btn" style="display: inline; horiz-align: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5z"/>
+                      <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/>
+                    </svg>
+            </div>
+
+
+            <div id="delete_btn" class="del_btn" style="display: inline; horiz-align: center; margin-left: 20px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-clipboard-x" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M6.146 7.146a.5.5 0 0 1 .708 0L8 8.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 9l1.147 1.146a.5.5 0 0 1-.708.708L8 9.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 9 6.146 7.854a.5.5 0 0 1 0-.708z"/>
+                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                      <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                    </svg>
+            </div>
+        </div>
+    </div>
 
        <div style="text-align:center; position: sticky; flex: 1; margin-top: auto; display: flex; flex-direction: column-reverse;">
         <div style="display: inline-block">
@@ -204,7 +203,6 @@
     </div>
 
 
-
     <!-- Skrypt obsługi eventów przycisków-->
     <script>
     var del_btn = document.getElementById("delete_btn")
@@ -225,6 +223,7 @@
 
     var is_from_web_checked = true;
 
+
     $('#check_from_web').on( "click", function() {
         if(is_from_web_checked){
             $('#page_url').css("display","block");
@@ -241,25 +240,37 @@
 
     del_btn.addEventListener('click', function (e) {
         if(flag_del){
-            del_btn.innerHTML = "Anuluj"
+            del_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                  </svg>`
             for (let i = 0; i < del_btns.length; i++)
             {
-                del_btns[i].style.display = "inline-block";
+                del_btns[i].style.display = "inline";
             }
             flag_del = false;
-            edit_btn.disabled = true;
-            add_btn.disabled = true;
+            edit_btn.style.pointerEvents = 'none'
+            add_btn.style.pointerEvents= 'none'
+            add_btn.style.color = 'gray';
+            edit_btn.style.color = 'gray';
+
         }
         else
         {
-            del_btn.innerHTML = "Usuń listę"
+            del_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-clipboard-x" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M6.146 7.146a.5.5 0 0 1 .708 0L8 8.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 9l1.147 1.146a.5.5 0 0 1-.708.708L8 9.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 9 6.146 7.854a.5.5 0 0 1 0-.708z"/>
+                                  <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                                  <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                                </svg>`
             for (let i = 0; i < del_btns.length; i++)
             {
                 del_btns[i].style.display = "none";
             }
             flag_del = true;
-            edit_btn.disabled = false;
-            add_btn.disabled = false;
+            edit_btn.style.pointerEvents = 'auto'
+            add_btn.style.pointerEvents = 'auto'
+            add_btn.style.color = 'black';
+            edit_btn.style.color = 'black';
         }
 
     })
@@ -267,18 +278,26 @@
     edit_btn.addEventListener('click', function (e) {
         console.log(flag_edit)
         if(flag_edit){
-            edit_btn.innerHTML = "Anuluj"
+            edit_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                  </svg>`
             for (let i = 0; i < edit_btns_pencil.length; i++)
             {
-                edit_btns_pencil[i].style.display = "inline-block";
+                edit_btns_pencil[i].style.display = "inline";
             }
             flag_edit = false;
-            del_btn.disabled = true;
-            add_btn.disabled = true;
+            del_btn.style.pointerEvents = 'none'
+            add_btn.style.pointerEvents = 'none'
+            add_btn.style.color = 'gray';
+            del_btn.style.color = 'gray';
         }
         else
         {
-            edit_btn.innerHTML = "Edytuj listę"
+            edit_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                      <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                      <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                  </svg>`
             for (let i = 0; i < edit_btns_pencil.length; i++) {
                 edit_btns_pencil[i].style.display = "none";
                 if (is_edited[i] === true)
@@ -288,8 +307,10 @@
                 }
             }
                 flag_edit = true;
-                del_btn.disabled = false;
-                add_btn.disabled = false;
+                del_btn.style.pointerEvents = 'auto'
+                add_btn.style.pointerEvents = 'auto'
+                add_btn.style.color = 'black';
+                del_btn.style.color = 'black';
 
         }
 
@@ -298,26 +319,31 @@
 
     add_btn.addEventListener('click', function (e) {
         if(flag_add){
-            add_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
-                                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                                </svg>`
+            add_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                  </svg>`
             add_form.style.display = "inline-block";
             flag_add = false;
-            edit_btn.disabled = true;
-            del_btn.disabled = true;
+            edit_btn.style.pointerEvents = 'none';
+            edit_btn.style.color = 'gray';
+            del_btn.style.color = 'gray';
+            del_btn.style.pointerEvents = 'none';
 
 
         }
         else
         {
-            add_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-                                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
-                                </svg>`;
+            add_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5z"/>
+                                  <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/>
+                                </svg>`
             add_form.style.display = "none";
             flag_add = true;
-            edit_btn.disabled = false;
-            del_btn.disabled = false;
+            edit_btn.style.pointerEvents = 'auto'
+            del_btn.style.pointerEvents = 'auto'
+            edit_btn.style.color = 'black';
+            del_btn.style.color = 'black';
         }
 
     })
@@ -344,14 +370,14 @@
             edit_btns_pencil[i].addEventListener("click",function (e){
                 if (is_edited[i] === false){
                     edit_forms[i].style.display = 'block';
-                    edit_btns_pencil[i].innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
-                      <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
-                    </svg>`
+                    edit_btns_pencil[i].innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                                      <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                                    </svg>`
                     is_edited[i] = true
                 }
                 else{
                     edit_forms[i].style.display = 'none';
-                    edit_btns_pencil[i].innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                    edit_btns_pencil[i].innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
                               <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
                             </svg>`
                     is_edited[i] = false
@@ -361,42 +387,5 @@
 
 
     </script>
-
-<!--
-    <form method="post" id="fruit_form">
-    {% csrf_token %}
-      <div class="form-check">
-        <input type="checkbox" value="Apple" id="apple" name="fruits">
-        <label for="apple">Apple</label>
-      </div>
-      <div class="form-check">
-        <input type="checkbox" value="Mango" id="mango" name="fruits">
-        <label for="mango">Mango</label>
-      </div>
-      <button type="submit" name="check_btn" id="check_click">Submit</button>
-    </form>
-
-
-    <script>
-        $('#check_click').on( "click", function() {
-              $('#fruit_form').css("display","block");
-            } );
-                    $('#fruit_form').submit(function (e) {
-                e.preventDefault();
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url "del_shopping_lists" %}',
-                    data: $(this).serialize(),
-                    success: function (data) {
-                        console.log(data);
-                    },
-                    error: function (data) {
-                        console.log(data)
-                    }
-                });
-            });
-    </script>
-
--->
 
 {% endblock content %}

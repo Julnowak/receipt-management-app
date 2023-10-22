@@ -1,12 +1,16 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <div>
-        <h2 style="text-align: center">Twoje paragony</h2>
+        <h2 style="text-align: center; margin-top: 20px">Twoje paragony</h2>
     </div>
 
     <div>
+
+    <div style="margin: 20px; padding: 10px">
         {% for receipt in receipts %}
             <div>
                 <a href="{% url 'receipts:receipt_site' receipt.id%}">
@@ -16,46 +20,114 @@
         {% empty %}
             Brak paragonów
         {% endfor %}
+
+        {% if flag %}
+        <a href="{% url 'receipts:receipts_page' %}">
+            Zobacz więcej...
+        </a>
+        {% endif %}
+
+        <div style="display: block; horiz-align: center; text-align: center">
+
+            <a href="{% url 'receipts:new_receipt' %}" style="text-decoration: none; color: black">
+                <div style="display:inline-block;background-color: lightgrey; width: fit-content;border-radius: 20px;
+                            margin: 10px;padding: 10px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                        </svg>
+                    Nowy paragon (OCR)
+                </div>
+            </a>
+
+            <a href="{% url 'receipts:receipt_by_hand' %}" style="text-decoration: none; color: black">
+                <div style="display:inline-block; background-color: lightgrey; width: fit-content;border-radius: 20px;
+                    margin: 10px;padding: 10px">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                        Nowy paragon
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+
     <div>
         <h2 style="text-align: center">Twoje wydatki</h2>
     </div>
+
+    <div style="margin: 20px; padding: 10px">
         {% for expense in expenses %}
             <div>
+            <a href="{% url 'receipts:expense_site' expense.id%}">
                 {{ expense.expense_name }}
+            </a>
             </div>
         {% empty %}
             Brak wydatków
         {% endfor %}
 
+        {% if flag_e %}
+        <a href="{% url 'receipts:expenses_page' %}">
+            Zobacz więcej...
+        </a>
+        {% endif %}
+
+        <a href="{% url 'receipts:costs_by_hand' %}" style="text-decoration: none; color: black">
+            <div style="background-color: lightgrey; width: fit-content;border-radius: 20px;
+                        margin: 10px auto;padding: 10px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                    </svg>
+                    Nowy wydatek
+            </div>
+        </a>
+    </div>
+
+
     <div>
         <h2 style="text-align: center">Gwarancje</h2>
     </div>
 
-    <div>
-        <ul>
-            {% for guarantee in guarantees %}
-            <li>{{ guarantee }} </li>{{ time_left.days }} dni
+    <div style="margin: 20px; padding: 10px">
+        <div>
+            {% for guarantee, left in info %}
+                <a href="{% url 'receipts:guarantee_site' guarantee.id %}">
+                    {{ guarantee.guarantee_name }}
+                </a>{{ left.days }} dni
             {% empty %}
-                <p>Nie dodano jeszcze żadnej gwarancji.</p>
+                <div>Nie dodano jeszcze żadnej gwarancji.</div>
             {% endfor %}
-        </ul>
+        </div>
+
+        {% if flag_g %}
+            <a href="{% url 'receipts:guarantees' guarantee.id %}">
+                Zobacz więcej...
+            </a>
+        {% endif %}
+
+        <a href="{% url 'receipts:new_guarantee' %}" style="text-decoration: none; color: black">
+            <div style="background-color: lightgrey; width: fit-content;border-radius: 20px;
+                        margin: 10px auto;padding: 10px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                    </svg>
+                    Nowa gwarancja
+            </div>
+        </a>
+
     </div>
-
-        <p>
-            <a href="{% url 'receipts:new_receipt' %}" >Dodaj nowy paragon</a>
-        </p>
-        <p>
-            <a href="{% url 'receipts:costs_by_hand' %}" >Dodaj wydatki ręcznie</a>
-        </p>
-
-        <p>
-            <a href="{% url 'receipts:new_guarantee' %}" >Dodaj gwarancję</a>
-        </p>
-
-        <p>
-            <a href="{% url 'categories:categories' %}" >Kategorie</a>
-        </p>
-
+        <a href="{% url 'categories:categories' %}" style="text-decoration: none; color: black">
+            <div style="background-color: lightgrey; width: fit-content;border-radius: 20px;
+                        margin: 10px auto;padding: 10px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-grid-3x3-gap" viewBox="0 0 16 16">
+                      <path d="M4 2v2H2V2h2zm1 12v-2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V7a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 10v-2a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V7a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V2a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 2v2H7V2h2zm5 0v2h-2V2h2zM4 7v2H2V7h2zm5 0v2H7V7h2zm5 0h-2v2h2V7zM4 12v2H2v-2h2zm5 0v2H7v-2h2zm5 0v2h-2v-2h2zM12 1a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zm-1 6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2z"/>
+                    </svg>
+                    Kategorie
+            </div>
+        </a>
     </div>
 
 {% endblock content %}

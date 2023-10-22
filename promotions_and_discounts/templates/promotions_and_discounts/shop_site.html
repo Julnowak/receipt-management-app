@@ -1,6 +1,8 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <a href="{% url 'promotions_and_discounts:shop_selection' %}">
         <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
@@ -11,7 +13,7 @@
     </a>
 
 
-    <h1 style="text-align: center">{{ shop.shop_name }}</h1>
+    <h1 style="text-align: center; margin-top: 20px">{{ shop.shop_name }}</h1>
 
     {% for label,discount,old_price,new_price,color in some_promos %}
         <div style="margin:10px; padding:10px; background-color: {{ color }}; border-radius: 20px">
@@ -25,11 +27,15 @@
         </div>
 
     {% empty %}
-        Brak promocji w tym momencie!
+        <div style="text-align: center">
+            Brak promocji w tym momencie!
+        </div>
     {% endfor %}
 
-    <div>
-        Załaduj więcej
-    </div>
+    <a href="#" style="color: white; background-color: black;position: fixed; width: fit-content; bottom: 0; right: 0;margin:10px; border-radius: 10px">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-caret-up-fill" viewBox="0 0 16 16">
+          <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+        </svg>
+    </a>
 
 {% endblock content %}

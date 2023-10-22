@@ -1,7 +1,91 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
-    <h1 style="text-align: center">Profilowe</h1>
+    <style>
 
+        input[type=radio] {
+            display: none;
+        }
+
+
+    </style>
+
+    <a href="{% url 'profile_management_site' %}">
+        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+            </svg>
+        </div>
+    </a>
+    <h1 style="text-align: center; margin-top: 20px">Profilowe</h1>
+
+    <form method="post" style="margin: 20px">
+        {% csrf_token %}
+        <label>
+            <input type="color" name="back_color" value={{ my_profile.profile_image_background_color }}>
+            Kolor tła
+        </label>
+        <br>
+        <label>
+            <input type="color" name="icon_color" value={{ my_profile.profile_image_color }}>
+            Kolor obrazka
+        </label>
+        <div>Wybierz ikonę:</div>
+
+        <div style="text-align:center; display: grid; grid-template-columns: 100px 100px 100px;grid-gap: 20px">
+            {% for icon in icons %}
+            <div style="width: 100px;">
+                {% if my_profile.profile_image == icon %}
+                    <label class="sel_radio" style="border-radius: 20px;padding: 10px; margin: 10px;display: block; background-color:gray;">
+                        {{ icon.icon_code|safe }}
+                        <input type="radio" name="profile_img" value={{ icon.id }} class="checks" checked="checked">
+                    </label>
+                {% else %}
+                    <label class="sel_radio" style="border-radius: 20px;padding: 10px; margin: 10px;display: block; background-color:lightgray;">
+                        {{ icon.icon_code|safe }}
+                        <input type="radio" name="profile_img" value={{ icon.id }} class="checks">
+                    </label>
+                {% endif %}
+                <span>{{ icon.icon_name }}</span>
+            </div>
+
+
+            {% endfor %}
+            <div style="width: 100px;">
+                <label class="sel_radio" style="border-radius: 20px;padding: 10px; margin: 10px;display: block; background-color:lightgray;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
+                      <path d="M15 8a6.973 6.973 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8ZM2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Z"/>
+                    </svg>
+                    <input type="radio" name="profile_img" value="None" class="checks">
+                </label>
+
+                <span> Brak </span>
+            </div>
+        </div>
+
+        <br>
+        <button type="submit" class="btn btn-dark">Zapisz</button>
+    </form>
+
+
+    <script>
+        var sel_radio_lab = document.getElementsByClassName("sel_radio")
+        var checks = document.getElementsByClassName("checks")
+
+
+        for (var i=0; i<sel_radio_lab.length;i++){
+            sel_radio_lab[i].addEventListener("click",function (){
+                this.style.backgroundColor ="gray";
+                for (var j=0; j<sel_radio_lab.length;j++){
+                    if(this !== sel_radio_lab[j]){
+                        sel_radio_lab[j].style.backgroundColor ="lightgray";
+                    }
+                }
+            })
+        }
+    </script>
 {% endblock content %}
+

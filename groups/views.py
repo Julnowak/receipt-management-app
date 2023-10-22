@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect,reverse
 from .models import CommonGroups, User
 from groups.forms import CommonGroupsForm
 from django.contrib import messages
-from my_messages.forms import MessageForm,HiddenMessageForm
+from my_messages.forms import MessageForm
 from receipts.models import Expense, Receipt
 from my_messages.models import Message
+from profile_mangement.models import ProfileInfo
 from django.template.defaultfilters import slugify
 import math
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -15,7 +16,7 @@ from django.http import Http404
 
 def groups(request):
     your_groups = CommonGroups.objects.filter(owner=request.user)
-    member_of_groups = CommonGroups.objects.filter(members=request.user)
+    member_of_groups = CommonGroups.objects.filter(members=request.user).order_by("-date_created")
 
     page_number = request.GET.get('page',1)
     p = Paginator(member_of_groups, 5)
@@ -34,6 +35,9 @@ def groups(request):
 def group_site(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     members = group.members.all()
+    profiles = ProfileInfo.objects.filter(user__in=members)
+    pam = zip(profiles, members)
+
     user = request.user
 
     if user not in members:
@@ -54,7 +58,8 @@ def group_site(request, group_id):
     suma_paragony = round(float(suma_paragony), 2)
     suma = suma_wydatki + suma_paragony
     amount_per_member = math.ceil(suma/group.number_of_members * 100)/100
-    context = {"group": group, "members": members, "user": user, "amount_per_member": amount_per_member, "suma":suma}
+    context = {"group": group, "members": members, "user": user, "amount_per_member": amount_per_member, "suma":suma,
+               "profile_and_members": pam}
     return render(request, 'groups/group_site.html', context)
 
 
@@ -172,18 +177,27 @@ def manage_group(request, group_id):
 
 
 def search_group(request):
-    groups_searched = 'None'
     number = 0
     exists = False
+    print(request.POST.get('q'))
     if request.method == 'POST':
-        group_name = request.POST.get('q')
+        group_name = request.POST.get('q', '')
 
         try:
             groups_searched = CommonGroups.objects.filter(group_name__icontains=group_name)
             number = CommonGroups.objects.filter(group_name__icontains=group_name).count()
             exists = True
         except :
-            groups_searched = "Nie ma takiej grupy"
+            groups_searched = None
+    else:
+        group_name = request.GET.get('q', '')
+
+        try:
+            groups_searched = CommonGroups.objects.filter(group_name__icontains=group_name)
+            number = CommonGroups.objects.filter(group_name__icontains=group_name).count()
+            exists = True
+        except :
+            groups_searched = None
 
     if number == 0:
         text = "Brak wyników."
@@ -204,7 +218,8 @@ def search_group(request):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
-    context = {"pages": pages, "text": text, "user": request.user, 'exists': exists, 'groups': groups_searched, 'number': number}
+    context = {"pages": pages, "text": text, "user": request.user, 'exists': exists, 'groups': groups_searched,
+               'number': number, 'query': group_name}
     return render(request, 'groups/search_group.html', context)
 
 
@@ -243,34 +258,31 @@ def group_receipts_and_expenses(request, group_id):
     return render(request, 'groups/group_receipts_and_expenses.html', context)
 
 
-def not_member_of_group(request,group_id):
+def not_member_of_group(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     try:
         mes_last_id = Message.objects.latest('id').id
     except:
         mes_last_id = 0
-    if request.method == 'POST':
-        req_temp = request.POST.copy()
-        req_temp.update({'receiver': User.objects.get(username=group.owner)})
-        form = HiddenMessageForm(req_temp, user=request.user, members=group.members)
-        if form.is_valid():
-            new_message = form.save(commit=False)
-            new_message.sender = request.user
-            new_message.receiver = group.owner
 
-            new_message.title = "Prośba o przyjęcie do grupy  " + group.group_name
+    if request.method == 'POST':
+        try:
+            new_message = Message.objects.create(sender=request.user,
+                                                 receiver=group.owner,
+                                                 title="Prośba o przyjęcie do grupy  " + group.group_name,
+                                                 message_type="request",
+                                                 group=group)
             new_message.slug = slugify(new_message.title + " " + str(mes_last_id + 1))
             new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
                                "Proszę o przyjęcie do grupy  " + group.group_name + "."
-            new_message.message_type = "request"
-            new_message.group = group
             new_message.save()
             messages.success(request, 'Wiadomość została wysłana.')
-            return redirect('groups:groups', group_id=group_id)
-    else:
-        form = MessageForm(user=request.user, members=group.members)
+        except:
+            messages.error(request, 'Nie udało się wysłać wiadomości.')
 
-    context = {"group": group, "code": group.password, "form": form}
+        return redirect('groups:groups')
+
+    context = {"group": group, "code": group.password}
     return render(request, "groups/not_member_of_group.html", context)
 
 
@@ -285,6 +297,11 @@ def password_check(request, group_id):
             messages.error(request, "Złe hasło.")
     context = {"group": group, "code": group.password}
     return redirect("groups:groups")
+
+
+def profile_not_public(request):
+    context = {}
+    return render(request, "groups/profile_not_public.html", context)
 
 
 def remove_member(request, member_id):
