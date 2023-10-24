@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'profile_mangement',
     'statistics_and_plots',
     'promotions_and_discounts',
-    'django_celery_results',
 
     # From beginning
     'django.contrib.admin',
@@ -152,15 +151,3 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'users:login'
-
-# set the celery broker url
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-
-# set the celery result backend
-CELERY_RESULT_BACKEND = 'django-db'
-
-# set the celery timezone
-CELERY_TIMEZONE = 'Europe/London'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-
