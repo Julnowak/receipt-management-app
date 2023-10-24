@@ -1,27 +1,67 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
-    <h3>  Czy na pewno chcesz opuścić grupę {{ group.group_name }}?</h3>
+    <style>
 
-        {% if user == group.owner %}
-            <p>
-            Jesteś założycielem grupy. Jeśli ją opuścisz, inna osoba przejmie status właściciela grupy.
-            Możesz wybrać swojego następcę albo właścicielem zostanie osoba będąca członkiem najdłużej.
-            </p>
+        .messages{
+            color: red;
+            margin: 0 auto;
+            text-align: center;
+        }
 
+    </style>
+    <a href="{% url 'groups:manage_group' group.id %}">
+        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+            </svg>
+        </div>
+    </a>
 
-        {% endif %}
-
-    <p>
-        Wszelkie dane zebrane dotychczas zostaną usunięte!
-        Czy na pewno chcesz kontynuować?
-    </p>
-
+    <h3 style="margin:10px; padding:10px; margin-top: 80px">  Czy na pewno chcesz opuścić grupę {{ group.group_name }}?</h3>
     <div style="text-align: center">
-        <a href="{% url 'groups:left_group' group.id%}" >TAK</a>
-        <a href="{% url 'groups:group_site' group.id %}">NIE</a>
-    </div>s
+        <b>Jesteś założycielem grupy.</b>
+    </div>
+
+    <div style="margin: 10px; padding:10px;text-align: justify;">
+        {% if user == group.owner %}
+            <div>
+            Jeśli ją opuścisz, inna osoba przejmie status właściciela grupy.
+            Możesz wybrać swojego następcę albo właścicielem zostanie osoba będąca członkiem najdłużej.
+            </div>
+        {% endif %}
+    </div>
+
+    <form style="margin: auto" id="form" method="post" action="{% url 'groups:left_group' group.id%}">
+        {% csrf_token %}
+        <label for="new_owner">Nowy właściciel grupy:</label>
+        <br>
+        <input class="form-control" placeholder="{{ new_owner }}" id="new_owner" type="text" name="new_owner">
+
+    <div>
+        {% if messages %}
+            <div id="messages" class="messages">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    </form>
+
+    <div style="margin: 10px; padding:10px;text-align: center">
+        Wszelkie dane zebrane dotychczas zostaną usunięte!
+    </div>
+
+    <div style="text-align: center; margin: 20px">
+        <h5>Czy na pewno chcesz kontynuować?</h5>
+        <button style="margin: 10px; width: 100px" class="btn btn-dark" type="submit" form="form">TAK</button>
+        <a style="margin: 10px; width: 100px" class="btn btn-danger" href="{% url 'groups:group_site' group.id %}">NIE</a>
+    </div>
 
 
 {% endblock content %}

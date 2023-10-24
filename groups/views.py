@@ -34,10 +34,9 @@ def groups(request):
 
 def group_site(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
-    members = group.members.all()
-    profiles = ProfileInfo.objects.filter(user__in=members)
+    members = group.members.all().order_by("id")
+    profiles = ProfileInfo.objects.filter(user__in=members).order_by("user_id")
     pam = zip(profiles, members)
-
     user = request.user
 
     if user not in members:
@@ -58,8 +57,8 @@ def group_site(request, group_id):
     suma_paragony = round(float(suma_paragony), 2)
     suma = suma_wydatki + suma_paragony
     amount_per_member = math.ceil(suma/group.number_of_members * 100)/100
-    context = {"group": group, "members": members, "user": user, "amount_per_member": amount_per_member, "suma":suma,
-               "profile_and_members": pam}
+    context = {"group": group, "members": members, "user": user, "amount_per_member": "{:.2f}".format(amount_per_member),
+               "suma": "{:.2f}".format(suma), "profile_and_members": pam}
     return render(request, 'groups/group_site.html', context)
 
 
@@ -71,23 +70,19 @@ def invite_page(request, group_id):
         mes_last_id = 0
 
     if request.method == 'POST':
-        form = MessageForm(request.POST, user=request.user, members=group.members)
-        if form.is_valid():
-            new_message = form.save(commit=False)
-            new_message.sender = request.user
-            new_message.title = "Zaproszenie do grupy " + group.group_name
+            new_message = Message.objects.create(receiver = User.objects.get(username=request.POST["user_to_invite"]),
+                                                 sender = request.user, title = "Zaproszenie do grupy " + group.group_name,
+                                                 message_type="invitation", group = group
+                                                 )
             new_message.slug = slugify(new_message.title + " " + str(mes_last_id + 1))
             new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
                                "Zapraszam Cię do dołączenia do grupy " + group.group_name + "."
-            new_message.message_type = "invitation"
-            new_message.group = group
             new_message.save()
             messages.success(request, 'Wiadomość została wysłana.')
             return redirect('groups:group_site', group_id=group_id)
-    else:
-        form = MessageForm(user=request.user, members=group.members)
 
-    context = {"group": group, "code": group.password, "form": form}
+
+    context = {"group": group, "code": group.password}
     return render(request, 'groups/invite_page.html', context)
 
 
@@ -117,10 +112,9 @@ def search(request, group_id):
 
 def leaving_group_page(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
-    if request.method == 'POST':
-        name = request.POST.get('textfield', None)
+    member = group.members.exclude(id=group.owner.id).order_by("date_joined")[0]
 
-    context = {"group": group, "user": request.user}
+    context = {"group": group, "user": request.user, "new_owner": member}
     return render(request, 'groups/leaving_group_page.html', context)
 
 
@@ -160,26 +154,40 @@ def deletion(group_id):
 def left_group(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     user = request.user
-    if group.number_of_members == 1:
-        deletion(group_id)
-    else:
-        group.members.remove(user)
-        group.number_of_members -= 1
-        group.save()
-
+    if request.method == "POST":
+        try:
+            group.owner = group.members.get(username=request.POST["new_owner"])
+            if group.number_of_members == 1:
+                deletion(group_id)
+            else:
+                group.members.remove(user)
+                group.number_of_members -= 1
+                group.save()
+        except:
+            if len(request.POST["new_owner"]) > 0:
+                messages.error(request, "Brak użytkownika")
+                return redirect('groups:leaving_group_page', group_id=group.id)
+            else:
+                if group.number_of_members == 1:
+                    deletion(group_id)
+                else:
+                    group.members.remove(user)
+                    group.number_of_members -= 1
+                    group.owner = group.members.all().order_by("date_joined")[0]
+                    group.save()
     return redirect('groups:groups')
 
 
 def manage_group(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
-    context = {"group": group, "user": request.user, 'members': group.members.all()}
+    members = [group.owner] + list(group.members.all().order_by("date_joined")[1:])
+    context = {"group": group, "user": request.user, 'members': members}
     return render(request, 'groups/manage_group.html', context)
 
 
 def search_group(request):
     number = 0
     exists = False
-    print(request.POST.get('q'))
     if request.method == 'POST':
         group_name = request.POST.get('q', '')
 
@@ -253,8 +261,8 @@ def group_receipts_and_expenses(request, group_id):
         page_obj = p.page(p.num_pages)
 
     context = {'group': group, 'group_expenses': group_expenses, 'suma': suma, 'number_of_members': number_of_members,
-               'group_receipts': group_receipts, 'suma_wydatki': suma_wydatki,'suma_paragony': suma_paragony,
-               'amount_per_member':amount_per_member,'page_obj': page_obj}
+               'group_receipts': group_receipts, 'suma_wydatki': "{:.2f}".format(suma_wydatki),'suma_paragony': "{:.2f}".format(suma_paragony),
+               'amount_per_member':"{:.2f}".format(amount_per_member),'page_obj': page_obj}
     return render(request, 'groups/group_receipts_and_expenses.html', context)
 
 

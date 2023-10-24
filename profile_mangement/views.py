@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import ProfileInfo, Icon, User
+from groups.models import CommonGroups
 import datetime
 from django.http import Http404
 from django.contrib import messages
@@ -44,7 +45,32 @@ def deletion(request):
 
 
 @login_required
-def profile_showcase(request, member_id):
+def profile_showcase(request,group_id, member_id):
+    try:
+        my_profile = ProfileInfo.objects.get(user=member_id)
+    except:
+        my_profile = ProfileInfo.objects.filter(user=member_id)
+    user = User.objects.get(id=member_id)
+    age = datetime.date.today().year - my_profile.date_of_birth.year
+    group = CommonGroups.objects.get(id=group_id)
+
+    have_birthday = (datetime.date.today().month == my_profile.date_of_birth.month) and \
+                    (datetime.date.today().day == my_profile.date_of_birth.day)
+
+    picture = my_profile.profile_image
+    if picture:
+        img = picture.icon_code[:47] + '128" ' + picture.icon_code[51:59] + '128" ' + 'style="display:inline; vertical-align: middle;"' + picture.icon_code[62:]
+    else:
+        img = None
+
+    context = {'img':img, 'user': user, "my_profile": my_profile, "age": age, 'have_birthday': have_birthday,
+               'group':group}
+
+    return render(request, "profile_management/profile_showcase.html", context)
+
+
+@login_required
+def profile_showcase_second(request, member_id):
     try:
         my_profile = ProfileInfo.objects.get(user=member_id)
     except:
@@ -62,7 +88,8 @@ def profile_showcase(request, member_id):
         img = None
 
     context = {'img':img, 'user': user, "my_profile": my_profile, "age": age, 'have_birthday': have_birthday}
-    return render(request, "profile_management/profile_showcase.html", context)
+
+    return render(request, "profile_management/profile_showcase_second.html", context)
 
 
 @login_required
@@ -122,7 +149,6 @@ def change_image(request):
             my_profile.profile_image = None
         my_profile.save()
         messages.success(request, 'Obraz został zmieniony.')
-        return redirect("profile_management_site")
         return redirect("profile_management_site")
 
     context = {'my_profile': my_profile, 'icons': icons}

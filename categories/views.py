@@ -20,7 +20,7 @@ def categories(request):
 
 def new_category(request):
     if request.method == 'POST':
-        print(request.POST)
+
         form = NewCategoryForm(data=request.POST)
         if form.is_valid():
             cat = form.save(commit=False)

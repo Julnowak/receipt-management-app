@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-+v@4ej35djtnvdz@i1mep91=ddg19rb1ash_77ns(8(7k5n+6c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "192.168.137.175", "192.168.83.138"]
+ALLOWED_HOSTS = ["127.0.0.1", "192.168.137.175", "192.168.83.138", '.vercel.app']
 
 
 # Application definition
@@ -45,8 +45,7 @@ INSTALLED_APPS = [
     'profile_mangement',
     'statistics_and_plots',
     'promotions_and_discounts',
-
-    'celery',
+    'django_celery_results',
 
     # From beginning
     'django.contrib.admin',
@@ -86,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ZebragonApp.wsgi.application'
+WSGI_APPLICATION = 'vercel_app.wsgi.app'
 
 
 # Database
@@ -158,7 +157,10 @@ LOGIN_URL = 'users:login'
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 
 # set the celery result backend
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
 
 # set the celery timezone
 CELERY_TIMEZONE = 'Europe/London'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+

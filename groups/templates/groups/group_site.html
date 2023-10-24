@@ -76,6 +76,15 @@
             color: white;
         }
 
+        .member_box{
+            background-color: gainsboro;
+            padding: 10px;
+            border-radius: 10px;
+            width: fit-content;
+            min-width: 140px;
+            margin: 10px auto;
+        }
+
     </style>
 
     <a href="{% url 'groups:groups' %}">
@@ -103,17 +112,15 @@
     </div>
 
     <div class="white_block">
-    <h2>
+    <h1>
     {{ group}}
-    </h2>
+    </h1>
 
-    <h5 style="margin-top: -10px; color: #545454">
+    <h6 style=" color: #545454">
         Utworzono:&nbsp&nbsp{{ group.date_created|date:'d.m.Y' }}
-    </h5>
-
-    <h5 style="margin-top: -10px; color: #545454">
+        <br>
         Właściciel:&nbsp&nbsp{{ group.owner }}
-    </h5>
+    </h6>
 
 
     </div>
@@ -122,33 +129,33 @@
         <h3>
             Wydatki grupy
         </h3>
-        <h5 style="margin-top: -10px; color: #545454">
+
+        <h6 style=" color: #545454">
             Podsumowanie
-        </h5>
+        </h6>
 
         <div>
 
     </div>
         <div style="display: inline-block">
 
-            <div style=" display: inline">
-                <p>Łączna suma do podziału:</p>
-                <p>{{ suma }}</p>
+            <div style=" display: block; margin: 10px">
+                <span style="margin: 10px">Łączna suma do podziału:</span>
+                <span style="margin: 10px">{{ suma }}</span>
             </div>
 
-            <div style=" display: inline">
-                <p>Suma na jednego członka:</p>
-                <p>{{ amount_per_member }}</p>
+            <div style=" display: block; margin: 10px">
+                <span style="margin: 10px">Suma na jednego członka:</span>
+                <span style="margin: 10px">{{ amount_per_member }}</span>
             </div>
 
         </div>
 
-
-        <div>
-            <a href="{% url 'groups:group_receipts_and_expenses' group.id %}">
-                Paragony i wydatki grupy
-            </a>
-        </div>
+        <a href="{% url 'groups:group_receipts_and_expenses' group.id %}">
+            <div class="btn btn-dark" style="margin: 10px">
+                    Paragony i wydatki grupy
+            </div>
+        </a>
 
     </div>
 
@@ -159,20 +166,25 @@
     <h3>
         Członkowie
     </h3>
-    <h5 style="margin-top: -10px; color: #545454">
+    <h6 style=" color: #545454">
         {{ group.number_of_members }}/{{ group.max_number_of_members }}
-    </h5>
+    </h6>
 
-    <div>
+    <div style="display: grid;grid-template: auto/ auto auto;">
+
         {% for profile, member in profile_and_members %}
-            {% if profile.is_public %}
-                <li>
-                    <a href="{% url 'profile_showcase' member.id %}">{{ member }}</a>
-                </li>
-                {% else %}
-                <li>
-                    <a href="{% url 'groups:profile_not_public' %}">{{ member }}</a>
-                </li>
+            {% if profile.is_public or profile.user == user %}
+                <a href="{% url 'profile_showcase' group.id member.id %}" style="text-decoration: none;color: black;">
+                    <div class="member_box">
+                            {{ member }}
+                    </div>
+                </a>
+            {% else %}
+                <a href="{% url 'groups:profile_not_public' %}" style="text-decoration: none;color: black;">
+                    <div class="member_box">
+                            {{ member }}
+                    </div>
+                </a>
             {% endif %}
         {% endfor %}
     </div>
@@ -181,11 +193,15 @@
     </div>
 
     {% if group.owner == user %}
-        <a href="{% url 'groups:manage_group' group.id %}">
-            Zarządzaj grupą
-        </a>
-    {% else %}
-        Ustawienia
+        <div style="position: fixed; bottom: 0;right:0; padding: 5px; border-radius: 10px 0 0 0; background-color: white;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);">
+            <a href="{% url 'groups:manage_group' group.id %}" style="text-decoration: none; color: black">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                  <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                  <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+                </svg>
+            </a>
+        </div>
     {% endif %}
 
     <a href="{% url 'groups:invite_page' group.id %}" style="text-decoration: none; ">

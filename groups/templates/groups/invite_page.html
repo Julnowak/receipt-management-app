@@ -1,8 +1,10 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <style>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+ <style>
 
         .p_error {
             margin: 0 30px auto;
@@ -18,28 +20,40 @@
 
     </style>
 
-    <h1>Zaproś</h1>
-    <p>Wpisz nazwę użytkownika, którego chcesz dodać do grupy:</p>
+    <a href="{% url 'groups:group_site' group.id %}">
+        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+            </svg>
+        </div>
+    </a>
 
-    <form method="post" novalidate action="{% url 'groups:invite_page' group.id %}"  style="text-align: center">
-        {% csrf_token %}
-        <p>
-            {{ form.receiver }}
-        </p>
-        <p class="p_error">
-                {% if form.receiver.errors %}
-                    {{ form.receiver.errors }}
-                {% else %}
-                    &nbsp;
-                {% endif %}
-            </p>
+    <h1 style="margin-top: 20px;">Zaproś</h1>
 
-        <button class="btn btn-dark" name="post_btn">Zaproś</button>
+    <div style="padding: 10px; margin: 10px">
 
-    </form>
+        <div>Wpisz nazwę użytkownika, którego chcesz dodać do grupy:</div>
 
-    <p>Możesz też zaprosić go, przekazując mu hasło:</p>
-    <p>{{ code }}</p>
+        <form method="post" novalidate action="{% url 'groups:invite_page' group.id %}"  style="text-align: center">
+            {% csrf_token %}
+            <div style="margin: 20px">
+                <input class="form-control" type="text" name="user_to_invite">
+            </div>
+            <button class="btn btn-dark" name="post_btn" type="submit">Zaproś</button>
+
+        </form>
+
+        <div style="margin-top: 20px">
+            <div>Możesz też zaprosić go, przekazując mu hasło:</div>
+            <div style="text-align: center">
+                <b>
+                    {{ code }}
+                </b>
+            </div>
+        </div>
+
+    </div>
+
 
 
 

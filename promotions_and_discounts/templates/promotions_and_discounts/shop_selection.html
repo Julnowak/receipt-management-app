@@ -15,7 +15,11 @@
         </a>
 
     {% empty %}
-        Nie ma jeszcze dostępnych sklepów
+        <div style="margin: 10px; text-align: center">
+            <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
+                Nie ma jeszcze dostępnych sklepów
+            </div>
+        </div>
     {% endfor %}
 
     <div id="spinner" style="display: none; text-align: center; margin: 20px">

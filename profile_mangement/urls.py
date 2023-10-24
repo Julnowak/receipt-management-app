@@ -5,7 +5,8 @@ urlpatterns = [
     # Home page
     path('', views.profile_management_site, name='profile_management_site'),
     path('account_deletion/', views.account_deletion, name='account_deletion'),
-    path('<int:member_id>/profile_showcase/', views.profile_showcase, name='profile_showcase'),
+    path('<int:group_id>/<int:member_id>/profile_showcase/', views.profile_showcase, name='profile_showcase'),
+    path('<int:member_id>/profile_showcase/', views.profile_showcase_second, name='profile_showcase_second'),
     path('deletion/', views.deletion, name="deletion"),
     path('change_visibility/', views.change_visibility, name="change_visibility"),
     path('change_email/', views.change_email, name="change_email"),

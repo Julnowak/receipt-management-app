@@ -16,14 +16,14 @@
     <h1 style="text-align: center; margin-top: 20px">{{ shop.shop_name }}</h1>
 
     {% for label,discount,old_price,new_price,color in some_promos %}
-        <div style="margin:10px; padding:10px; background-color: {{ color }}; border-radius: 20px">
-            <p>
+        <div style="width:325px; margin: 10px auto; display: block; text-align: center; padding:10px; background-color: {{ color }}; border-radius: 20px">
+            <div style="text-align: justify; margin: 10px">
                 {{ label }}
-            </p>
+            </div>
 
-            <p>
+            <div style="background-color: whitesmoke;border-radius:20px;text-align: justify; padding: 10px">
                  {{ discount }} <span style="text-decoration-line: line-through">{{ old_price }}</span> {{ new_price }}
-            </p>
+            </div>
         </div>
 
     {% empty %}

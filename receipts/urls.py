@@ -16,5 +16,7 @@ urlpatterns = [
     path('expenses_page/', views.expenses_page, name='expenses_page'),
     path('receipt_by_hand/', views.receipt_by_hand, name='receipt_by_hand'),
     path('receipts_page/', views.receipts_page, name='receipts_page'),
-
+    path('<int:expense_id>/edit_expense/', views.edit_expense, name='edit_expense'),
+    path('<int:guarantee_id>/edit_guarantee/', views.edit_guarantee, name='edit_guarantee'),
+    path('<int:receipt_id>/edit_receipt/', views.edit_receipt, name='edit_receipt'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -43,8 +43,7 @@
     </div>
 
     <h2 style="margin-top: 20px">Główne</h2>
-    <div style="display: grid; grid-template-columns: 200px 200px; grid-template-rows: auto auto auto;
-    justify-content: center">
+    <div style="display: grid; grid-template: auto/ auto auto; justify-content: center; margin: 10px">
         {% for cat in cat_public%}
 
             <a style="text-decoration: none; color: black" href="{% url 'categories:subcategories' cat.slug %} " >
