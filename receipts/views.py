@@ -7,7 +7,6 @@ import pytesseract
 from PIL import Image
 import cv2
 from pytesseract import Output
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -36,9 +35,8 @@ def your_receipts(request):
     guarantees = Guarantee.objects.filter(owner=request.user)[:5]
     left = []
     for guarantee in guarantees:
-        result = add.delay((2, 2))
-        # result = calculate_remaining_days.delay(guarantee.end_date)
-        left.append(result)
+       result = guarantee.end_date - datetime.date.today()
+       left.append(result)
 
     info = zip(guarantees, left)
     context = {'receipts': receipts, 'expenses': expenses, 'guarantees': guarantees, 'info': info,
@@ -115,8 +113,8 @@ def receipt_site(request, receipt_id):
     #     cv2.rectangle(img, (x, y), (x + w, y + h), (10, 255, 0), 2)
 
     # img = cv2.resize(img, (960, 700))
-    plt.imshow(img, 'gray')
-    plt.show()
+    # plt.imshow(img, 'gray')
+    # plt.show()
 
     context = {'receipt': receipt, 'text': text, 'suma': suma}
     return render(request, 'receipts/receipt_site.html', context)
