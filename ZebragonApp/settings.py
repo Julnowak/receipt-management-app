@@ -29,8 +29,9 @@ SECRET_KEY = 'django-insecure-+v@4ej35djtnvdz@i1mep91=ddg19rb1ash_77ns(8(7k5n+6c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "192.168.137.175", "192.168.83.138", '.vercel.app']
+ALLOWED_HOSTS = ["127.0.0.1", "192.168.137.175", "192.168.83.138", '9783-149-156-124-2.ngrok-free.app']
 
+CSRF_TRUSTED_ORIGINS = ['https://9783-149-156-124-2.ngrok-free.app']
 
 # Application definition
 
@@ -84,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'vercel_app.wsgi.app'
+WSGI_APPLICATION = 'ZebragonApp.wsgi.app'
 
 
 # Database

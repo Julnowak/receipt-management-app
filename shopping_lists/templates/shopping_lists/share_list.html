@@ -1,6 +1,8 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <a href="{% url 'single_list' list.id %}">
         <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
@@ -10,49 +12,100 @@
         </div>
     </a>
 
-    <h1>Przekaż listę</h1>
+    <h1 style="margin-top: 20px">Przekaż listę</h1>
 
-    <form method="post" action="share_list.html">
-    {{ csrf.token }}
-    <p>
+    <form method="post" action="{% url 'share_list' list.id %}" style="padding: 10px; margin: 20px">
+        {% csrf_token %}
+            <div>
+                Komu przekazać listę?
+            </div>
+
+            <div>
+                <label>
+                    <input class="radio_class" type="radio" name="chosen_users_or_whole_group" value="chosen_users" checked="checked"> Wybranym użytkownikom
+                </label>
+            </div>
+
+            <div style="margin: 10px auto; text-align: center; display: block" id="chosen_in">
+                <label>
+                    <select name="users_chosen" multiple class="form-select" style="width: 200px;min-height: fit-content; max-height:100px; text-align: center">
+                            {% for user in users %}
+                                <option value="{{ user.id }}">{{ user }}</option>
+                            {% endfor %}
+                    </select>
+                </label>
+            </div>
+
+            <div>
+                <label>
+                    <input class="radio_class" type="radio" name="chosen_users_or_whole_group" value="whole_group"> Całej grupie
+                </label>
+            </div>
+
+            <div style="margin: 10px auto; text-align: center; display: none" id="group_in">
+                <label>
+                    <select name="group" class="form-select" style="width: 200px; max-height:100px; text-align: center">
+                            {% for group in groups %}
+                                <option value="{{ group.id }}">{{ group }}</option>
+                            {% endfor %}
+                    </select>
+                </label>
+            </div>
+
         <div>
-            Komu przekazać listę?
+            <label id="check">
+                <input type="checkbox" name="are_regards_added"> Dodać uwagi?
+            </label>
+
+            <label id="reg_box" style="display: none;">
+                Uwagi
+                <textarea name="regards" class="form-control" rows="5" cols="50"></textarea>
+            </label>
+
         </div>
 
-        <div>
-        <label>
-            <input type="radio" name="chosen_users_or_whole_group" checked="checked"> Wybranym użytkownikom
-        </label>
+        <div style="text-align: center; margin: 20px">
+            <button id="share_id" class="btn btn-dark" style="min-width: 150px" type="submit">Przekaż</button>
         </div>
 
-        <div>
-        <label>
-            <input type="radio" name="chosen_users_or_whole_group"> Całej grupie
-        </label>
-        </div>
-
-
-
-
-    </p>
-    <p>
-        <label>
-            <input type="checkbox" name="share_copy"> Przekazać kopię?
-        </label>
-    </p>
-    <p>
-        <label>
-            <input type="checkbox" name="are_regards_added"> Dodać uwagi?
-        </label>
-        <label>
-            Uwagi
-            <input type="text" name="regards">
-        </label>
-
-    </p>
-
-        <button id="share_id" class="share_btn">Przekaż</button>
     </form>
 
+    <script>
+    var check_reg = document.getElementById("check")
+    var reg_box = document.getElementById("reg_box")
+    var flag = false;
+
+    check_reg.addEventListener("click", function (e){
+        if (flag){
+            reg_box.style.display = "none";
+            flag = false;
+        }
+        else {
+            flag = true;
+            reg_box.style.display = "block";
+        }
+    })
+
+    var choices = document.getElementsByClassName("radio_class")
+    var chosen_in = document.getElementById("chosen_in")
+    var group_in = document.getElementById("group_in")
+
+    for(var i=0; i<choices.length; i++){
+        choices[i].addEventListener("change", function (){
+            if(this === choices[0] && choices[0].checked){
+                chosen_in.style.display = "block";
+                group_in.style.display = "none";
+            }
+            else{
+                chosen_in.style.display = "none";
+                group_in.style.display = "block";
+            }
+        })
+    }
+
+
+
+
+    </script>
 
 {% endblock content %}

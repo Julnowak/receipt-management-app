@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
 from categories.models import BaseCategories
@@ -60,7 +62,7 @@ class Expense(models.Model):
 class Guarantee(models.Model):
     guarantee_name = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
-    end_date = models.DateField()
+    end_date = models.DateField(default=datetime.date.today())
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     regards = models.TextField(blank=True, null=True)
 

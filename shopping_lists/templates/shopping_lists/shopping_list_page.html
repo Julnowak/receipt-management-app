@@ -1,30 +1,11 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
-    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
-
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
-
-        body
-        {
-            background: ghostwhite;
-            margin: 0;
-            font-family: "Montserrat", sans-serif;
-        }
-
-
-        h1, h2, h3, h4, h5, h6
-        {
-            font-family: "Montserrat", sans-serif;
-        }
-
-        h1, p {
-            text-align: center;
-        }
-
         .icon_icon{
             text-decoration: none;
             color: black;
@@ -42,88 +23,192 @@
 
     </style>
 
-    <a href="{% url 'your_lists' %}">
-        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
-            </svg>
-        </div>
-    </a>
+    <div style="display: grid; grid-template: auto/auto auto; z-index: 1">
+        <a href="{% url 'your_lists' %}" style="position: relative">
+            <div style=" margin-top: 15px; color: black; margin-left: 15px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+                </svg>
+            </div>
+        </a>
 
-    <h1>{{ current_list }}</h1>
-
-    <div style="display: inline-block; position: fixed; top: 170px; right: 30px">
-        <a href="{% url 'share_list' current_list.id %}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-send-fill" viewBox="0 0 16 16">
-              <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/>
-            </svg>
+        <a href="{% url 'share_list' current_list.id %}" style="position: relative">
+            <div style=" margin-top: 15px; color: black; text-align: right; margin-right: 15px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-send-fill" viewBox="0 0 16 16">
+                  <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/>
+                </svg>
+            </div>
         </a>
     </div>
 
-    <h3 style="text-align: center">Produkty:</h3>
-
-    {% for product in products %}
-        <div class="prod_on_list" style="margin: 10px; padding: 10px">
-            {{ product }}
-            <a href="{% url 'edit_product' product.id %}" onclick="loadDoc()">✎</a>
-            <a href="{% url 'removed' product.id %}" >✕</a>
-        </div>
-
-    {% empty %}
-        <div style="margin: 10px; text-align: center">
-           <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
-                Nie został dodany jeszcze żaden produkt!
+    <h1 style="margin-top: 20px">{{ current_list }}</h1>
+    <p>
+        {% if list_shared %}
+            <div style="margin: auto; display: inline-block;">
+                <span style="display: inline; vertical-align: middle">
+                    <svg xmlns="http://www.w3.org/2000/svg" color="slategrey" width="24" height="24" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                      <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                </span>
+                <span style="display: inline;vertical-align: middle; color: slategrey">
+                    {% if current_list.owner %}
+                        Lista została Ci przekazana przez <b>{{ current_list.owner }}</b>.
+                    {% else %}
+                        Lista została Ci przekazana.
+                    {% endif %}
+                </span>
             </div>
-        </div>
-    {% endfor %}
+
+        {% endif %}
+
+    </p>
+
+    <div class="list-group" style="margin: 10px 10px 30px;">
+        {% for product in products %}
+            {% if product.is_bought %}
+                <div id="change_variable_{{ product.id }}" class="list-group-item list-group-item-success" style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 15px; width: 95vw; margin: auto; ">
+                    <div style="display: inline; max-width: 85%; margin: auto 0; ">
+                        {{ product }}
+                    </div>
+                    <div style="display: inline; margin: auto">
+                        <a href="{% url 'removed' product.id %}" class="del_btns" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: none;
+                        width: 40px;height: 40px">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                              <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                            </svg>
+                        </a>
+
+                        <a class="edit_btns" style="position: absolute; color: black; background-color: white; display: none; border: 1px solid lightgrey; border-radius: 20px" href="{% url 'edit_product' product.id %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                              <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                            </svg>
+                        </a>
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
+                          <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/>
+                          <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
+                        </svg>
+                    </div>
+                </div>
+            {% else %}
+                <div id="change_variable_{{ product.id }}" class="list-group-item list-group-item-action" style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 15px; width: 95vw; margin: auto; ">
+                    <div style="display: inline; max-width: 85%; margin: auto 0; ">
+                        {{ product }}
+                    </div>
+
+                    <div style="margin: auto; height: 40px; width: 40px;">
+                        <a class="edit_btns" href="{% url 'edit_product' product.id %}" style="color: black; display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                              <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                            </svg>
+                        </a>
+
+                        <a href="{% url 'removed' product.id %}" class="del_btns" style="color: red; background-color: gainsboro; border-radius: 2px;display: none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                              <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+            <script>
+                $(document).ready(function() {
+                    $('#change_variable_{{ product.id }}').click(function(e) {
+                         var sender = e.target;
+                         if($(sender).is("div")) {
+                            $.ajax({
+                            url: '{% url "update_is_bought" current_list.id %}',
+                            type: 'POST',
+                            data: {"csrfmiddlewaretoken" : "{{csrf_token}}","product_id": "{{ product.id }}"},
+                            success: function(response) {
+                                console.log(response["message"])
+                                if(response["message"] === "False"){
+                                    $('#change_variable_{{ product.id }}').removeClass("list-group-item list-group-item-success").addClass("list-group-item list-group-item-action");
+                                    $('#change_variable_{{ product.id }}').html(`<div style="display: inline; max-width: 85%; margin: auto 0; ">
+                                                                                    {{ product }}
+                                                                                </div>
+                                                                                <div style="margin: auto; height: 40px; width: 40px;">
+                                                                                    <a class="edit_btns" href="{% url 'edit_product' product.id %}" style="color: black; display: none;">
+                                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                                                                          <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                                                                                        </svg>
+                                                                                    </a>
+                                                                                    <a href="{% url 'removed' product.id %}" class="del_btns" style="color: red; background-color: gainsboro; border-radius: 2px;display: none">
+                                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                                                                          <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                                                                        </svg>
+                                                                                    </a>
+                                                                                </div>`)
+                                }
+                                else {
+                                    $('#change_variable_{{ product.id }}').removeClass("list-group-item list-group-item-action").addClass("list-group-item list-group-item-success");
+                                    $('#change_variable_{{ product.id }}').html(`<div style="display: inline; max-width: 85%; margin: auto 0; ">
+                                                                                    {{ product }}
+                                                                                </div>
+                                                                                <div style="display: inline; margin: auto">
+                                                                                    <a href="{% url 'removed' product.id %}" class="del_btns" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: none;
+                                                                                    width: 40px;height: 40px">
+                                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                                                                          <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                                                                        </svg>
+                                                                                    </a>
+                                                                                    <a class="edit_btns" style="position: absolute; color: black; background-color: white; display: none; border: 1px solid lightgrey; border-radius: 20px" href="{% url 'edit_product' product.id %}">
+                                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                                                                          <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                                                                                        </svg>
+                                                                                    </a>
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
+                                                                                      <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/>
+                                                                                      <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
+                                                                                    </svg>
+                                                                                </div>`)
+                                }
+                            },
+                            error: function(response) {
+                                console.log('Wystąpił problem');
+                            }
+                        });
+                         }
+
+                    });
+                });
+            </script>
 
 
-
-    <script type="text/javascript">
-    var prods = document.getElementsByClassName("prod_on_list")
-    var prods_linethrouhts = Array(prods.length).fill(false)
-
-    for(var i=0; i < prods.length; i++){
-        prods[i].addEventListener("click", function (e){
-            if(prods_linethrouhts[this.i]){
-                this.style.textDecoration = "none";
-                prods_linethrouhts[this.i] = false
-            }
-            else{
-                this.style.textDecoration = "line-through";
-                prods_linethrouhts[this.i] = true
-            }
-        })
-    }
-
-</script>
-
-
+        {% empty %}
+            <div style="margin: 10px; text-align: center">
+               <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
+                    Nie został dodany jeszcze żaden produkt!
+                </div>
+            </div>
+        {% endfor %}
+    </div>
         <div style="text-align:center; position: sticky; flex: 6; margin-top: auto; margin-bottom: 40px; display: flex; flex-direction: column-reverse;">
         <div id="icons_container_id" class="icons_container">
 
-            <div class="box" style="display: inline; horiz-align: center; margin-right: 20px">
+            <div class="box" id="edit_btn" style="display: inline; horiz-align: center; margin-right: 20px">
                     <a class="icon_icon" href="#">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                        <svg id="edit_btn_inside" xmlns="http://www.w3.org/2000/svg" color="black" width="45" height="45" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                           <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
                           <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
                         </svg>
                     </a>
             </div>
 
-            <div class="box" style="display: inline; horiz-align: center;">
+            <div class="box" id="add_btn" style="display: inline; horiz-align: center;">
                 <a class="icon_icon"  href="{% url 'new_product' current_list.id %}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
-                      <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5z"/>
-                      <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/>
+                    <svg id="add_btn_inside" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5z"></path>
+                      <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"></path>
                     </svg>
                 </a>
             </div>
 
 
-            <div class="box" style="display: inline; horiz-align: center; margin-left: 20px">
+            <div class="box" id="x_btn" style="display: inline; horiz-align: center; margin-left: 20px">
                 <a class="icon_icon" id="del_messages" >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-clipboard-x" viewBox="0 0 16 16">
+                    <svg id="x_btn_inside" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-clipboard-x" viewBox="0 0 16 16">
                       <path fill-rule="evenodd" d="M6.146 7.146a.5.5 0 0 1 .708 0L8 8.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 9l1.147 1.146a.5.5 0 0 1-.708.708L8 9.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 9 6.146 7.854a.5.5 0 0 1 0-.708z"/>
                       <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
                       <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
@@ -132,5 +217,99 @@
             </div>
         </div>
     </div>
+
+    <script>
+    let del_btns = document.getElementsByClassName("del_btns")
+    let edit_btn = document.getElementById("edit_btn")
+    let add_btn = document.getElementById("add_btn")
+
+    var x_btn_inside = document.getElementById("x_btn_inside")
+    var edit_btn_inside = document.getElementById("edit_btn_inside")
+    let add_btn_inside = document.getElementById("add_btn_inside")
+
+    let edit_btns = document.getElementsByClassName("edit_btns")
+    let x_btn = document.getElementById("x_btn")
+    let flag = false
+    let flag_edit = false
+
+    let green_btns = document.getElementsByClassName("list-group-item list-group-item-success")
+    let normal_btns = document.getElementsByClassName("list-group-item list-group-item-action")
+
+
+    x_btn.addEventListener("click",function (){
+            if(flag){
+                for(var k=0; k < del_btns.length; k++){
+                del_btns[k].style.display = "none";}
+                flag = false;
+                x_btn.innerHTML = `<svg id="x_btn_inside" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-clipboard-x" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M6.146 7.146a.5.5 0 0 1 .708 0L8 8.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 9l1.147 1.146a.5.5 0 0 1-.708.708L8 9.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 9 6.146 7.854a.5.5 0 0 1 0-.708z"/>
+                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                      <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                    </svg>`;
+                add_btn_inside.style.color = "black";
+                edit_btn_inside.style.color = "black";
+                add_btn.style.pointerEvents = "auto";
+                edit_btn.style.pointerEvents = "auto";
+                for (let gr of green_btns) { gr.style.pointerEvents = "auto" }
+                for (let no of normal_btns) { no.style.pointerEvents = "auto" }
+            }
+            else {
+                for(var j=0; j < del_btns.length; j++){
+                del_btns[j].style.display = "block";}
+                flag = true;
+                x_btn.innerHTML = `<svg id="x_btn_inside" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>`;
+                add_btn_inside.style.color = "lightgray";
+                edit_btn_inside = document.getElementById("edit_btn_inside")
+                edit_btn_inside.style.color = "lightgray";
+                add_btn.style.pointerEvents = "none";
+                edit_btn.style.pointerEvents = "none";
+                for (let gr of green_btns) { gr.style.pointerEvents = "none" }
+                for (let no of normal_btns) { no.style.pointerEvents = "none" }
+                for (let db of del_btns) { db.style.pointerEvents = "auto" }
+            }
+    })
+
+
+    edit_btn.addEventListener("click",function (){
+            if(flag_edit){
+                for(var k=0; k < edit_btns.length; k++){
+                edit_btns[k].style.display = "none";}
+                flag_edit = false;
+                edit_btn.innerHTML = `<svg id="edit_btn_inside" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                              <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                              <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                            </svg>`;
+                add_btn_inside.style.color = "black";
+                add_btn.style.pointerEvents = "auto";
+                x_btn_inside.style.color = "black";
+                x_btn.style.pointerEvents = "auto";
+                for (let gr of green_btns) { gr.style.pointerEvents = "auto" }
+                for (let no of normal_btns) { no.style.pointerEvents = "auto" }
+            }
+            else {
+                for(var j=0; j < edit_btns.length; j++){
+                edit_btns[j].style.display = "block";}
+                flag_edit = true;
+                edit_btn.innerHTML = `<svg id="edit_btn_inside" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>`;
+                add_btn_inside.style.color = "lightgray";
+                add_btn.style.pointerEvents = "none";
+                x_btn_inside = document.getElementById("x_btn_inside")
+                x_btn_inside.style.color = "lightgray";
+                x_btn.style.pointerEvents = "none";
+                for (let gr of green_btns) { gr.style.pointerEvents = "none" }
+                for (let no of normal_btns) { no.style.pointerEvents = "none" }
+                for (let db of edit_btns) { db.style.pointerEvents = "auto" }
+            }
+    })
+
+
+
+    </script>
 
 {% endblock content %}

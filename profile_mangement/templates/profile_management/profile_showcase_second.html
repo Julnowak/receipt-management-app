@@ -15,8 +15,8 @@
         }
     </style>
 
-    <a href="{% url 'groups:group_site' group.id %}">
-        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
+    <a href="{% url 'profile_management_site' %}">
+        <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
             </svg>
@@ -40,7 +40,7 @@
     </div>
 
         {% if user.is_superuser %}
-        <div style="padding: 20px 30px; background-color: goldenrod; border-radius: 20px; margin: 10px">
+        <div style="padding: 20px 30px; background-color: goldenrod; border-radius: 10px; margin: 10px">
 
             <div style="display: inline-block; vertical-align: middle">
                 <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
@@ -58,7 +58,11 @@
     <div style="margin: 20px; text-align: center">
         <div style="margin: 20px">
             <h3 style="font-weight:1000;">Opis: </h3>
-            <p style="text-align: justify">{{ my_profile.text }}</p>
+            {% if my_profile.text %}
+                <p style="text-align: justify">{{ my_profile.text }}</p>
+            {% else %}
+                <p style="text-align: center">Użytkownik nie dodał jeszcze opisu.</p>
+            {% endif %}
         </div>
 
         <div style="margin: 40px">

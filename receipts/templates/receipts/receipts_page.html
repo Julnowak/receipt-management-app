@@ -14,5 +14,14 @@
     </a>
 
     <h1 style="text-align: center; margin-top: 20px">Paragony</h1>
+    <div class="list-group" style="margin: 20px;">
+        {% for receipt in receipts %}
+            <a href="{% url 'receipts:receipt_site' receipt.id %}" style="text-decoration: none; color: black">
+                <div style=" padding: 10px" class="list-group-item list-group-item-action">
+                    {{ receipt }}
+                </div>
+            </a>
+        {% endfor %}
+    </div>
 
 {% endblock content %}

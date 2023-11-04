@@ -53,19 +53,27 @@
 
     <div class="basic_white">
         {% if new_messages_number == 0 %}
-            Brak nowych wiadomości
+            <div style="display: inline; vertical-align: middle">
+                Brak nowych wiadomości
+            </div>
+
             {% else %}
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-envelope-exclamation" viewBox="0 0 16 16">
+                <svg style="display: inline; vertical-align: middle; margin: 0 10px" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-envelope-exclamation" viewBox="0 0 16 16">
                    <path d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z"/>
                    <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1.5a.5.5 0 0 1-1 0V11a.5.5 0 0 1 1 0Zm0 3a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"/>
                 </svg>
             {% if new_messages_number == 1 %}
-
-                Masz <b>{{ new_messages_number }}</b> nową wiadomość.
+                <div style="display: inline; vertical-align: middle">
+                    Masz <b>{{ new_messages_number }}</b> nową wiadomość.
+                </div>
             {% elif new_messages_number < 5 %}
-                Masz <b>{{ new_messages_number }}</b> nowe wiadomości.
+                <div style="display: inline; vertical-align: middle">
+                    Masz <b>{{ new_messages_number }}</b> nowe wiadomości.
+                </div>
             {% else %}
-                Masz <b>{{ new_messages_number }}</b> nowych wiadomości.
+                <div style="display: inline; vertical-align: middle">
+                    Masz <b>{{ new_messages_number }}</b> nowych wiadomości.
+                </div>
             {% endif %}
         {% endif %}
     </div>
@@ -146,13 +154,8 @@
                   {
                       item.style.backgroundColor = "darkgray";
                       item.style.width = "15px";
-
-
                       item.style.opacity = '50%';
-
                       item.innerHTML = short_names[counter]
-
-
                   }
                   counter += 1;
               });
@@ -164,7 +167,6 @@
 
     <form method="post">
     {% csrf_token %}
-    <button type="submit" name="run_script">Run script</button>
 </form>
 
 {% endblock content %}

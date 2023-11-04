@@ -10,6 +10,21 @@ class NewCategoryForm(forms.ModelForm):
                   'color': 'Kolor',
                   'icon': 'Ikona',
                   'public': 'Czy kategoria jest publiczna?'}
+        widgets = {
+            'category_name': forms.TextInput(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',
+            }),
+            'icon': forms.TextInput(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',
+            }),
+
+            'public': forms.CheckboxInput(attrs={
+                'class': "form-check",
+                'style': 'height:20px; width:20px',
+            })
+        }
 
 
 class NewSubCategoryForm(forms.ModelForm):

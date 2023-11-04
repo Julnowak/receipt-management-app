@@ -43,7 +43,7 @@ def message_inside(request, message_id):
 def message_sent(request):
     all_messages = Message.objects.filter(sender=request.user, group=None).order_by('-date_created')
     page_number = request.GET.get('page',1)
-    p = Paginator(all_messages, 10)
+    p = Paginator(all_messages, 5)
 
     try:
         pages = p.page(page_number)
@@ -57,23 +57,25 @@ def message_sent(request):
 
 @login_required
 def new_message(request):
-    try:
-        mes_last_id = Message.objects.latest('id').id
-    except:
-        mes_last_id = 0
-
     if request.method == 'POST':
         form_temp = NewMessageForm(data=request.POST)
         req_temp = request.POST.copy()
-        req_temp.update({'receiver': User.objects.get(username=form_temp.data['receiver'])})
+        filtr = User.objects.filter(username=form_temp.data['receiver'])
+        if filtr:
+            req_temp.update({'receiver': filtr[0]})
+        else:
+            req_temp.update({'receiver': filtr})
         form = NewMessageForm(req_temp)
 
         if form.is_valid():
             new_mes = form.save(commit=False)
             new_mes.sender = request.user
-            new_mes.slug = slugify(new_mes.title + " " + str(mes_last_id + 1))
             new_mes.save()
+
+            messages.success(request, "Wiadomość została wysłana.")
             return redirect('my_messages:your_messages')
+        else:
+            messages.error(request, "Wystąpił błąd podczas wysyłania wiadomości.")
     else:
         form = NewMessageForm()
 
@@ -91,17 +93,11 @@ def member_accepted(request, message_id):
         group.number_of_members += 1
         group.save()
 
-        try:
-            mes_last_id = Message.objects.latest('id').id
-        except:
-            mes_last_id = 0
-
         new_message = Message()
         new_message.sender = request.user
         new_message.receiver = message.sender
 
         new_message.title = "Gratulacje! Dołączyłeś do grupy " + group.group_name
-        new_message.slug = slugify(new_message.title + " " + str(mes_last_id + 1))
         new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
                            "Od dzisiaj jesteś członkiem grupy " + group.group_name + "."
         new_message.message_type = "request_accepted"
@@ -123,18 +119,11 @@ def membership_accepted(request, message_id):
         group.members.add(message.sender)
         group.number_of_members += 1
         group.save()
-
-        try:
-            mes_last_id = Message.objects.latest('id').id
-        except:
-            mes_last_id = 0
-
         new_message = Message()
         new_message.sender = request.user
         new_message.receiver = message.sender
 
         new_message.title = "Użytkownik " + request.user + " dołączył do Twojej grupy " + group.group_name + "!"
-        new_message.slug = slugify(new_message.title + " " + str(mes_last_id + 1))
         new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
                            "Użytkownik " + request.user + " dołączył do Twojej grupy  " + group.group_name + "."
         new_message.message_type = "membership_accepted"
@@ -220,3 +209,32 @@ def delete_sent_messages(request):
         for key_id in keys:
             Message.objects.get(id=int(key_id)).delete()
         return redirect("my_messages:message_sent")
+
+
+@login_required
+def message_settings(request):
+    context = {'user': request.user}
+    return render(request, 'my_messages/message_settings.html', context)
+
+
+@login_required
+def answer_message(request, message_id):
+    message = Message.objects.get(id=message_id)
+
+    if request.method == 'POST':
+        form = NewMessageForm(data=request.POST,
+                              initial={"receiver": message.sender, "title": "Re: " + message.title[:297]})
+        if form.is_valid():
+            new_mes = form.save(commit=False)
+            new_mes.sender = request.user
+            new_mes.save()
+            messages.success(request, "Wiadomość została wysłana.")
+            return redirect('my_messages:your_messages')
+        else:
+            messages.error(request, "Wystąpił błąd podczas wysyłania wiadomości.")
+    else:
+        form = NewMessageForm(initial={"receiver": message.sender.username, "title": "Re: " + message.title[:297],
+                                       "text": "\n= = = = = = = = = =\n" + message.sender.username + " napisał:\n" + message.text})
+
+    context = {'form': form, 'user': request.user, 'message': message }
+    return render(request, 'my_messages/answer_message.html', context)

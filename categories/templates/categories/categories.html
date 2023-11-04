@@ -13,7 +13,7 @@
 
         .color_block{
             width: 150px;
-            min-height: 50px;
+            height: 90%;
             border-radius: 10px;
             margin: 10px;
             padding: 15px;
@@ -81,8 +81,9 @@
         {% endfor %}
     </div>
 
-    <a href="{% url 'categories:new_category' %}" >Dodaj kategorię</a>
-    <a href="{% url 'categories:edit_category' %}" >Edytuj kategorię</a>
+    <div style="text-align: center; margin: 20px">
+        <a href="{% url 'categories:new_category' %}" class="btn btn-dark" >Dodaj kategorię</a>
+    </div>
 
 
 {% endblock content %}

@@ -15,5 +15,16 @@
 
     <h1 style="text-align: center; margin-top: 20px">Edytuj wydatek</h1>
 
+    <div style="padding: 10px; margin: 20px">
+        <form method="post" action="{% url 'receipts:edit_expense' expense.id %}">
+        {% csrf_token %}
+            {{ form.as_p }}
+            <div style="text-align: center">
+                <button style="margin: 20px; min-width: 150px" class="btn btn-dark" type="submit">Zatwierdź</button>
+            </div>
+        </form>
+    </div>
+
+
 
 {% endblock content %}

@@ -36,8 +36,17 @@ def new_category(request):
     return render(request, 'categories/new_category.html', context)
 
 
-def edit_category(request):
-    return render(request, 'categories/edit_category.html')
+def edit_category(request, category_slug):
+    cat = BaseCategories.objects.get(slug=category_slug)
+    if request.method == 'POST':
+        form = NewCategoryForm(instance=cat, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('categories:subcategories', category_slug=cat.slug)
+    else:
+        form = NewCategoryForm(instance=cat)
+    context = {'form': form, 'category': cat}
+    return render(request, 'categories/edit_category.html', context)
 
 
 def subcategories(request, category_slug):

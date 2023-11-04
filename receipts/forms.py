@@ -8,12 +8,31 @@ class ReceiptForm(forms.ModelForm):
 
     class Meta:
         model = Receipt
-        fields = ['receipt_name', 'receipt_img']
-        labels = {'receipt_name': 'Nazwa', 'receipt_img': 'Zdjęcie'}
+        fields = ['receipt_name', 'receipt_img','amount','receipt_info','group','products']
+        labels = {'receipt_name': 'Nazwa', 'receipt_img': 'Zdjęcie',
+                  'amount': 'Wartość','receipt_info': 'Dodatkowe informacje',
+                  'group': 'Grupa','products': 'Produkty'}
         widgets = {
+            'products': forms.SelectMultiple(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',
+            }),
+
             'receipt_name': forms.TextInput(attrs={
-                'class': "form-control"
-            })}
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',
+            }),
+
+            'receipt_info': forms.Textarea(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',
+            }),
+
+            'group': forms.Select(attrs={
+                'class': "form-select",
+                'style': 'max-width: 300px; margin: auto',
+            }),
+        }
 
 
 class HandReceiptForm(forms.ModelForm):
@@ -26,6 +45,21 @@ class HandReceiptForm(forms.ModelForm):
         widgets = {
             'products': forms.TextInput(attrs={
                 'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',
+            }),
+
+            'receipt_name': forms.TextInput(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',
+            }),
+
+            'receipt_info': forms.Textarea(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',
+            }),
+
+            'group': forms.Select(attrs={
+                'class': "form-select",
                 'style': 'max-width: 300px; margin: auto',
             }),
         }
@@ -45,8 +79,30 @@ class ExpenseForm(forms.ModelForm):
                 'style': 'max-width: 300px; margin: auto',
                 'min': 0,
             }),
+            'category': forms.Select(attrs={
+                'class': "form-select",
+                'style': 'max-width: 300px; margin: auto',}),
+
+            'is_recurrent': forms.CheckboxInput(attrs={
+                'class': "checkbox",
+                'style': "width: 30px"
+            }),
+
             'expense_name': forms.TextInput(attrs={
-                'class': "form-control",}),
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',}),
+
+            'group': forms.Select(attrs={
+                'class': "form-select",
+                'style': 'max-width: 300px; margin: auto',}),
+
+            'time_stamp': forms.Select(attrs={
+                'class': "form-select",
+                'style': 'max-width: 300px; margin: auto',}),
+
+            'number': forms.NumberInput(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',}),
 
         }
 

@@ -6,6 +6,7 @@ from receipts.forms import ReceiptForm, ExpenseForm, GuaranteeForm, HandReceiptF
 import pytesseract
 from PIL import Image
 import cv2
+import re
 from pytesseract import Output
 import numpy as np
 
@@ -32,14 +33,18 @@ def your_receipts(request):
 
     receipts = Receipt.objects.filter(owner=request.user).order_by("-date_added")[:5]
     expenses = Expense.objects.filter(owner=request.user).order_by("-date_added")[:5]
-    guarantees = Guarantee.objects.filter(owner=request.user)[:5]
+    guarant = Guarantee.objects.filter(owner=request.user)
     left = []
-    for guarantee in guarantees:
+    for guarantee in guarant:
        result = guarantee.end_date - datetime.date.today()
-       left.append(result)
-
-    info = zip(guarantees, left)
-    context = {'receipts': receipts, 'expenses': expenses, 'guarantees': guarantees, 'info': info,
+       if int(result.days) < 0:
+           guarant.get(id=guarantee.id).delete()
+           guarant.delete()
+       else:
+            left.append(result)
+    guarant = Guarantee.objects.filter(owner=request.user)[:5]
+    info = zip(guarant, left)
+    context = {'receipts': receipts, 'expenses': expenses, 'guarantees': guarant, 'info': info,
                'flag': flag, 'flag_e': flag_e, 'flag_g': flag_g}
     return render(request, 'receipts/your_receipts.html', context)
 
@@ -97,6 +102,17 @@ def receipt_site(request, receipt_id):
     for elem in text.split("\n"):
         if "suma" in elem.lower():
             suma = elem
+            try:
+                if "," in suma:
+                    s = re.findall(f"(\d+,\d+)", suma)[0]
+                    receipt.amount = float(s.replace(",", "."))
+                elif "." in suma:
+                    s = re.findall(f"(\d+.\d+)", suma)[0]
+                    receipt.amount = float(s)
+                receipt.save()
+            except:
+                receipt.amount = 0.00
+                receipt.save()
 
     img = cv2.imread(f'media/{receipt.receipt_img}', cv2.IMREAD_GRAYSCALE)
     # img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -175,22 +191,42 @@ def receipt_by_hand(request):
     return render(request, 'receipts/receipt_by_hand.html', context)
 
 
-def edit_expense(request,expense_id):
+def edit_expense(request, expense_id):
     exp = Expense.objects.get(id=expense_id)
-    form = None
-    context = {'form': form, 'expense':exp }
+
+    if request.method == 'POST':
+        form = ExpenseForm(instance=exp, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('receipts:expense_site', expense_id=exp.id)
+    else:
+        form = ExpenseForm(instance=exp)
+
+    context = {'expense':exp, 'form': form}
     return render(request, 'receipts/edit_expense.html', context)
 
 
 def edit_guarantee(request,guarantee_id):
     guar = Guarantee.objects.get(id=guarantee_id)
-    form = None
+    if request.method == 'POST':
+        form = GuaranteeForm(instance=guar, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('receipts:guarantee_site', guarantee_id=guar.id)
+    else:
+        form = GuaranteeForm(instance=guar)
     context = {'form': form, 'guarantee': guar }
     return render(request, 'receipts/edit_guarantee.html', context)
 
 
-def edit_receipt(request,receipt_id):
+def edit_receipt(request, receipt_id):
     rec = Receipt.objects.get(id=receipt_id)
-    form = None
+    if request.method == 'POST':
+        form = ReceiptForm(instance=rec, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('receipts:receipt_site', receipt_id=rec.id)
+    else:
+        form = ReceiptForm(instance=rec)
     context = {'form': form, 'receipt': rec}
     return render(request, 'receipts/edit_receipt.html', context)

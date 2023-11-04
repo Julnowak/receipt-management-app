@@ -48,42 +48,57 @@
 
     </style>
 
-    <body style="margin-top: auto; display: flex;flex-direction:column;">
-
-    <div style="height:40px">
+    <div style="height:60px">
         {% if messages %}
-            <div id="messages" class="messages">
             {% for message in messages %}
-                {{ message }}
+                {% if message.tags == 'success' %}
+                     <div id="messages" class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% else %}
+                     <div id="messages" class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
             {% endfor %}
-            </div>
         {% endif %}
+
+        <script>
+            var mess = document.getElementById("messages")
+
+            setTimeout(function(){
+                mess.style.display="none";
+            },2000)
+        </script>
     </div>
 
+    <body style="margin-top: auto; display: flex;flex-direction:column;">
+
+
     <div>
-        <h1 style="text-align: center">Twoje wiadomości</h1>
+        <h1 style="text-align: center; margin-top: 10px">Twoje wiadomości</h1>
     </div>
 
     <div style="margin: auto">
-        <div class="box" style="background-color: lightpink; border-radius: 20px">
-            <a href="{% url 'my_messages:your_messages' %}" style="text-decoration: none; color: black">
-                <div class="box">Odebrane</div>
+        <div class="box" style="background-color: rgba(183,183,183,0.26);  border-radius: 10px 10px 0 0;border-style: solid; border-width: 1px; margin-bottom: -2px ">
+            <a href="{% url 'my_messages:your_messages' %}" style="text-decoration: none; color: black; padding: 5px">
+                <div class="box"><b>Odebrane</b></div>
             </a>
         </div>
 
-        <div class="box" style="background-color: lightgray; border-radius: 20px;">
-            <a href="{% url 'my_messages:message_sent' %}" style="text-decoration: none; color: dimgray">
+        <div class="box" style="background-color: lightgray; border-radius: 10px 10px 0 0">
+            <a href="{% url 'my_messages:message_sent' %}" style="text-decoration: none; color: black; padding: 5px">
                 <div class="box">Wysłane</div>
             </a>
         </div>
     </div>
 
-
+<div style="background-color: rgba(183,183,183,0.26); padding-top: 10px; margin-top: -10px; border-radius: 10px; border-style: solid; border-width: 1px">
     <form id="check_form" method="POST" style="display: inline; vertical-align: middle" action="{% url 'my_messages:delete_messages' %}">
         {% csrf_token %}
     <ul>
         {% for message in pages %}
-                <li style="list-style-type:none;">
+                <li style="list-style-type:none; margin: 5px">
                     <input type="checkbox" class="checkbox_mess" style="display: none; vertical-align: middle;" name={{ message.id }}>
 
                 <div style=" display: inline-block; vertical-align: middle;width: 90%" class="conts">
@@ -92,7 +107,12 @@
                         <div style="background-color: lightgray;margin: 5px; padding: 15px; color: black; border-radius: 10px">
 
                         {% if message.new %}
-                            <b style="color: red">{{ message }}</b>
+                            <div style="vertical-align: middle; display: grid; grid-template: auto/ 93% 7%">
+                                <b style="vertical-align: middle; display: inline;color: red">{{ message }}</b>
+                                <svg style="vertical-align: middle; display: inline" xmlns="http://www.w3.org/2000/svg" color="red" width="20" height="20" fill="currentColor" class="bi bi-asterisk" viewBox="0 0 16 16">
+                                  <path d="M8 0a1 1 0 0 1 1 1v5.268l4.562-2.634a1 1 0 1 1 1 1.732L10 8l4.562 2.634a1 1 0 1 1-1 1.732L9 9.732V15a1 1 0 1 1-2 0V9.732l-4.562 2.634a1 1 0 1 1-1-1.732L6 8 1.438 5.366a1 1 0 0 1 1-1.732L7 6.268V1a1 1 0 0 1 1-1z"/>
+                                </svg>
+                            </div>
                         {% else %}
                             {{ message }}
                         {% endif %}
@@ -109,22 +129,19 @@
             </div>
         {% endfor %}
     </ul>
-    <div style="text-align: center; horiz-align: center; height: 40px;">
-        <button style="display: none; text-align: center; width: 200px" type="submit" id="del_btn_id" class="btn btn-dark"> Usuń </button>
-    </div>
 
     </form>
-
-
-
-
+</div>
+    <div style="text-align: center; horiz-align: center; height: 40px; margin: 20px">
+        <button style="display: none; text-align: center; width: 200px" type="submit" id="del_btn_id" form="check_form" class="btn btn-dark"> Usuń </button>
+    </div>
 </body>
 
     <div style="text-align:center; position: sticky; flex: 6; margin-top: auto; margin-bottom: 40px; display: flex; flex-direction: column-reverse; z-index: 1">
         <div id="icons_container_id" class="icons_container">
 
-            <div id="add_id" class="box" style="display: inline; horiz-align: center; margin-right: 20px">
-                    <a class="icon_icon" href="{% url 'my_messages:new_message' %}">
+            <div  class="box" style="display: inline; horiz-align: center; margin-right: 20px">
+                    <a id="add_id" class="icon_icon" href="{% url 'my_messages:new_message' %}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-envelope-plus" viewBox="0 0 16 16">
                       <path d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z"/>
                       <path d="M16 12.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Zm-3.5-2a.5.5 0 0 0-.5.5v1h-1a.5.5 0 0 0 0 1h1v1a.5.5 0 0 0 1 0v-1h1a.5.5 0 0 0 0-1h-1v-1a.5.5 0 0 0-.5-.5Z"/>
@@ -132,21 +149,36 @@
                     </a>
             </div>
 
-            <div id="set_id" class="box" style="display: inline; horiz-align: center;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
-                  <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
-                  <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
-                </svg>
-            </div>
-
-            <div class="box" style="display: inline; horiz-align: center; margin-left: 20px">
-                <a class="icon_icon" id="del_messages" >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-envelope-dash" viewBox="0 0 16 16">
-                      <path d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z"/>
-                      <path d="M16 12.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Zm-5.5 0a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 0-1h-3a.5.5 0 0 0-.5.5Z"/>
+            <div  class="box" style="display: inline; horiz-align: center;">
+                <a id="set_id" style="color: black; text-decoration: none" href="{% url 'my_messages:message_settings' %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                      <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                      <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
                     </svg>
                 </a>
             </div>
+
+            {% if all_messages.exists %}
+                <div class="box" style="display: inline; horiz-align: center; margin-left: 20px">
+                    <a class="icon_icon" id="del_messages" >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-envelope-dash" viewBox="0 0 16 16">
+                          <path d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z"/>
+                          <path d="M16 12.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Zm-5.5 0a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 0-1h-3a.5.5 0 0 0-.5.5Z"/>
+                        </svg>
+                    </a>
+                </div>
+            {% else %}
+                <div class="box" style="display: none; horiz-align: center; margin-left: 20px">
+                    <a class="icon_icon" id="del_messages" >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-envelope-dash" viewBox="0 0 16 16">
+                          <path d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z"/>
+                          <path d="M16 12.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Zm-5.5 0a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 0-1h-3a.5.5 0 0 0-.5.5Z"/>
+                        </svg>
+                    </a>
+                </div>
+            {% endif %}
+
+
         </div>
     </div>
 
@@ -218,6 +250,7 @@
                                           <path d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z"/>
                                           <path d="M16 12.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Zm-5.5 0a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 0-1h-3a.5.5 0 0 0-.5.5Z"/>
                                         </svg>`;
+                del_btn_id.style.display = "none";
                 add_id.disabled = false
                 set_id.disabled = false
                 blu_flag = false
@@ -246,8 +279,6 @@
                 blu_flag = true
              }
         })
-
-
 
     </script>
 

@@ -8,7 +8,6 @@ from groups.models import CommonGroups
 class Message(models.Model):
     title = models.CharField(max_length=200)
     text = models.TextField()
-    slug = models.SlugField(unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender")
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiver")

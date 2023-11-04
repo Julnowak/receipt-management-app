@@ -16,4 +16,10 @@
     <h1 style="text-align: center; margin-top: 20px">Edytuj wydatek</h1>
 
 
+    <form method="post" action="{% url 'receipts:edit_guarantee' guarantee.id %}">
+    {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-dark" type="submit">Zatwierdź</button>
+    </form>
+
 {% endblock content %}

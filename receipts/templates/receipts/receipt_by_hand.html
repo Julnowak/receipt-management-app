@@ -15,10 +15,13 @@
 
     <h1 style="text-align: center; margin-top: 20px">Nowy paragon</h1>
 
-    <form method="post" action="{% url 'receipts:receipt_by_hand' %}">
+
+    <form style="margin: 20px;padding: 10px" method="post" action="{% url 'receipts:receipt_by_hand' %}">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn btn-dark">Utwórz</button>
+        <div style="text-align: center; ">
+            <button style="min-width: 150px" type="submit" class="btn btn-dark">Utwórz</button>
+        </div>
     </form>
 
 

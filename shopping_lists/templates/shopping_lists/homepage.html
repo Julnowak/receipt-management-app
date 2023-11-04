@@ -6,7 +6,6 @@
 <html lang="pl">
     <head>
         <title>Zebragon</title>
-
         <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
 
         <style>
@@ -91,9 +90,10 @@
         </div>
     </div>
 
-
+    {% if not user.is_authenticated %}
     <div id="text_4" class="container_2" style="background-color: crimson; color: white; text-align: center">
         <h2>Dołącz już teraz!</h2>
+
 
         <a style="text-decoration: none; color: black" href="{% url 'users:register' %}">
             <div id="join_text" class="container_2" style="background-color: white; border-radius: 10px; text-align: center">
@@ -103,6 +103,7 @@
             </div>
         </a>
     </div>
+    {% endif %}
 
     </body>
 

@@ -4,6 +4,22 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
+    <style>
+
+        .box{
+            background-color: gainsboro;
+            padding: 10px;
+            margin: 10px;
+        }
+
+        .text{
+            color: black;
+            text-decoration: none;
+        }
+
+    </style>
+
+
     <div>
         <h2 style="text-align: center; margin-top: 20px">Twoje paragony</h2>
     </div>
@@ -12,43 +28,48 @@
 
     <div style="margin: 20px; padding: 10px">
         {% for receipt in receipts %}
-            <div>
-                <a href="{% url 'receipts:receipt_site' receipt.id%}">
-                    {{ receipt.receipt_name }}
+                <a class="text" href="{% url 'receipts:receipt_site' receipt.id%}">
+                    <div class="box">
+                        {{ receipt.receipt_name }}
+                    </div>
                 </a>
-            </div>
         {% empty %}
             Brak paragonów
         {% endfor %}
 
         {% if flag %}
-        <a href="{% url 'receipts:receipts_page' %}">
-            Zobacz więcej...
-        </a>
+        <div style="text-align: center">
+            <a style="text-decoration: none; color: darkmagenta;margin: 10px;" href="{% url 'receipts:receipts_page' %}">
+                Zobacz więcej...
+            </a>
+        </div>
         {% endif %}
 
         <div style="display: block; horiz-align: center; text-align: center">
 
-            <a href="{% url 'receipts:new_receipt' %}" style="text-decoration: none; color: black">
-                <div style="display:inline-block;background-color: lightgrey; width: fit-content;border-radius: 20px;
-                            margin: 10px;padding: 10px">
+            <div style="margin-top: 40px">
+                <a href="{% url 'receipts:new_receipt' %}" style="text-decoration: none; color: black">
+                    <div style="display:inline-block;background-color: lightgrey; width: fit-content;border-radius: 20px;
+                                margin: 10px;padding: 10px">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
                           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
                         </svg>
-                    Nowy paragon (OCR)
-                </div>
-            </a>
+                        Nowy paragon (OCR)
+                    </div>
+                </a>
+            </div>
 
             <a href="{% url 'receipts:receipt_by_hand' %}" style="text-decoration: none; color: black">
                 <div style="display:inline-block; background-color: lightgrey; width: fit-content;border-radius: 20px;
                     margin: 10px;padding: 10px">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                           <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                           <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                         </svg>
                         Nowy paragon
                 </div>
             </a>
+
         </div>
 
     </div>
@@ -59,21 +80,24 @@
 
     <div style="margin: 20px; padding: 10px">
         {% for expense in expenses %}
-            <div>
-            <a href="{% url 'receipts:expense_site' expense.id%}">
-                {{ expense.expense_name }}
+            <a class="text" href="{% url 'receipts:expense_site' expense.id%}">
+                <div class="box">
+                    {{ expense.expense_name }}
+                </div>
             </a>
-            </div>
         {% empty %}
             Brak wydatków
         {% endfor %}
 
         {% if flag_e %}
-        <a href="{% url 'receipts:expenses_page' %}">
-            Zobacz więcej...
-        </a>
+            <div style="text-align: center">
+                <a style="text-decoration: none; color: darkmagenta;margin: 10px;" href="{% url 'receipts:expenses_page' %}">
+                    Zobacz więcej...
+                </a>
+            </div>
         {% endif %}
 
+        <div style="margin-top: 40px">
         <a href="{% url 'receipts:costs_by_hand' %}" style="text-decoration: none; color: black">
             <div style="background-color: lightgrey; width: fit-content;border-radius: 20px;
                         margin: 10px auto;padding: 10px">
@@ -83,6 +107,8 @@
                     Nowy wydatek
             </div>
         </a>
+        </div>
+
     </div>
 
 
@@ -91,22 +117,27 @@
     </div>
 
     <div style="margin: 20px; padding: 10px">
-        <div>
+
             {% for guarantee, left in info %}
-                <a href="{% url 'receipts:guarantee_site' guarantee.id %}">
-                    {{ guarantee.guarantee_name }}
-                </a>{{ left.days }} dni
+                    <a class="text" href="{% url 'receipts:guarantee_site' guarantee.id %}">
+                        <div class="box">
+                            {{ guarantee.guarantee_name }} {{ left.days }} dni
+                        </div>
+                    </a>
             {% empty %}
                 <div>Nie dodano jeszcze żadnej gwarancji.</div>
             {% endfor %}
-        </div>
+
 
         {% if flag_g %}
-            <a href="{% url 'receipts:guarantees' guarantee.id %}">
+        <div style="text-align: center">
+            <a style="text-decoration: none; color: darkmagenta;margin: 10px;" href="{% url 'receipts:guarantees' %}">
                 Zobacz więcej...
             </a>
+        </div>
         {% endif %}
 
+        <div style="margin-top: 40px">
         <a href="{% url 'receipts:new_guarantee' %}" style="text-decoration: none; color: black">
             <div style="background-color: lightgrey; width: fit-content;border-radius: 20px;
                         margin: 10px auto;padding: 10px">
@@ -116,6 +147,7 @@
                     Nowa gwarancja
             </div>
         </a>
+        </div>
 
     </div>
         <a href="{% url 'categories:categories' %}" style="text-decoration: none; color: black">

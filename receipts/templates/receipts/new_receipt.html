@@ -16,11 +16,32 @@
         <h1 style="text-align: center; margin-top: 20px">Nowy paragon</h1>
     </div>
 
-    <div>
+    <div style="padding: 10px; margin: 10px">
         <form method = "post" enctype="multipart/form-data" style="margin: 20px">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-dark">Zapisz</button>
+            <div style="margin: 10px">
+                {{ form.receipt_name.label }}
+                {{ form.receipt_name }}
+            </div>
+
+            <div style="margin: 20px">
+                {{ form.receipt_img.label }}
+                {{ form.receipt_img }}
+            </div>
+
+            <div style="margin: 10px">
+                {{ form.receipt_info.label }}
+                {{ form.receipt_info }}
+            </div>
+
+            <div style="margin: 20px">
+                {{ form.group.label }}
+                {{ form.group }}
+            </div>
+
+            <div style="margin: 20px; text-align: center">
+                <button style="min-width: 150px" type="submit" class="btn btn-dark">Zapisz</button>
+            </div>
         </form>
     </div>
 
