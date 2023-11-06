@@ -1,0 +1,229 @@
+{% extends "shopping_lists/base.html" %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+            <style>
+
+            .del_btn:hover{
+                filter: brightness(85%);
+                transition: 0.5s;
+            }
+
+            .del_btn:disabled{
+                filter: opacity(20%);
+                transition: 0.5s;
+            }
+
+            .x_button{
+                color: red;
+                text-decoration: none;
+                display: none;
+            }
+
+        </style>
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                     <div id="messages" class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% else %}
+                     <div id="messages" class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <script>
+            var mess = document.getElementById("messages")
+
+            setTimeout(function(){
+                mess.style.display="none";
+            },2000)
+        </script>
+
+<body style="margin-top: auto; display: flex;flex-direction:column;">
+   <a href="{% url 'my_messages:message_settings' %}">
+        <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+            </svg>
+        </div>
+    </a>
+
+    <h1 style="margin-top: 20px">Czarna lista</h1>
+
+    <div class="list-group" id="lista" style="margin: 30px 10px 30px;">
+            {% for banned_person in pages %}
+                    <div class="list-group-item list-group-item-action" style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 15px; width: 95vw; margin: auto; ">
+                        <div style="display: inline; max-width: 85%; margin:auto 0;">
+                             {{ banned_person }}
+                        </div>
+                        <div style="margin: auto; height: 40px; width: 40px;">
+                            <a class="x_button" href="{% url 'my_messages:unban' banned_person.id %}" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: none;
+                            width: 40px;height: 40px">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+            {% empty %}
+                <div style="margin: 10px; text-align: center">
+                   <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
+                        Nie dodano jeszcze żadnego użytkownika!
+                    </div>
+                </div>
+            {% endfor %}
+    </div>
+
+
+
+
+</body>
+
+    <div style="text-align:center; position: sticky; flex: 9; margin-top: auto; margin-bottom: 40px; display: flex; flex-direction: column-reverse;">
+
+        <div id="icons_container_id" class="icons_container">
+           <div style="min-height: 60px;text-align: center;margin-bottom: 20px">
+                <form id="form_id" action="{% url 'my_messages:add_to_blacklist' %}" method="post"
+                style="display:none; margin: auto; vertical-align: middle">
+                    {% csrf_token %}
+                    <label>
+                        <input style="border-color:black;display:inline; vertical-align: middle" class="form-control" type="text" name="user_to_ban">
+                    </label>
+                    <button class="btn btn-dark" type="submit" style=" display:inline; vertical-align: middle" >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+                        </svg>
+                    </button>
+                </form>
+           </div>
+                <div id="add_btn" class="add_btn" style="display: inline; horiz-align: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
+                      <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                      <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+                    </svg>
+                </div>
+
+            <div id="delete_btn" class="del_btn" style="display: inline; horiz-align: center; margin-left: 20px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-person-x-fill" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm6.146-2.854a.5.5 0 0 1 .708 0L14 6.293l1.146-1.147a.5.5 0 0 1 .708.708L14.707 7l1.147 1.146a.5.5 0 0 1-.708.708L14 7.707l-1.146 1.147a.5.5 0 0 1-.708-.708L13.293 7l-1.147-1.146a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align:center; position: sticky; flex: 1; margin-top: auto; display: flex; flex-direction: column-reverse;">
+        <div style="display: inline-block">
+       {% if pages.has_other_pages %}
+            {% if pages.has_previous %}
+                <div style="display: inline;">
+                  <a style=" text-decoration:none; vertical-align: middle" href="?page={{ pages.previous_page_number }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="black" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+                      <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                    </svg>
+                  </a>
+                </div>
+            {% else %}
+                <div style="display: inline;">
+                  <a style="text-decoration:none; vertical-align: middle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="lightgray" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+                      <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                    </svg>
+                  </a>
+                </div>
+
+            {% endif %}
+
+            <span style="display: inline; vertical-align: middle; color: slategrey; font-size: 200%; ">{{ pages.number }} z {{ pages.paginator.num_pages }} </span>
+
+            {% if pages.has_next %}
+                  <a style="display: inline; vertical-align: middle"  href="?page={{ pages.next_page_number }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="black" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                    </svg>
+                  </a>
+            {% else %}
+                  <a style="display: inline; vertical-align: middle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="lightgray" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                    </svg>
+                  </a>
+            {% endif %}
+        {% endif %}
+        </div>
+    </div>
+
+
+    <!-- Skrypt obsługi eventów przycisków-->
+    <script>
+    var del_btn = document.getElementById("delete_btn")
+    var del_btns = document.getElementsByClassName("x_button")
+    var flag_del = true;
+    var add_btn = document.getElementById("add_btn")
+    var flag_add = true;
+    var form_id = document.getElementById("form_id")
+
+
+    del_btn.addEventListener('click', function (e) {
+        if(flag_del){
+            del_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                  </svg>`
+            for (let i = 0; i < del_btns.length; i++)
+            {
+                del_btns[i].style.display = "inline-block";
+            }
+            flag_del = false;
+            add_btn.style.color = 'gray';
+            add_btn.style.pointerEvents = 'none'
+        }
+        else
+        {
+            del_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-person-x-fill" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm6.146-2.854a.5.5 0 0 1 .708 0L14 6.293l1.146-1.147a.5.5 0 0 1 .708.708L14.707 7l1.147 1.146a.5.5 0 0 1-.708.708L14 7.707l-1.146 1.147a.5.5 0 0 1-.708-.708L13.293 7l-1.147-1.146a.5.5 0 0 1 0-.708z"/>
+                                </svg>`
+            for (let i = 0; i < del_btns.length; i++)
+            {
+                del_btns[i].style.display = "none";
+            }
+            flag_del = true;
+            add_btn.style.pointerEvents = 'auto'
+            add_btn.style.color = 'black';
+        }
+
+    })
+
+    add_btn.addEventListener("click", function (){
+        if(flag_add){
+            add_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                  </svg>`
+            flag_add = false;
+            del_btn.style.color = 'gray';
+            del_btn.style.pointerEvents = 'none'
+            form_id.style.display = "inline";
+        }
+        else {
+            add_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
+                                  <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                  <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+                                </svg>`
+            flag_add = true;
+            del_btn.style.pointerEvents = 'auto'
+            del_btn.style.color = 'black';
+            form_id.style.display = "none";
+        }
+    })
+
+    </script>
+
+
+{% endblock content %}

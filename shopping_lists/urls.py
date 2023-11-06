@@ -7,7 +7,7 @@ urlpatterns = [
     path('', views.homepage, name='homepage'),
     path('contact/', views.contact, name='contact'),
     path('your_lists/', views.your_lists, name='your_lists'),
-    path('your_lists/<int:list_id>/', views.single_list, name='single_list'),
+    path('single_list/<int:list_id>/', views.single_list, name='single_list'),
     path('del_shopping_lists/', views.del_shopping_lists, name='del_shopping_lists'),
     path('new_product/<int:list_id>/', views.new_product, name='new_product'),
     path('new_list/', views.new_list, name='new_list'),
@@ -17,6 +17,5 @@ urlpatterns = [
     path('edit_list/<int:list_id>/', views.edit_list, name='edit_list'),
     path('removed/<int:product_id>/', views.removed, name='removed'),
     path('removed_list/<int:list_id>/', views.list_removed, name='list_removed'),
-    path('share_list/', views.share_list, name='share_list'),
     path('<int:list_id>/update_is_bought/', views.update_is_bought, name='update_is_bought'),
 ]

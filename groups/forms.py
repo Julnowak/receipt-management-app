@@ -16,13 +16,13 @@ class CommonGroupsForm(forms.ModelForm):
         widgets = {
             'group_name': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'width: 300px; margin: auto',
                 'placeholder': 'Grupa',
                 'label': "Hasło"
             }),
             'max_number_of_members': forms.NumberInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'width: 300px; margin: auto',
                 'max': '50',
                 'min': '1',
                 'label': "Hasło"
@@ -30,7 +30,7 @@ class CommonGroupsForm(forms.ModelForm):
 
             'password': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'width: 300px; margin: auto',
                 'label': "Hasło"
             })
         }
@@ -54,14 +54,19 @@ class CommonGroupsForm(forms.ModelForm):
             ])
 
         # Max liczba członków
-        if max_number_of_members < 1:
+        if not isinstance(max_number_of_members,int):
             self._errors['max_number_of_members'] = self.error_class([
-                'Liczba członków musi być większa od 0.'
+                'Należy wprowadzić liczbę od 1 do 50.'
             ])
-        elif max_number_of_members > 50:
-            self._errors['max_number_of_members'] = self.error_class([
-                'Liczba członków musi być mniejsza od 50.'
-            ])
+        else:
+            if max_number_of_members < 1:
+                self._errors['max_number_of_members'] = self.error_class([
+                    'Liczba członków musi być większa od 0.'
+                ])
+            elif max_number_of_members > 50:
+                self._errors['max_number_of_members'] = self.error_class([
+                    'Liczba członków musi być mniejsza od 50.'
+                ])
 
         # password
         if password is None:

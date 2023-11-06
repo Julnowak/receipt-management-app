@@ -53,7 +53,7 @@ def your_lists(request):
         sh_list.is_completed = flaga
         sh_list.save()
 
-    context = {'your_lists': your_shopping_lists, 'form': form, 'pages': pages}
+    context = {'your_lists': your_shopping_lists, 'form': form, 'pages': pages, 'user': request.user}
     return render(request, 'shopping_lists/your_lists.html', context)
 
 
@@ -75,7 +75,6 @@ def edit_list(request, list_id):
             return redirect("your_lists")
     else:
         form = ShoppingListForm(instance=current_list)
-
     context = {"form": form, "list": current_list}
     return render(request,"shopping_lists/edit_list.html", context)
 
@@ -122,7 +121,7 @@ def new_product(request, list_id):
 @login_required
 def edit_product(request, product_id):
     current_product = ListProduct.objects.get(id=product_id)
-    current_list = current_product.selected_list
+    current_list = current_product.shopping_list
 
     if request.method == 'POST':
         form = ProductForm(instance=current_product, data=request.POST)
@@ -132,8 +131,8 @@ def edit_product(request, product_id):
     else:
         form = ProductForm(instance=current_product)
 
-    context = {'current_product': current_product, 'form': form}
-    return render(request, 'shopping_lists/edit_product.html',context)
+    context = {'current_product': current_product, 'form': form, 'list':current_list}
+    return render(request, 'shopping_lists/edit_product.html', context)
 
 
 import plotly.express as px
@@ -207,6 +206,11 @@ def share_list(request, list_id):
             for member in grp.members.values_list():
                 lista.realizators.add(User.objects.get(id=int(member[0])))
 
+        if request.POST['copy_or_display_only'] == "copy":
+            lista.display_only = False
+        elif request.POSR['copy_or_display_only'] == 'display_only':
+            lista.display_only = True
+
         for person in lista.realizators.all():
             pass
 
@@ -216,7 +220,7 @@ def share_list(request, list_id):
         lista.is_shared = True
         lista.save()
 
-    context = {'list': lista, 'users': users, 'groups':groups}
+    context = {'list': lista, 'users': users, 'groups':groups, 'user': request.user}
     return render(request, 'shopping_lists/share_list.html', context)
 
 
@@ -272,8 +276,6 @@ def new_list(request):
                     new_prod.save()
             new_l.save()
             return redirect("your_lists")
-        else:
-            print("ARGHHH")
     else:
          form = ShoppingListForm()
     context = {"form": form}

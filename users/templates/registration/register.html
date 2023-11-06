@@ -13,6 +13,7 @@
             color: red;
             text-align: center;
         }
+
     </style>
 
     <a onclick="history.back()">
@@ -23,63 +24,63 @@
         </div>
     </a>
 
-    <h1 style="text-align: center; margin-top: 20px">Rejestracja</h1>
-    <div style="text-align: center">
 
-        <form method="post" style="margin: 20px" action="{% url 'users:register' %}">
-            {% csrf_token %}
-            <div>
+        <div style="text-align: center; margin: auto">
+            <h1 style="text-align: center; margin: 20px">Rejestracja</h1>
+            <form method="post" style="margin: 30px" action="{% url 'users:register' %}">
+                {% csrf_token %}
+                <div>
+                    <div style="margin: 20px;">
+                        {{ form.username }}
+                    </div>
+                        {{ form.username.errors }}
+                </div>
+
                 <div style="margin: 20px">
-                    {{ form.username }}
+                    <div>
+                        {{ form.email }}
+                    </div>
+                        {{ form.email.errors }}
                 </div>
-                    {{ form.username.errors }}
-            </div>
 
-            <div style="margin: 20px">
-                <div>
-                    {{ form.email }}
+                <div style="margin: 20px">
+                    <div>
+                        {{ form.password1 }}
+                    </div>
+                    {{ form.password1.errors }}
                 </div>
-                    {{ form.email.errors }}
-            </div>
 
-            <div style="margin: 20px">
-                <div>
-                    {{ form.password1 }}
+                <div style="margin: 20px">
+                    <div>
+                        {{ form.password2 }}
+                    </div>
+                        {{ form.password2.errors }}
                 </div>
-                {{ form.password1.errors }}
-            </div>
 
-            <div style="margin: 20px">
-                <div>
-                    {{ form.password2 }}
+                <div style="margin: 20px; text-align: justify; color: dimgrey">
+                        {{ form.date_of_birth.label }}
+                    <div>
+                        {{ form.date_of_birth}}
+                    </div>
+                        {{ form.date_of_birth.errors }}
                 </div>
-                    {{ form.password2.errors }}
-            </div>
 
-            <div style="margin: 20px">
-                    {{ form.date_of_birth.label }}
-                <div>
-                    {{ form.date_of_birth}}
+                <div style="margin: 20px; display: inline; text-align: justify">
+                    <div style="margin: 5px; display: inline-block">
+                        {{ form.terms_accepted }}
+                    </div>
+                    <div style="margin: 5px; display: inline-block; max-width: 250px">
+                        {{ form.terms_accepted.label }}
+                    </div>
+                    {{ form.terms_accepted.errors  }}
                 </div>
-                    {{ form.date_of_birth.errors }}
-            </div>
 
-            <div style="margin: 20px">
-                <div style="margin: 5px; display: inline">
-                    {{ form.terms_accepted }}
+                <div style="margin: 30px">
+                    <button name="register_btn" class="btn btn-dark">Zarejestruj</button>
                 </div>
-                <div style="margin: 5px; display: inline">
-                    {{ form.terms_accepted.label }}
-                </div>
-                {{ form.terms_accepted.errors  }}
-            </div>
 
-            <div style="margin: 10px">
-                <button name="register_btn" class="btn btn-dark">Zarejestruj</button>
-            </div>
-
-            <input type="hidden" name="next" value="{% url 'homepage' %}">
-        </form>
-    </div>
+                <input type="hidden" name="next" value="{% url 'homepage' %}">
+            </form>
+        </div>
 
 {% endblock content %}

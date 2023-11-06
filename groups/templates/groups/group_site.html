@@ -87,13 +87,6 @@
 
     </style>
 
-    <a href="{% url 'groups:groups' %}">
-        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
-            </svg>
-        </div>
-    </a>
 
     <div style="height:60px">
         {% if messages %}
@@ -109,7 +102,23 @@
                 {% endif %}
             {% endfor %}
         {% endif %}
+
+        <script>
+            var mess = document.getElementById("messages")
+
+            setTimeout(function(){
+                mess.style.display="none";
+            },2000)
+        </script>
     </div>
+
+    <a href="{% url 'groups:groups' %}">
+        <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+            </svg>
+        </div>
+    </a>
 
     <div class="white_block">
     <h1>
@@ -206,9 +215,9 @@
 
     </div>
 
-    <div style="display: block; ">
+    <div style=" right: 0;margin-left:auto">
     {% if group.owner == user %}
-        <div style=" width: fit-content; position: sticky;  padding: 5px; border-radius: 10px 0 0 0; background-color: white;
+        <div style=" width: fit-content; display: block; position: sticky;  padding: 5px; border-radius: 10px 0 0 0; background-color: white;
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);">
             <a href="{% url 'groups:manage_group' group.id %}" style="text-decoration: none; color: black">
                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">

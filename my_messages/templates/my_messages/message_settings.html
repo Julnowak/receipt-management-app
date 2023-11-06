@@ -4,9 +4,30 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                     <div id="messages" class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% else %}
+                     <div id="messages" class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <script>
+            var mess = document.getElementById("messages")
+
+            setTimeout(function(){
+                mess.style.display="none";
+            },2000)
+        </script>
 
     <a href="{% url 'my_messages:your_messages' %}">
-        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
+        <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
             </svg>
@@ -15,9 +36,132 @@
 
     <h1 style="text-align: center; margin: 20px">Ustawienia</h1>
 
+    <div style="margin: 10px; padding: 10px; display: inline-block; vertical-align: middle">
+        <h3 style="font-weight:1000;">Czarna lista</h3>
+        <div>
+            <div style="text-align: justify">
+                Na czarnej liście znajdują się gracze, od których nie chcesz
+                otrzymywać wiadomości. W każdym momencie możesz dodać lub usunąć danego gracz.
+            </div>
+            <p style="margin: 10px 0 10px 0">
+                <i>
+                    {% if blocked_number > 0 %}
+                        Masz <b>{{ blocked_number }}</b> zablokowanych użytkowników na liście.
+                    {% else %}
+                        Nie dodałeś jeszcze żadnego użytkownika do listy.
+                    {% endif %}
+                </i>
+            </p>
 
-    USUŃ WSZYSTKIE WIADOMOŚCI
-    <br>
-    ZABLOKUJ MOŻLIWOŚĆ OTRZYMYWANIA WIADOMOŚCI
+            <br>
+            <div style="text-align: center">
+                <a href="{% url 'my_messages:black_list' %}" class="btn btn-dark" style="width: 200px">
+                    <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px; display: inline-block; vertical-align: middle" width="24" height="24" fill="currentColor" class="bi bi-person-fill-slash" viewBox="0 0 16 16">
+                      <path d="M13.879 10.414a2.501 2.501 0 0 0-3.465 3.465l3.465-3.465Zm.707.707-3.465 3.465a2.501 2.501 0 0 0 3.465-3.465Zm-4.56-1.096a3.5 3.5 0 1 1 4.949 4.95 3.5 3.5 0 0 1-4.95-4.95ZM11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-9 8c0 1 1 1 1 1h5.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4Z"/>
+                    </svg>
+                    <div style="display: inline; vertical-align: middle">
+                        Zarządzaj listą
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin: 10px 10px 0 10px; padding: 10px; display: inline-block; vertical-align: middle">
+        <h3 style="font-weight:1000;">Blokowanie</h3>
+        <div>
+            <div style="text-align: justify">
+                Możesz zablokować możliwość wysyłania wiadomości przez grupy, użytkowników lub
+                całkowicie wyłączyć możliwość otrzymywania wiadomości. Blokuj wiadomości od:
+            </div>
+
+
+            <form id="form" method="post" action="{% url 'my_messages:block_options' %}">
+                {% csrf_token %}
+                <div style="margin: 10px">
+                    <div class="form-check">
+                        {% if profile.messages_by_groups and profile.messages_by_users %}
+                            <input class="form-check-input" type="radio" name="block_radio" id="black_list" value="black_list" checked>
+                        {% else %}
+                            <input class="form-check-input" type="radio" name="block_radio" id="black_list" value="black_list">
+                        {% endif %}
+                      <label class="form-check-label" for="black_list">
+                        Osób z czarnej listy
+                      </label>
+                    </div>
+
+                    <div class="form-check">
+                        {% if profile.messages_by_groups and not profile.messages_by_users %}
+                            <input class="form-check-input" type="radio" name="block_radio" id="users" value="users" checked>
+                        {% else %}
+                            <input class="form-check-input" type="radio" name="block_radio" id="users" value="users">
+                        {% endif %}
+                      <label class="form-check-label" for="users">
+                        Wszystkich użytkowników
+                      </label>
+                    </div>
+
+                    <div class="form-check">
+                        {% if not profile.messages_by_groups and profile.messages_by_users %}
+                            <input class="form-check-input" type="radio" name="block_radio" id="groups" value="groups" checked>
+                        {% else %}
+                            <input class="form-check-input" type="radio" name="block_radio" id="groups" value="groups">
+                        {% endif %}
+                      <label class="form-check-label" for="groups">
+                        Wszystkich grup
+                      </label>
+                    </div>
+
+                    <div class="form-check">
+                        {% if not profile.messages_by_groups and not profile.messages_by_users %}
+                            <input class="form-check-input" type="radio" name="block_radio" id="groups_users" value="groups_users" checked>
+                        {% else %}
+                            <input class="form-check-input" type="radio" name="block_radio" id="groups_users" value="groups_users">
+                        {% endif %}
+                      <label class="form-check-label" for="groups_users">
+                        Wszystkich
+                      </label>
+                    </div>
+                </div>
+
+                <div style="text-align: center">
+                    <button class="btn btn-dark" style="width: 200px; margin-top: 10px" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px; display: inline-block; vertical-align: middle" width="24" height="24" fill="currentColor" class="bi bi-send-slash" viewBox="0 0 16 16">
+                          <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855a.75.75 0 0 0-.124 1.329l4.995 3.178 1.531 2.406a.5.5 0 0 0 .844-.536L6.637 10.07l7.494-7.494-1.895 4.738a.5.5 0 1 0 .928.372l2.8-7Zm-2.54 1.183L5.93 9.363 1.591 6.602l11.833-4.733Z"/>
+                          <path d="M14.975 10.025a3.5 3.5 0 1 0-4.95 4.95 3.5 3.5 0 0 0 4.95-4.95Zm-4.243.707a2.501 2.501 0 0 1 3.147-.318l-3.465 3.465a2.501 2.501 0 0 1 .318-3.147Zm.39 3.854 3.464-3.465a2.501 2.501 0 0 1-3.465 3.465Z"/>
+                        </svg>
+                        <div style="display: inline; vertical-align: middle">
+                            Zmień
+                        </div>
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div style="margin: 10px; padding: 10px; display: inline-block; vertical-align: middle">
+        <h3 style="font-weight:1000;">Usuń wiadomości</h3>
+        <div>
+            <div style="text-align: justify">
+                W tym miejscu możesz opróżnić swoją skrzynkę pocztową. Operacja ta sprawi, że
+                wszystkie <b>wiadomości odebrane i wysłane zostaną usunięte bezpowrotnie!</b>
+            </div>
+
+            <br>
+            <div style="text-align: center">
+                <a href="{% url 'my_messages:del_all_messages' %}" class="btn btn-danger" style="width: 200px">
+                    <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px; display: inline-block; vertical-align: middle" width="24" height="24"  fill="currentColor" class="bi bi-envelope-x" viewBox="0 0 16 16">
+                      <path d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z"/>
+                      <path d="M16 12.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Zm-4.854-1.354a.5.5 0 0 0 0 .708l.647.646-.647.646a.5.5 0 0 0 .708.708l.646-.647.646.647a.5.5 0 0 0 .708-.708l-.647-.646.647-.646a.5.5 0 0 0-.708-.708l-.646.647-.646-.647a.5.5 0 0 0-.708 0Z"/>
+                    </svg>
+                    <div style="display: inline; vertical-align: middle">
+                        Opróżnij skrzynkę
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
 
 {% endblock content %}

@@ -8,22 +8,25 @@ from django.contrib.auth.models import User
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(max_length=500, label='Email',
                              widget=forms.EmailInput(attrs={'class': "form-control",
-                                                            'style': 'max-width: 300px; margin: auto',
+                                                            'style': 'max-width: 300px; margin: auto;border-color: black',
                                                             'placeholder': 'Email'}),
                              error_messages={'invalid': 'Wprowadź poprawny email.'}
                              )
     date_of_birth = forms.DateField(initial=datetime.date(2010, 1, 1),
                                     widget=forms.DateInput(attrs={'type': 'date','class': "form-control",
-                                                                  'style': 'max-width: 300px; margin: auto',}), required=True, label='Data urodzenia')
-    terms_accepted = forms.BooleanField(required=True, initial=False, label='Akceptuję warunki korzystania ze strony')
+                                                                  'style': 'max-width: 300px; margin: auto;border-color: black',}), required=True, label='Data urodzenia')
+    terms_accepted = forms.BooleanField(required=True,widget=forms.CheckboxInput(attrs={
+                'class': "form-check",
+                'style': 'width: 25px; height: 25px; border-color: black; accent-color: black',
+            }), initial=False, label='Przeczytałem regulamin i akceptuję warunki korzystania z aplikacji.')
     password1 = forms.CharField(widget=forms.PasswordInput(
                     attrs={'class': 'form-control',
-                           'style': 'max-width: 300px; margin: auto',
-                           'type': 'password', 'name': 'password', 'placeholder': 'Hasło'}),
+                           'style': 'max-width: 300px; margin: auto;border-color: black',
+                           'type': 'password', 'name': 'password', 'placeholder': 'Hasło',}),
                     label='')
     password2 = forms.CharField(widget=forms.PasswordInput(
                     attrs={'class': 'form-control',
-                           'style': 'max-width: 300px; margin: auto',
+                           'style': 'max-width: 300px; margin: auto;border-color: black',
                            'type': 'password', 'name': 'password', 'placeholder': 'Powtórz hasło'}),
                     label='')
 
@@ -43,7 +46,7 @@ class RegistrationForm(UserCreationForm):
             'username': forms.TextInput(attrs={
                 'class': "form-control",
                 'placeholder': 'Login',
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto;border-color: black',
             }),
         }
 

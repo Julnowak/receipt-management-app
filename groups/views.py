@@ -111,14 +111,16 @@ def search(request, group_id):
 
 
 def leaving_group_page(request, group_id):
-    group = get_object_or_404(CommonGroups, id=group_id)
-    member = group.members.exclude(id=group.owner.id).order_by("date_joined")[0]
+    group = CommonGroups.objects.get(id=group_id)
+    if group.members.count() > 1:
+        member = group.members.exclude(id=group.owner.id).order_by("date_joined")[0]
+    else:
+        member = None
 
     context = {"group": group, "user": request.user, "new_owner": member}
     return render(request, 'groups/leaving_group_page.html', context)
 
 
-# TO DO
 def add_group(request):
     if request.method == 'POST':
         form = CommonGroupsForm(request.POST)
@@ -141,40 +143,38 @@ def add_group(request):
     return render(request, 'groups/add_group.html', context)
 
 
+def group_deletion(request,group_id):
+    group = get_object_or_404(CommonGroups, id=group_id)
+    if request.user != group.owner:
+        return Http404
+    context = {'group':group}
+    return render(request,'groups/group_deletion.html',context)
+
+
 def delete_group(request,group_id):
-    deletion(group_id)
+    group = get_object_or_404(CommonGroups, id=group_id)
+    group.delete()
     return redirect('groups:groups')
 
 
-def deletion(group_id):
-    group = get_object_or_404(CommonGroups, id=group_id)
-    group.delete()
-
-
 def left_group(request, group_id):
-    group = get_object_or_404(CommonGroups, id=group_id)
+    group = CommonGroups.objects.get(id=group_id)
     user = request.user
     if request.method == "POST":
         try:
             group.owner = group.members.get(username=request.POST["new_owner"])
-            if group.number_of_members == 1:
-                deletion(group_id)
-            else:
-                group.members.remove(user)
-                group.number_of_members -= 1
-                group.save()
+            group.members.remove(user)
+            group.number_of_members -= 1
+            group.save()
         except:
             if len(request.POST["new_owner"]) > 0:
                 messages.error(request, "Brak użytkownika")
                 return redirect('groups:leaving_group_page', group_id=group.id)
             else:
-                if group.number_of_members == 1:
-                    deletion(group_id)
-                else:
-                    group.members.remove(user)
-                    group.number_of_members -= 1
-                    group.owner = group.members.all().order_by("date_joined")[0]
-                    group.save()
+                group.members.remove(user)
+                group.number_of_members -= 1
+                group.owner = group.members.all().order_by("date_joined")[0]
+                group.save()
     return redirect('groups:groups')
 
 
@@ -268,10 +268,6 @@ def group_receipts_and_expenses(request, group_id):
 
 def not_member_of_group(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
-    try:
-        mes_last_id = Message.objects.latest('id').id
-    except:
-        mes_last_id = 0
 
     if request.method == 'POST':
         try:
@@ -280,7 +276,6 @@ def not_member_of_group(request, group_id):
                                                  title="Prośba o przyjęcie do grupy  " + group.group_name,
                                                  message_type="request",
                                                  group=group)
-            new_message.slug = slugify(new_message.title + " " + str(mes_last_id + 1))
             new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
                                "Proszę o przyjęcie do grupy  " + group.group_name + "."
             new_message.save()
@@ -295,16 +290,18 @@ def not_member_of_group(request, group_id):
 
 
 def password_check(request, group_id):
-    ###!
     group = get_object_or_404(CommonGroups, id=group_id)
     if request.method == "POST":
-        pswd = "csvvdscsvvdve"
+        pswd = request.POST['Hasło']
         if pswd == group.password:
+            group.members.add(request.user)
+            group.number_of_members += 1
+            group.save()
             messages.success(request, "Zostałeś dodany do grupy.")
+            return redirect("groups:group_site", group_id=group.id)
         else:
             messages.error(request, "Złe hasło.")
-    context = {"group": group, "code": group.password}
-    return redirect("groups:groups")
+            return redirect("groups:not_member_of_group", group_id=group.id)
 
 
 def profile_not_public(request):
@@ -312,5 +309,14 @@ def profile_not_public(request):
     return render(request, "groups/profile_not_public.html", context)
 
 
-def remove_member(request, member_id):
-    pass
+def remove_member(request, group_id, member_id):
+    group = get_object_or_404(CommonGroups, id=group_id)
+    try:
+        member = group.members.get(id=member_id)
+        group.members.remove(member)
+        messages.success(request, f"Usunięto użytkownika {member.username} z grupy.")
+        group.save()
+    except:
+        messages.error(request, "Wystąpił błąd.")
+    return redirect("groups:manage_group", group_id=group.id)
+

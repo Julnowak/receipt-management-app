@@ -14,6 +14,9 @@ class Message(models.Model):
     new = models.BooleanField(default=True)
     message_type = models.CharField(max_length=200, default="normal")
     group = models.ForeignKey(CommonGroups, on_delete=models.CASCADE, blank=True, null=True)
+    is_seen_by_sender = models.BooleanField(default=True)
+    is_seen_by_receiver = models.BooleanField(default=True)
+    answered = models.BooleanField(default=False)
 
     def __str__(self):
         if len(self.title) < 20:

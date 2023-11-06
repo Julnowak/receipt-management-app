@@ -24,6 +24,7 @@ class CommonGroups(models.Model):
     password = models.CharField(max_length=200, default=random_passwd_generator())
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner')
     members = models.ManyToManyField(User, related_name='member')
+    allow_invitations = models.BooleanField(default=True)
 
     class Meta:
         verbose_name_plural = 'Common groups'

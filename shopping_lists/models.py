@@ -15,6 +15,7 @@ class ShoppingList(models.Model):
     regards = models.TextField(max_length=1000, blank=True, null=True)
     realizators = models.ManyToManyField(User, related_name="realizators", default=owner)
     group = models.ForeignKey(CommonGroups, on_delete=models.SET_NULL, blank=True, null=True)
+    display_only = models.BooleanField(default=False)
 
     def __str__(self):
         return self.text

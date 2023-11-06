@@ -14,12 +14,12 @@
 
     <h1 style="margin-top: 20px">Edytuj:</h1>
 
-    <form class="edit_forms_after_pencil" method="post" action="{% url 'edit_list' list.id%}" style="margin: 10px" id="edit_form">
+    <form class="edit_forms_after_pencil" method="post" action="{% url 'edit_list' list.id%}" style="margin: auto; text-align: center" id="edit_form">
         {% csrf_token %}
         {{ form.text.label }}
         {{ form.text }}
         {{ form.text.errors }}
-        <button type="submit" class="btn btn-dark" name="edit_btn_btn" id="edit_btn_btn">Edytuj</button>
+        <button type="submit" style="width: 150px;margin: 20px" class="btn btn-dark" name="edit_btn_btn" id="edit_btn_btn">Edytuj</button>
     </form>
 
 {% endblock content %}

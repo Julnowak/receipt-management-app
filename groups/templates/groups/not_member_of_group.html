@@ -19,6 +19,28 @@
 
     </style>
 
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                 <div id="messages" class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% else %}
+                 <div id="messages" class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <script>
+        var mess = document.getElementById("messages")
+
+        setTimeout(function(){
+            mess.style.display="none";
+        },2000)
+    </script>
+
     <a href="{% url 'groups:groups' %}">
         <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
@@ -27,19 +49,8 @@
         </div>
     </a>
 
-    <div style="height:40px">
-
-        {% if messages %}
-            <div id="messages" class="messages">
-            {% for message in messages %}
-                {{ message }}
-            {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
     <div>
-        <h4 style="margin-top: 40px">
+        <h4 style="margin-top: 80px">
             Nie jesteś aktualnie członkiem grupy {{ group }}!
         </h4>
     </div>
@@ -54,7 +65,7 @@
     <div style="margin: 10px;">
         <form method="post" action="{% url 'groups:not_member_of_group' group.id %}"  style="text-align: center">
         {% csrf_token %}
-            <button name="send" class="btn btn-dark" type="submit">Wyślij</button>
+            <button name="send" style="width: 150px" class="btn btn-dark" type="submit">Wyślij</button>
         </form>
     </div>
 
@@ -64,11 +75,11 @@
         </div>
     </div>
 
-    <form method="post" style=" margin: 10px; padding: 10px; text-align: center">
+    <form method="post" style=" margin: 10px; padding: 10px; text-align: center" action="{% url 'groups:password_check' group.id %}">
         {% csrf_token %}
-        <label for="pswd_inpt">Hasło:</label>
-        <input type="text" name="Hasło" id="pswd_inpt">
-        <button name="send_pswd" class="btn btn-dark" id="send_pswd">Wyślij</button>
+        <label for="pswd_inpt"></label>
+        <input placeholder="Hasło" class="form-control" type="text" name="Hasło" id="pswd_inpt">
+        <button name="send_pswd" style="width: 150px; margin: 20px" type="submit" class="btn btn-dark" id="send_pswd">Wyślij</button>
     </form>
 
 {% endblock content %}

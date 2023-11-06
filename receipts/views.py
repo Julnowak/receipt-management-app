@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Receipt, Guarantee, Expense
 from receipts.forms import ReceiptForm, ExpenseForm, GuaranteeForm, HandReceiptForm
 import pytesseract
+from profile_mangement.models import ProfileInfo
 from PIL import Image
 import cv2
 import re
@@ -51,6 +52,7 @@ def your_receipts(request):
 
 @login_required
 def new_receipt(request):
+    profile = ProfileInfo.objects.get(user=request.user)
     if request.method == 'POST':
         form = ReceiptForm(request.POST, request.FILES)
 
@@ -58,6 +60,8 @@ def new_receipt(request):
             new_receipt = form.save(commit=False)
             new_receipt.owner = request.user
             new_receipt.save()
+            profile.how_many_receipts += 1
+            profile.save()
             return redirect('receipts:your_receipts')
     else:
         form = ReceiptForm()
@@ -65,14 +69,15 @@ def new_receipt(request):
 
 
 def costs_by_hand(request):
+    profile = ProfileInfo.objects.get(user=request.user)
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
-
         if form.is_valid():
             cost = form.save(commit=False)
-            print(cost)
             cost.owner = request.user
             form.save()
+            profile.how_many_expenses +=1
+            profile.save()
             return redirect('receipts:your_receipts')
     else:
         form = ExpenseForm()
@@ -138,6 +143,7 @@ def receipt_site(request, receipt_id):
 
 @login_required
 def new_guarantee(request):
+    profile = ProfileInfo.objects.get(user=request.user)
     if request.method == 'POST':
         form = GuaranteeForm(request.POST, request.FILES)
 
@@ -145,6 +151,8 @@ def new_guarantee(request):
             new_guar = form.save(commit=False)
             new_guar.owner = request.user
             new_guar.save()
+            profile.how_many_guarantees +=1
+            profile.save()
             return redirect('receipts:your_receipts')
     else:
         form = GuaranteeForm()

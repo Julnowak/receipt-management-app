@@ -26,6 +26,12 @@ class ProfileInfo(models.Model):
     email = models.EmailField()
     date_of_birth = models.DateField(blank=True, null=True)
     is_public = models.BooleanField(default=True)
+    messages_by_groups = models.BooleanField(default=True)
+    messages_by_users = models.BooleanField(default=True)
+    blocked_users = models.ManyToManyField(User, related_name="blocked_users", blank=True)
+    how_many_receipts = models.IntegerField(default=0)
+    how_many_guarantees = models.IntegerField(default=0)
+    how_many_expenses = models.IntegerField(default=0)
 
     def __str__(self):
         return self.user.username

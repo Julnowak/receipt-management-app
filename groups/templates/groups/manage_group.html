@@ -4,6 +4,30 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
+        <div style="height:60px">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                     <div id="messages" class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% else %}
+                     <div id="messages" class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <script>
+            var mess = document.getElementById("messages")
+
+            setTimeout(function(){
+                mess.style.display="none";
+            },2000)
+        </script>
+    </div>
+
     <a href="{% url 'groups:group_site' group.id %}">
         <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
@@ -15,8 +39,33 @@
 
     <h1 style="text-align: center; margin-top: 20px">Zarządzaj grupą</h1>
     <div style="margin: 10px; padding: 10px">
-    <div>
+    <ol>
         <h3 style="text-align: center">Członkowie</h3>
+        <div class="list-group" id="lista" style="margin: 10px 10px 30px;">
+            {% for member in members%}
+                    <div class="list-group-item list-group-item-action" style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 10px; width: 95vw; margin: auto; ">
+                        <div style="display: inline; max-width: 85%; margin:auto 0;">
+                             <li>{{ member }}</li>
+                        </div>
+                        <div style="margin: auto; height: 40px; width: 40px;">
+{#                                <a class="x_button" href="{% url 'list_removed' list.id %}" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: none;#}
+{#                                width: 40px;height: 40px">#}
+{#                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">#}
+{#                                      <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>#}
+{#                                    </svg>#}
+{#                                </a>#}
+
+                        </div>
+                    </div>
+
+            {% empty %}
+                <div style="margin: 10px; text-align: center">
+                   <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
+                        Nie została jeszcze dodana żadna lista!
+                    </div>
+                </div>
+            {% endfor %}
+    </div>
         <ol>
             {% for member in members%}
                 <li>
@@ -24,37 +73,30 @@
                     {% if member == group.owner %}
                         👑
                     {% else %}
-                        <button onclick="">X</button>
+                        <a href="{% url 'groups:remove_member' group.id member.id %}">X</a>
                     {% endif %}
 
                 </li>
             {% endfor %}
         </ol>
+    </ol>
+    <h3>Zmień możliwość wysyłania zaproszeń</h3>
+        <div style="text-align: center">
+        {% if group.owner == user %}
+            <a style="width: 150px" href="#" class="btn btn-dark">
+                Zmień
+            </a>
+        {% endif %}
     </div>
 
     <div style="text-align: center">
         {% if group.owner == user %}
-            <a href="{% url 'groups:leaving_group_page' group.id %}" class="btn btn-danger">
+            <a style="width: 150px" href="{% url 'groups:group_deletion' group.id %}" class="btn btn-danger">
                 Usuń grupę
             </a>
         {% endif %}
     </div>
     </div>
 
-
-
-    <script>
-         $.ajax({
-            type: 'POST',
-            url: '{% url "add_shopping_list" %}',
-            data: $(this).serialize(),
-            success: function () {
-                location.reload();
-            },
-            error: function (data) {
-                console.log(data.error)
-            }
-        });
-    </script>
 
 {% endblock content %}

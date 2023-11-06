@@ -93,7 +93,7 @@
         </div>
     </div>
 
-<div style="background-color: rgba(183,183,183,0.26); padding-top: 10px; margin-top: -10px; border-radius: 10px; border-style: solid; border-width: 1px">
+<div style="background-color: rgba(183,183,183,0.26); padding-top: 10px;margin-right: 10px; margin-left: 10px; margin-top: -10px; border-radius: 10px; border-style: solid; border-width: 1px">
     <form id="check_form" method="POST" style="display: inline; vertical-align: middle" action="{% url 'my_messages:delete_messages' %}">
         {% csrf_token %}
     <ul>
@@ -101,7 +101,7 @@
                 <li style="list-style-type:none; margin: 5px">
                     <input type="checkbox" class="checkbox_mess" style="display: none; vertical-align: middle;" name={{ message.id }}>
 
-                <div style=" display: inline-block; vertical-align: middle;width: 90%" class="conts">
+                <div style=" display: inline-block; vertical-align: middle;min-width: 300px" class="conts">
 
                     <a style="text-decoration: none;" href="{% url "my_messages:message_inside" message.id %}">
                         <div style="background-color: lightgray;margin: 5px; padding: 15px; color: black; border-radius: 10px">
@@ -122,11 +122,9 @@
 
                 </li>
         {% empty %}
-            <div style="margin: 10px; text-align: center">
-               <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
-                    Brak wiadomości
-                </div>
-            </div>
+               <div style="text-align: center; background-color: lightgray; margin: 10px 10px 20px 10px; width: 290px; padding: 15px; color: black; border-radius: 10px">
+                   Brak wiadomości
+               </div>
         {% endfor %}
     </ul>
 
@@ -182,7 +180,7 @@
         </div>
     </div>
 
-    <div style="text-align:center; position: sticky; flex: 1; margin-top: auto; display: flex; flex-direction: column-reverse;">
+    <div style="text-align:center; position: sticky; flex:0; margin-top: auto; display: flex; flex-direction: column-reverse;">
         <div style="display: inline-block">
        {% if pages.has_other_pages %}
             {% if pages.has_previous %}

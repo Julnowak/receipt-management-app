@@ -14,10 +14,12 @@
 
     <h1 style="margin-top: 20px">Edytuj:</h1>
 
-    <form action="{% url 'edit_product' current_product.id %}" method="post">
+    <form action="{% url 'edit_product' current_product.id %}" method="post" style="margin:auto;text-align: center">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button name="post_btn">Zapisz zmiany</button>
+        {{ form.product.label }}
+        {{ form.product }}
+        {{ form.product.errors }}
+        <button class="btn btn-dark" style="width: 150px; margin: 20px" name="post_btn">Zapisz zmiany</button>
     </form>
 
 {% endblock content %}

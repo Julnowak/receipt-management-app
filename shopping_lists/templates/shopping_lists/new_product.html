@@ -14,11 +14,15 @@
 
     <h1 style="margin-top: 20px">Dodaj nowy produkt:</h1>
 
-    <form action="{% url 'new_product' current_list.id %}" method="post">
+    <form action="{% url 'new_product' current_list.id %}" method="post" style="margin: auto">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div style="text-align: center">
+            {{ form.product.label }}
+        </div>
+        {{ form.product }}
+        {{ form.product.errors }}
         <div style="margin: auto; text-align: center">
-        <button name="post_btn" type="submit" class="btn btn-dark" style="width: 150px; margin: 15px auto">Dodaj</button>
+        <button  name="post_btn" type="submit" class="btn btn-dark" style="width: 150px; margin: 20px auto 0 auto">Dodaj</button>
         </div>
     </form>
 

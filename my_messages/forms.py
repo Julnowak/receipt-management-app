@@ -57,7 +57,7 @@ class NewMessageForm(forms.ModelForm):
 
             'text': forms.Textarea(
                 attrs={'class': "form-control",
-                       'rows': 16,
+                       'rows': 14,
                        'style': "border-color: black;"}
             ),
         }

@@ -7,11 +7,20 @@ class ShoppingListForm(forms.ModelForm):
         model = ShoppingList
         fields = ['text']
         labels = {'text': 'Nazwa listy:'}
-
+        widgets = {
+                    'text': forms.TextInput(attrs={
+                        'class': "form-control",
+                        'style': 'max-width: 300px; margin: auto',
+                    })}
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = ListProduct
         fields = ['product']
         labels = {'product': 'Nazwa produktu:'}
+        widgets = {
+            'product': forms.TextInput(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto',
+            })}
 

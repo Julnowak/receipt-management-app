@@ -9,10 +9,7 @@
     {% endif %}
 
     <style>
-        body
-        {
-            background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
-        }
+
 
         .white_block {
             background-color: #fff;
@@ -40,7 +37,7 @@
     </style>
 
     <a href="{% url 'homepage' %}">
-        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
+        <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
             </svg>
@@ -57,19 +54,18 @@
             <div class="white_block">
                 <form method="post" action="{% url 'users:login' %}">
                 {% csrf_token %}
-                    <p>
-                        Login:
-                        {{ form.username }}
-                    </p>
+                    <div class="mb-3">
+                        <label for="username" class="form-label"></label>
+                        <input placeholder="Login" style="border-color: black" type="text" class="form-control" id="username" name="username">
+                    </div>
 
-                    <p>
-                        Hasło:
-                        {{ form.password }}
-                    </p>
+                    <div class="mb-3">
+                        <label for="password" class="form-label"></label>
+                        <input placeholder="Hasło" style="border-color: black" type="password" class="form-control" id="password" name="password">
+                    </div>
 
-
-                <button id="login_btn" class="btn btn-dark">Zaloguj</button>
-                <input type="hidden" name="next" value="{% url 'main_panel' %}">
+                <button style="width: 150px" id="login_btn" class="btn btn-dark">Zaloguj</button>
+                    <input type="hidden" name="next" value="{% url 'main_panel' %}">
                 </form>
             </div>
 
