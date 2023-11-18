@@ -6,15 +6,15 @@ import re
 from selenium import webdriver
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import itertools
-# Create your views here.
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def shop_selection(request):
     shops = Shop.objects.all()
     context = {'shops': shops}
     return render(request, "promotions_and_discounts/shop_selection.html", context)
 
-
+@login_required
 def shop_site(request, shop_slug):
     shop = Shop.objects.get(slug=shop_slug)
 
@@ -23,7 +23,7 @@ def shop_site(request, shop_slug):
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     driver = webdriver.Chrome(options=options)
-    driver.implicitly_wait(3)
+    driver.implicitly_wait(1)
     driver.get(url)
     html = BeautifulSoup(driver.page_source, 'html.parser')
 
@@ -32,36 +32,39 @@ def shop_site(request, shop_slug):
     list_of_discounts = []
     list_of_old_prices = []
     list_of_new_prices = []
-    print(shop.shop_name )
     if shop.shop_name == "Lidl":
         max_web_pages = str(html.find_all("a", {"class", "s-pagination__link"}))
         list_of_pages = re.findall('=\d+', max_web_pages)
+        print(list_of_pages)
         for i in range(1):
             if i == 0:
                 url = shop.link
             else:
-                url = shop.link + f"?offset{i-1}"
+                url = shop.link + f"?offset{list_of_pages[i-1]}"
+            driver = webdriver.Chrome(options=options)
+            driver.implicitly_wait(5)
             driver.get(url)
             html = BeautifulSoup(driver.page_source, 'html.parser')
+            print(html)
 
-            product_name = html.find_all("h2", {"class", "grid-box__headline grid-box__text--dense"})
-            print(product_name)
-            discounts = html.find_all("div", {"class", "m-price__label"})
-            old_price = html.find_all("div", {"class", "m-price__top"})
-            # print(old_price)
-            new_price = html.find_all("div", {"class", "m-price__bottom"})
-
-            products_reg = re.sub(r"(\s*<.*?>\s*)", '=', str(product_name))
-            list_of_products_labels.append(re.findall("=([A-z]+.*?)=", products_reg))
-
-            disc = re.sub(r"(<.*?>)", '', str(discounts))
-            list_of_discounts.append(re.findall("(-\d\d%)", disc))
-
-            olpri = re.sub(r"(\d+,\d{2}zł)", '', str(old_price))
-            list_of_old_prices.append(re.findall("(\d+,\d+\szł)", str(old_price)))
-            print(list_of_old_prices)
-            newpri = re.sub(r"(<.*?>)", '', str(new_price))
-            list_of_new_prices.append(re.findall("(\d+,\d+)", newpri))
+            # product_name = html.find_all("h2", {"class", "grid-box__headline grid-box__text--dense"})
+            # print(product_name)
+            # discounts = html.find_all("div", {"class", "m-price__label"})
+            # old_price = html.find_all("div", {"class", "m-price__top"})
+            # # print(old_price)
+            # new_price = html.find_all("div", {"class", "m-price__bottom"})
+            #
+            # products_reg = re.sub(r"(\s*<.*?>\s*)", '=', str(product_name))
+            # list_of_products_labels.append(re.findall("=([A-z]+.*?)=", products_reg))
+            #
+            # disc = re.sub(r"(<.*?>)", '', str(discounts))
+            # list_of_discounts.append(re.findall("(-\d\d%)", disc))
+            #
+            # olpri = re.sub(r"(\d+,\d{2}zł)", '', str(old_price))
+            # list_of_old_prices.append(re.findall("(\d+,\d+\szł)", str(old_price)))
+            # print(list_of_old_prices)
+            # newpri = re.sub(r"(<.*?>)", '', str(new_price))
+            # list_of_new_prices.append(re.findall("(\d+,\d+)", newpri))
 
     elif shop.shop_name == "Rossman":
 

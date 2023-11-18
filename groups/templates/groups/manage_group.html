@@ -29,7 +29,7 @@
     </div>
 
     <a href="{% url 'groups:group_site' group.id %}">
-        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
+        <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
             </svg>
@@ -39,24 +39,39 @@
 
     <h1 style="text-align: center; margin-top: 20px">Zarządzaj grupą</h1>
     <div style="margin: 10px; padding: 10px">
-    <ol>
         <h3 style="text-align: center">Członkowie</h3>
-        <div class="list-group" id="lista" style="margin: 10px 10px 30px;">
-            {% for member in members%}
-                    <div class="list-group-item list-group-item-action" style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 10px; width: 95vw; margin: auto; ">
-                        <div style="display: inline; max-width: 85%; margin:auto 0;">
-                             <li>{{ member }}</li>
-                        </div>
-                        <div style="margin: auto; height: 40px; width: 40px;">
-{#                                <a class="x_button" href="{% url 'list_removed' list.id %}" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: none;#}
-{#                                width: 40px;height: 40px">#}
-{#                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">#}
-{#                                      <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>#}
-{#                                    </svg>#}
-{#                                </a>#}
 
-                        </div>
-                    </div>
+        <div id="lista" style="margin: 10px 10px 30px;">
+            <ol class="list-group list-group-numbered" >
+                {% for member in members%}
+                    <li class="list-group-item" >
+                        {{ member }}
+                        {% if member == group.owner %}
+                            <div style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 10px; width: 95vw; margin: auto; ">
+                                <div style="margin: auto; height: 40px; width: 40px;">
+                                        <div style="color: black; border-radius: 2px; position: absolute;display: inline-block;
+                                        width: 40px;height: 40px">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
+                                              <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>
+                                            </svg>
+                                        </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 10px; width: 95vw; margin: auto; ">
+                                <div style="margin: auto; height: 40px; width: 40px;">
+                                        <a class="x_button" href="{% url 'groups:remove_member' group.id member.id %}" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: inline-block;
+                                        width: 40px;height: 40px">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                              <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                            </svg>
+                                        </a>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </li>
+
 
             {% empty %}
                 <div style="margin: 10px; text-align: center">
@@ -65,25 +80,27 @@
                     </div>
                 </div>
             {% endfor %}
-    </div>
-        <ol>
-            {% for member in members%}
-                <li>
-                 {{ member }}
-                    {% if member == group.owner %}
-                        👑
-                    {% else %}
-                        <a href="{% url 'groups:remove_member' group.id member.id %}">X</a>
-                    {% endif %}
+            </ol>
 
-                </li>
-            {% endfor %}
-        </ol>
-    </ol>
+    </div>
+
+
+    <div style="margin: 20px">
     <h3>Zmień możliwość wysyłania zaproszeń</h3>
+        Aktualnie możliwość wysyłania zaproszeń przez użytkowników innych niż admin jest
+        {% if group.allow_invitations %}
+            <b>
+                włączona.
+            </b>
+            {% else %}
+            <b>
+                wyłączona.
+            </b>
+        {% endif %}
+    </div>
         <div style="text-align: center">
         {% if group.owner == user %}
-            <a style="width: 150px" href="#" class="btn btn-dark">
+            <a style="width: 150px" href="{% url 'groups:change_invite_possibility' group.id %}" class="btn btn-dark">
                 Zmień
             </a>
         {% endif %}

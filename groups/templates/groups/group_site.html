@@ -6,11 +6,6 @@
 
     <style>
 
-        body{
-            background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
-            text-align: center
-        }
-
         .white_block{
             background-color: ghostwhite;
             margin: 20px;
@@ -120,17 +115,16 @@
         </div>
     </a>
 
-    <div class="white_block">
-    <h1>
-    {{ group}}
-    </h1>
+    <div style="text-align: center; margin-top: 80px">
+        <h1 >
+        {{ group}}
+        </h1>
 
-    <h6 style=" color: #545454">
-        Utworzono:&nbsp&nbsp{{ group.date_created|date:'d.m.Y' }}
-        <br>
-        Właściciel:&nbsp&nbsp{{ group.owner }}
-    </h6>
-
+        <h6 style=" color: #545454">
+            Utworzono:&nbsp&nbsp{{ group.date_created|date:'d.m.Y' }}
+            <br>
+            Właściciel:&nbsp&nbsp{{ group.owner }}
+        </h6>
 
     </div>
 
@@ -143,28 +137,24 @@
             Podsumowanie
         </h6>
 
-        <div>
+                <div style=" display: block;">
+                    <span>Łączna suma do podziału:</span>
+                    <span style="margin: 10px"><b>{{ suma }}</b></span>
+                </div>
 
-    </div>
-        <div style="display: inline-block">
+                <div style=" display: block;">
+                    <span>Suma na jednego członka:</span>
+                    <span style="margin: 10px"><b>{{ amount_per_member }}</b></span>
+                </div>
 
-            <div style=" display: block; margin: 10px">
-                <span style="margin: 10px">Łączna suma do podziału:</span>
-                <span style="margin: 10px">{{ suma }}</span>
+
+            <div style="text-align: center">
+                <a href="{% url 'groups:group_receipts_and_expenses' group.id %}">
+                    <div class="btn btn-dark" style="margin: 10px">
+                            Paragony i wydatki grupy
+                    </div>
+                </a>
             </div>
-
-            <div style=" display: block; margin: 10px">
-                <span style="margin: 10px">Suma na jednego członka:</span>
-                <span style="margin: 10px">{{ amount_per_member }}</span>
-            </div>
-
-        </div>
-
-        <a href="{% url 'groups:group_receipts_and_expenses' group.id %}">
-            <div class="btn btn-dark" style="margin: 10px">
-                    Paragony i wydatki grupy
-            </div>
-        </a>
 
     </div>
 
@@ -189,7 +179,7 @@
                     </div>
                 </a>
             {% else %}
-                <a href="{% url 'groups:profile_not_public' %}" style="text-decoration: none;color: black;">
+                <a href="{% url 'groups:profile_not_public' group.id %}" style="text-decoration: none;color: black;">
                     <div class="member_box">
                             {{ member }}
                     </div>
@@ -201,11 +191,21 @@
 
     </div>
 
-    <a href="{% url 'groups:invite_page' group.id %}" style="text-decoration: none; ">
-        <div class="invite_btn" style="transition: 0.5s" >
-                Zaproś
-        </div>
-    </a>
+    {% if user != group.owner %}
+        {% if group.allow_invitations %}
+            <a href="{% url 'groups:invite_page' group.id %}" style="text-decoration: none; ">
+                <div class="invite_btn" style="transition: 0.5s" >
+                        Zaproś
+                </div>
+            </a>
+        {% endif %}
+    {% else %}
+        <a href="{% url 'groups:invite_page' group.id %}" style="text-decoration: none; ">
+            <div class="invite_btn" style="transition: 0.5s" >
+                    Zaproś
+            </div>
+        </a>
+    {% endif %}
 
     <a style="text-decoration: none;" href="{% url 'groups:leaving_group_page' group.id %}"  >
         <div class="leave_btn" style="transition: 0.5s">

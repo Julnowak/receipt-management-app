@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect,reverse
+from django.shortcuts import render, redirect
 from .models import CommonGroups, User
 from groups.forms import CommonGroupsForm
 from django.contrib import messages
@@ -10,10 +10,11 @@ from django.template.defaultfilters import slugify
 import math
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
 from django.http import Http404
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def groups(request):
     your_groups = CommonGroups.objects.filter(owner=request.user)
     member_of_groups = CommonGroups.objects.filter(members=request.user).order_by("-date_created")
@@ -32,6 +33,7 @@ def groups(request):
     return render(request, 'groups/your_groups.html', context)
 
 
+@login_required
 def group_site(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     members = group.members.all().order_by("id")
@@ -57,11 +59,12 @@ def group_site(request, group_id):
     suma_paragony = round(float(suma_paragony), 2)
     suma = suma_wydatki + suma_paragony
     amount_per_member = math.ceil(suma/group.number_of_members * 100)/100
-    context = {"group": group, "members": members, "user": user, "amount_per_member": "{:.2f}".format(amount_per_member),
-               "suma": "{:.2f}".format(suma), "profile_and_members": pam}
+    context = {"group": group, "members": members, "user": user, 'amount_per_member': str("{:.2f}".format(amount_per_member)).replace(".", ','),
+               "suma": str("{:.2f}".format(suma)).replace(".", ','), "profile_and_members": pam}
     return render(request, 'groups/group_site.html', context)
 
 
+@login_required
 def invite_page(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     try:
@@ -86,6 +89,7 @@ def invite_page(request, group_id):
     return render(request, 'groups/invite_page.html', context)
 
 
+@login_required
 def search(request, group_id):
     text = 'noOne'
     group = get_object_or_404(CommonGroups, id=group_id)
@@ -110,6 +114,7 @@ def search(request, group_id):
     return render(request, 'groups/search.html', context)
 
 
+@login_required
 def leaving_group_page(request, group_id):
     group = CommonGroups.objects.get(id=group_id)
     if group.members.count() > 1:
@@ -121,6 +126,7 @@ def leaving_group_page(request, group_id):
     return render(request, 'groups/leaving_group_page.html', context)
 
 
+@login_required
 def add_group(request):
     if request.method == 'POST':
         form = CommonGroupsForm(request.POST)
@@ -143,6 +149,7 @@ def add_group(request):
     return render(request, 'groups/add_group.html', context)
 
 
+@login_required
 def group_deletion(request,group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     if request.user != group.owner:
@@ -151,12 +158,14 @@ def group_deletion(request,group_id):
     return render(request,'groups/group_deletion.html',context)
 
 
+@login_required
 def delete_group(request,group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     group.delete()
     return redirect('groups:groups')
 
 
+@login_required
 def left_group(request, group_id):
     group = CommonGroups.objects.get(id=group_id)
     user = request.user
@@ -178,6 +187,7 @@ def left_group(request, group_id):
     return redirect('groups:groups')
 
 
+@login_required
 def manage_group(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     members = [group.owner] + list(group.members.all().order_by("date_joined")[1:])
@@ -185,6 +195,7 @@ def manage_group(request, group_id):
     return render(request, 'groups/manage_group.html', context)
 
 
+@login_required
 def search_group(request):
     number = 0
     exists = False
@@ -231,6 +242,7 @@ def search_group(request):
     return render(request, 'groups/search_group.html', context)
 
 
+@login_required
 def group_receipts_and_expenses(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     number_of_members = group.number_of_members
@@ -248,7 +260,6 @@ def group_receipts_and_expenses(request, group_id):
     suma_wydatki = round(float(suma_wydatki), 2)
     suma_paragony = round(float(suma_paragony), 2)
     suma = suma_wydatki + suma_paragony
-    amount_per_member = math.ceil(suma/group.number_of_members * 100)/100
 
     page_number = request.GET.get('page',1)
     p = Paginator(group_expenses, 1)
@@ -261,11 +272,12 @@ def group_receipts_and_expenses(request, group_id):
         page_obj = p.page(p.num_pages)
 
     context = {'group': group, 'group_expenses': group_expenses, 'suma': suma, 'number_of_members': number_of_members,
-               'group_receipts': group_receipts, 'suma_wydatki': "{:.2f}".format(suma_wydatki),'suma_paragony': "{:.2f}".format(suma_paragony),
-               'amount_per_member':"{:.2f}".format(amount_per_member),'page_obj': page_obj}
+               'group_receipts': group_receipts, 'suma_wydatki': str("{:.2f}".format(suma_wydatki)).replace(".", ','),
+               'suma_paragony': str("{:.2f}".format(suma_paragony)).replace(".", ','), 'page_obj': page_obj}
     return render(request, 'groups/group_receipts_and_expenses.html', context)
 
 
+@login_required
 def not_member_of_group(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
 
@@ -289,6 +301,7 @@ def not_member_of_group(request, group_id):
     return render(request, "groups/not_member_of_group.html", context)
 
 
+@login_required
 def password_check(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     if request.method == "POST":
@@ -304,11 +317,14 @@ def password_check(request, group_id):
             return redirect("groups:not_member_of_group", group_id=group.id)
 
 
-def profile_not_public(request):
-    context = {}
-    return render(request, "groups/profile_not_public.html", context)
+@login_required
+def profile_not_public(request, group_id):
+    group = get_object_or_404(CommonGroups, id=group_id)
+    context = { 'group': group }
+    return render(request, "groups/profile_not_public.html",context)
 
 
+@login_required
 def remove_member(request, group_id, member_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     try:
@@ -320,3 +336,13 @@ def remove_member(request, group_id, member_id):
         messages.error(request, "Wystąpił błąd.")
     return redirect("groups:manage_group", group_id=group.id)
 
+
+@login_required
+def change_invite_possibility(request, group_id):
+    group = get_object_or_404(CommonGroups, id=group_id)
+    if group.allow_invitations:
+        group.allow_invitations = False
+    else:
+        group.allow_invitations = True
+    group.save()
+    return redirect("groups:manage_group", group_id=group.id)

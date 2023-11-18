@@ -19,4 +19,5 @@ urlpatterns = [
     path('<int:expense_id>/edit_expense/', views.edit_expense, name='edit_expense'),
     path('<int:guarantee_id>/edit_guarantee/', views.edit_guarantee, name='edit_guarantee'),
     path('<int:receipt_id>/edit_receipt/', views.edit_receipt, name='edit_receipt'),
+    path('<int:receipt_id>/OCR_site/', views.OCR_site, name='OCR_site'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

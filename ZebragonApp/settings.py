@@ -16,7 +16,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -29,9 +28,9 @@ SECRET_KEY = 'django-insecure-+v@4ej35djtnvdz@i1mep91=ddg19rb1ash_77ns(8(7k5n+6c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "192.168.137.175", "192.168.83.138", '9783-149-156-124-2.ngrok-free.app']
+ALLOWED_HOSTS = ["127.0.0.1", "192.168.137.175", "192.168.83.138", 'eminently-working-lynx.ngrok-free.app']
 
-CSRF_TRUSTED_ORIGINS = ['https://9783-149-156-124-2.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = ['https://eminently-working-lynx.ngrok-free.app']
 
 # Application definition
 
@@ -91,13 +90,6 @@ WSGI_APPLICATION = 'ZebragonApp.wsgi.app'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -131,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pl'
 
 TIME_ZONE = 'UTC'
 

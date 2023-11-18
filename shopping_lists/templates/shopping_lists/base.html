@@ -69,8 +69,8 @@
                 position: fixed;
                 top: 0;
                 left: 0;
-                background-color: #0f0614;
-                color: #fff;
+                background-color: #c2c2c2;
+                color: #000;
                 transition: 0.5s;
                 overflow: hidden scroll;
                 z-index: 5;
@@ -84,11 +84,11 @@
             {
 
                 text-decoration: none;
-                color: #fff;
+                color: #000;
                 display: block;
                 transition: 0.5s;
-                padding: 15px;
-                margin: 20px;
+                padding: 10px;
+                margin: 10px;
                 border-radius: 40px;
                 width: fit-content;
                 white-space: nowrap;
@@ -96,7 +96,7 @@
 
             .sidebar a:hover
             {
-                background-color: #270c28;
+                background-color: #7d7d7d;
                 transition: 0.3s;
                 border-radius: 40px;
                 width: fit-content;
@@ -128,7 +128,7 @@
             .colorbar {
                 width: 100vw;
                 height: 80px;
-                background-image: linear-gradient(to right, #e0322f, #d22438, #c2183f, #b01043, #9e0c46, #8d0c47, #7b0e46, #6a1043, #57113e, #451138, #340f30, #240c26);
+                background-color: #292929;
                 z-index: 5;
             }
 
@@ -154,7 +154,21 @@
                 transition: 0.5s;
             }
 
+            ::-webkit-scrollbar {
+              width: 5px;
+              background-color: #424242;
+              display: none;
+            }
 
+            /* Track */
+            ::-webkit-scrollbar-track {
+              background: transparent;
+            }
+
+            /* Handle */
+            ::-webkit-scrollbar-thumb {
+              background: black;
+            }
 </style>
 
 <div id="main" class="homepage" style="z-index: 5">
@@ -196,7 +210,7 @@
                     &#10096;
                 </div>
             </div>
-            <div id="colorful_stripe" class="colorbar" style="position: relative;opacity: 50%;">
+            <div id="colorful_stripe" class="colorbar" style="position: relative;">
                 &nbsp;
             </div>
 
@@ -280,7 +294,7 @@
             </div>
 
             <div id="profile_img" style=" border-radius: 20px; margin: 30px auto 0 auto;">
-                <div style=" width: 180px; display: inline-block; vertical-align: middle">
+                <div style=" min-width: 170px; display: inline-block; vertical-align: middle; text-align: center">
                     {% autoescape off %}
                         {% profile_picture request %}
                     {% endautoescape %}
@@ -334,7 +348,7 @@
                 </a>
 
                 <div id="profile_img" style="border-radius: 20px; margin: 60px auto;">
-                    <div style=" display: inline-block;">
+                    <div style=" min-width: 170px; display: inline-block; vertical-align: middle; text-align: center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
                           <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                           <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
@@ -378,7 +392,7 @@
         var arrow = document.getElementById("arrow")
         var blackback = document.getElementById("blackback")
 
-        blackback.addEventListener('click', function (e){
+        blackback.addEventListener('touchend', function (e){
             sidebar.style.width = "0px";
             blackback.style.opacity = "0%";
             blackback.style.display = "none";
@@ -398,7 +412,6 @@
             }
             else
             {
-                setTimeout(function(){
                     if (window.innerWidth < 600)
                     {
                         sidebar.style.width = "100vw";
@@ -414,8 +427,6 @@
                 arrow.style.position = "absolute";
                 blackback.style.opacity = "50%";
                 blackback.style.display = "block";
-
-                },1);
 
             }
         }

@@ -8,8 +8,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.datasets import load_iris
 
-def statistics(request):
 
+def statistics(request):
     data = load_iris(as_frame=True)
     df = data['data']
     df['target'] = data['target']

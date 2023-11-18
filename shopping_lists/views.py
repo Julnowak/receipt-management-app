@@ -176,6 +176,7 @@ def main_panel(request):
     return render(request, 'shopping_lists/main_panel.html', context)
 
 
+@login_required
 def removed(request, product_id):
         current_product = ListProduct.objects.get(id=product_id)
         sh_list = current_product.selected_list
@@ -184,6 +185,7 @@ def removed(request, product_id):
         return HttpResponseRedirect(reverse('single_list', kwargs={'list_id': sh_list.id}))
 
 
+@login_required
 def list_removed(request, list_id):
     current_list = ShoppingList.objects.get(id=list_id)
     current_list.delete()
@@ -223,7 +225,7 @@ def share_list(request, list_id):
     context = {'list': lista, 'users': users, 'groups':groups, 'user': request.user}
     return render(request, 'shopping_lists/share_list.html', context)
 
-
+@login_required
 def update_is_bought(request, list_id):
     if request.method == 'POST':
         sh_list = ShoppingList.objects.get(id=list_id)
