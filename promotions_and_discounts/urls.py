@@ -6,5 +6,5 @@ from django.conf.urls.static import static
 app_name = 'promotions_and_discounts'
 urlpatterns = [
     path('', views.shop_selection, name='shop_selection'),
-    path('<slug:shop_slug>', views.shop_site, name='shop_site'),
+    path('<int:shop_id>', views.shop_site, name='shop_site'),
 ]

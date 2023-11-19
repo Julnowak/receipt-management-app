@@ -21,7 +21,7 @@ class ProfileInfo(models.Model):
     profile_image_color = models.CharField(max_length=7, default="#000000")
     profile_image_background_color = models.CharField(max_length=7, default="#FFFFFF")
     date_added = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True)
     email = models.EmailField()
     date_of_birth = models.DateField(blank=True, null=True)

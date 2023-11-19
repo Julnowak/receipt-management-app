@@ -8,15 +8,17 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import itertools
 from django.contrib.auth.decorators import login_required
 
+
 @login_required
 def shop_selection(request):
-    shops = Shop.objects.all()
+    shops = Shop.objects.filter(promos_available=True)
     context = {'shops': shops}
     return render(request, "promotions_and_discounts/shop_selection.html", context)
 
+
 @login_required
-def shop_site(request, shop_slug):
-    shop = Shop.objects.get(slug=shop_slug)
+def shop_site(request, shop_id):
+    shop = Shop.objects.get(id=shop_id)
 
     # lidl
     url = shop.link

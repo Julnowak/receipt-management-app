@@ -29,6 +29,14 @@
         <div style="margin:10px">
             SUMA: {{ receipt.amount }}
         </div>
+
+        <div style="margin:10px">
+            {% if receipt.group %}
+                Należy do grupy: {{ receipt.group}}
+            {% endif %}
+        </div>
+
+        OCR read: {{ receipt.receipt_text_read_by_OCR}}
     </div>
 
     <div style="margin: 20px">

@@ -5,8 +5,10 @@ from .models import Receipt, Guarantee, Expense
 from receipts.forms import ReceiptForm, ExpenseForm, GuaranteeForm, HandReceiptForm
 import pytesseract
 from profile_mangement.models import ProfileInfo
+from categories.models import Product
 from PIL import Image
 import matplotlib.pyplot as plt
+from receipts.image_processing import *
 import cv2
 import re
 from pytesseract import Output
@@ -56,7 +58,6 @@ def new_receipt(request):
     profile = ProfileInfo.objects.get(user=request.user)
     if request.method == 'POST':
         form = ReceiptForm(request.POST, request.FILES)
-
         if form.is_valid():
             new_receipt = form.save(commit=False)
             new_receipt.owner = request.user
@@ -100,20 +101,6 @@ def guarantees(request):
 @login_required
 def receipt_site(request, receipt_id):
     receipt = Receipt.objects.get(id=receipt_id)
-    img = np.asarray(Image.open(f'media/{receipt.receipt_img}'))
-    gray_image = cv2.cvtColor(img, cv2.IMREAD_GRAYSCALE)
-    blur = cv2.GaussianBlur(gray_image, (15, 15), 0)
-    # ret, thresh = cv2.threshold(gray_image, 127, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
-    plt.imshow(blur)
-    plt.show()
-    # rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 18))
-    # dilation = cv2.dilate(thresh, rect_kernel, iterations=1)
-    #
-    # contours, hierachy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-    # plt.imshow(cropped)
-    # plt.show()
-
     context = {'receipt': receipt}
     return render(request, 'receipts/receipt_site.html', context)
 
@@ -230,39 +217,139 @@ def rotate(image, angle, center=None, scale=0.8):
 
     return rotated
 
+from django.db.models import CharField
+from django.db.models.functions import Lower
+
+CharField.register_lookup(Lower)
+
 
 def OCR_site(request, receipt_id):
     receipt = Receipt.objects.get(id=receipt_id)
-    custom_config = r'--oem 1 --psm 6 -l pol'
+
     img = Image.open(f'media/{receipt.receipt_img}').convert('RGB')
-    open_cv_image = np.array(img)
-    # Convert RGB to BGR
-    open_cv_image = open_cv_image[:, :, ::-1].copy()
-    rot = pytesseract.image_to_osd(img, output_type='dict')['orientation']
-    if rot != 0:
-        img = rotate(open_cv_image, rot)
-        receipt.receipt_img = img
-        receipt.save()
-        plt.imshow(img)
-        plt.show()
-    text = pytesseract.image_to_string(img, config=custom_config)
-    print(text)
+    img = np.array(img)
+    img = remove_noise(img)
+    img = thresholding(get_grayscale(img))
+
+
+    width = img.shape[1]
+    height = img.shape[0]
+    text=''
+
+    p = 0
+    i = height // 3
+    custom_config = r'--oem 1 --psm 6 -l pol'
+
+    text += pytesseract.image_to_string(img, config=custom_config)
+    angle, img = correct_skew(img)
+    print(angle)
+
+
+    # img = cv2.fastNlMeansDenoisingColored(img, None, 9, 6, 7, 21)
+
+
+    ratio = img.shape[0] / 2000.0
+    img_resize = imutils.resize(img, height=2000)
+
+
+    img_array = np.array(img_resize)
+
+    if np.mean(img_array[:, :]) < 200:
+        blurred_image = cv2.GaussianBlur(erode(img_resize), (3, 3), 0)
+        edged_img = cv2.Canny(blurred_image, 80, 200)
+        pts = np.argwhere(edged_img > 0)
+
+        # Finding the min and max points
+        y1, x1 = pts.min(axis=0)
+        y2, x2 = pts.max(axis=0)
+
+        # Crop ROI from the givn image
+        output_image = img_resize[y1:y2, x1:x2]
+        org = output_image
+    else:
+        org = img_resize
+
+    img = thresholding(org)
+    height, width = img.shape[0], img.shape[1]
+
+    p = 0
+    i = int(height / 3)
+    num = 0
+    custom_config = r'--oem 1 --psm 6 -l pol'
+
+    while num != 3:
+        if num == 2:
+            cropped_image = img[p:, :]
+        else:
+            cropped_image = img[p:i, :]
+        p = i
+        i += height // 3
+        num += 1
+        text += pytesseract.image_to_string(cropped_image, config=custom_config)
+
+    p = 0
+    i = int(height / 2)
+    num = 0
+
+    text += pytesseract.image_to_string(img, config=custom_config)
+    while num != 2:
+        if num == 1:
+            cropped_image = img[p:, :]
+        else:
+            cropped_image = img[p:i, :]
+        p = i
+        i += height // 2
+        num += 1
+        text += pytesseract.image_to_string(cropped_image, config=custom_config)
+
 
     suma = "Nie udało się odczytać sumy z paragonu!"
+    list_of_prod = []
     for elem in text.split("\n"):
+        for e in elem.split(" "):
+            prod = Product.objects.filter(product_name__unaccent__lower__trigram_similar=e)
+            print(prod)
+
+            # zakładam że znajdzie jeden
+            if prod and prod[0] not in receipt.products.all():
+                receipt.products.add(prod[0].id)
+
+        if re.match(f"(\d+-\d+-\d+)",elem) or re.match(f"(\d+.\d+.\d+)",elem):
+            date_string = re.findall(f"(\d+-\d+-\d+)", elem)
+            if date_string:
+                date_string = date_string[0]
+                print(date_string[5:3])
+                y = int(date_string[6:11])
+                m = int(date_string[3:5])
+                d = int(date_string[:2])
+
+                if y > datetime.date.today().year:
+                    y = datetime.date.today().year
+
+                if m > 12:
+                    m = datetime.date.today().month
+
+                if d > 31:
+                    m = datetime.date.today().day
+
+                date_bought = datetime.date(y, m, d)
+                receipt.date_of_receipt_bought = date_bought
+
         if "suma" in elem.lower() or "do zapłaty" in elem.lower() or "gotówka" in elem.lower():
             suma = elem
-            try:
-                if "," in suma:
-                    s = re.findall(f"(\d+,\d+)", suma)[0]
-                    receipt.amount = float(s.replace(",", "."))
-                elif "." in suma:
-                    s = re.findall(f"(\d+.\d+)", suma)[0]
-                    receipt.amount = float(s)
-                receipt.save()
-            except:
+
+            if "," in suma:
+                s = re.findall(f"(\d+,\d+)", suma)[0]
+                receipt.amount = float(s.replace(",", "."))
+            elif "." in suma:
+                s = re.findall(f"(\d+.\d+)", suma)[0]
+                receipt.amount = float(s)
+            else:
                 receipt.amount = 0.00
-                receipt.save()
+
+            receipt.receipt_text_read_by_OCR = text
+
+        receipt.save()
 
     img = cv2.imread(f'media/{receipt.receipt_img}', cv2.IMREAD_GRAYSCALE)
 
@@ -275,3 +362,9 @@ def OCR_site(request, receipt_id):
         form = ReceiptForm(instance=receipt)
     context = {'form': form, 'receipt': receipt,'img': img, 'suma': suma}
     return render(request, 'receipts/OCR_site.html', context)
+
+
+def receipt_data_read(request, receipt_id):
+    receipt = Receipt.objects.get(id=receipt_id)
+    context = {'receipt': receipt}
+    return render(request, 'receipts/receipt_data_read.html', context)

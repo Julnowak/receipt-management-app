@@ -9,7 +9,7 @@ class BaseCategories(models.Model):
     color = models.CharField(max_length=7, default="#233423")
     date_added = models.DateField(auto_now_add=True)
     slug = models.SlugField(unique=True, null=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='category_owner', blank=True, null=True)
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='category_owner', blank=True, null=True)
     public = models.BooleanField(default=False)
     icon = models.CharField(max_length=2000, default="", blank=True)
 
@@ -26,8 +26,7 @@ class SubCategories(models.Model):
     date_added = models.DateField(auto_now_add=True)
     icon = models.CharField(max_length=1500, default="", blank=True)
     category = models.ForeignKey(BaseCategories, on_delete=models.CASCADE, null=True)
-    slug = models.SlugField(unique=True, null=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subcategory_owner')
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subcategory_owner', blank=True, null=True)
     public = models.BooleanField(default=False)
 
     class Meta:
@@ -36,3 +35,15 @@ class SubCategories(models.Model):
     def __str__(self):
         return self.subcategory_name
 
+
+class Product(models.Model):
+    product_name = models.CharField(max_length=200)
+    date_added = models.DateField(auto_now_add=True)
+    description = models.TextField(max_length=400, blank=True, null=True)
+    subcategory = models.ForeignKey(SubCategories, on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        verbose_name_plural = 'Products'
+
+    def __str__(self):
+        return self.product_name
