@@ -9,7 +9,7 @@
     <h3 style="text-align: center">Dostępne sklepy:</h3>
 
     {% for shop in shops %}
-        <a href="{% url 'promotions_and_discounts:shop_site' shop.slug %}" class="shops" style="text-decoration: none; color: black" >
+        <a href="{% url 'promotions_and_discounts:shop_site' shop.id %}" class="shops" style="text-decoration: none; color: black" >
             <div style="margin: 10px; padding: 20px; background-color: lightgray;border-radius: 10px">
                     {{ shop }}
             </div>

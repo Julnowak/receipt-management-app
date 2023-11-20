@@ -3,6 +3,7 @@
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
     <style>
 
@@ -13,71 +14,13 @@
             border-radius: 10px;
         }
 
-        .leave_btn{
-            background-color: #db2e32;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
-            color: white;
-            text-align: center;
-            width: 200px;
-            padding: 10px;
-            border-radius: 10px;
-            margin: 10px auto;
-        }
-
-        .leave_btn:hover{
-            background-color: #be272a;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
-            color: white;
-            text-align: center;
-            width: 200px;
-            padding: 10px;
-            border-radius: 10px;
-            margin: 10px auto;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .leave_btn a{
-            text-decoration: none;
-            color: white;
-        }
-
-        .invite_btn{
-            background-color: #411646;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
-            color: white;
-            text-align: center;
-            width: 200px;
-            padding: 10px;
-            border-radius: 10px;
-            margin: 15px auto;
-        }
-
-        .invite_btn:hover, .invite_btn:focus{
-            background-color: #5e1d67;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
-            color: white;
-            text-align: center;
-            width: 200px;
-            padding: 10px;
-            border-radius: 10px;
-            margin: 15px auto;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .invite_btn a{
-            text-decoration: none;
-            color: white;
-        }
-
         .member_box{
             background-color: gainsboro;
             padding: 10px;
             border-radius: 10px;
-            width: fit-content;
             min-width: 140px;
-            margin: 10px auto;
+            margin: 10px;
+            text-align: center;
         }
 
     </style>
@@ -129,26 +72,31 @@
     </div>
 
     <div class="white_block">
-        <h3>
+        <h3 style="text-align: justify; margin: 0 auto 10px auto;max-width: 400px">
             Wydatki grupy
         </h3>
 
-        <h6 style=" color: #545454">
+        <h6 style=" color: #545454;text-align: justify; margin: 0 auto 20px auto;max-width: 400px">
             Podsumowanie
         </h6>
 
-                <div style=" display: block;">
-                    <span>Łączna suma do podziału:</span>
-                    <span style="margin: 10px"><b>{{ suma }}</b></span>
-                </div>
-
-                <div style=" display: block;">
-                    <span>Suma na jednego członka:</span>
-                    <span style="margin: 10px"><b>{{ amount_per_member }}</b></span>
-                </div>
+            <div style="margin: 0 auto; text-align: center; align-content: center; max-width: 500px">
+                {% autoescape off %}
+                    {{ pie }}
+                {% endautoescape %}
+            </div>
 
 
-            <div style="text-align: center">
+            <div style=" display: block;text-align: justify; margin: 0 auto 0 auto;max-width: 400px">
+                <span>Łączna suma do podziału:</span>
+                <span style="margin: 10px"><b>{{ suma }}</b></span>
+                <br>
+                <span>Suma na jednego członka:</span>
+                <span style="margin: 10px"><b>{{ amount_per_member }}</b></span>
+            </div>
+
+
+            <div style="text-align: center; margin-top: 20px">
                 <a href="{% url 'groups:group_receipts_and_expenses' group.id %}">
                     <div class="btn btn-dark" style="margin: 10px">
                             Paragony i wydatki grupy
@@ -162,71 +110,72 @@
 
 
     <div>
-    <h3>
-        Członkowie
-    </h3>
-    <h6 style=" color: #545454">
-        {{ group.number_of_members }}/{{ group.max_number_of_members }}
-    </h6>
+        <h3 style="text-align: justify; margin: 0 auto 20px auto;max-width: 400px">
+            Członkowie
+            <span style=" color: #545454;margin-left:150px; text-align: center">
+                {{ group.number_of_members }}/{{ group.max_number_of_members }}
+            </span>
+        </h3>
 
-    <div style="display: grid;grid-template: auto/ auto auto;">
 
-        {% for profile, member in profile_and_members %}
-            {% if profile.is_public or profile.user == user %}
-                <a href="{% url 'profile_showcase' group.id member.id %}" style="text-decoration: none;color: black;">
-                    <div class="member_box">
-                            {{ member }}
-                    </div>
-                </a>
-            {% else %}
-                <a href="{% url 'groups:profile_not_public' group.id %}" style="text-decoration: none;color: black;">
-                    <div class="member_box">
-                            {{ member }}
+        <div style="margin:auto;display: grid; grid-template: auto/ auto auto;max-width: 400px">
+
+            {% for profile, member in profile_and_members %}
+                {% if profile.is_public or profile.user == user %}
+                    <a href="{% url 'profile_showcase' group.id member.id %}" style="text-decoration: none;color: black;">
+                        <div class="member_box">
+                                {{ member }}
+                        </div>
+                    </a>
+                {% else %}
+                    <a href="{% url 'groups:profile_not_public' group.id %}" style="text-decoration: none;color: black;">
+                        <div class="member_box">
+                                {{ member }}
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 20px">
+        {% if user != group.owner %}
+            {% if group.allow_invitations %}
+                <a class="btn btn-dark" href="{% url 'groups:invite_page' group.id %}" style="text-decoration: none; margin: 10px; width: 150px">
+                    <div class="invite_btn" style="transition: 0.5s" >
+                            Zaproś
                     </div>
                 </a>
             {% endif %}
-        {% endfor %}
-    </div>
-
-
-    </div>
-
-    {% if user != group.owner %}
-        {% if group.allow_invitations %}
-            <a href="{% url 'groups:invite_page' group.id %}" style="text-decoration: none; ">
-                <div class="invite_btn" style="transition: 0.5s" >
+        {% else %}
+            <a class="btn btn-dark"  href="{% url 'groups:invite_page' group.id %}" style="text-decoration: none; margin: 10px;width: 150px">
+                <div style="transition: 0.5s" >
                         Zaproś
                 </div>
             </a>
         {% endif %}
-    {% else %}
-        <a href="{% url 'groups:invite_page' group.id %}" style="text-decoration: none; ">
-            <div class="invite_btn" style="transition: 0.5s" >
-                    Zaproś
+
+        <a style="text-decoration: none;" href="{% url 'groups:leaving_group_page' group.id %}"  >
+            <div class="btn btn-danger" style="transition: 0.5s; text-align: center; margin: 10px;width: 150px">
+                    Opuść grupę
             </div>
         </a>
-    {% endif %}
-
-    <a style="text-decoration: none;" href="{% url 'groups:leaving_group_page' group.id %}"  >
-        <div class="leave_btn" style="transition: 0.5s">
-                Opuść grupę
-        </div>
-    </a>
+    </div>
 
     </div>
 
-    <div style=" right: 0;margin-left:auto">
-    {% if group.owner == user %}
-        <div style=" width: fit-content; display: block; position: sticky;  padding: 5px; border-radius: 10px 0 0 0; background-color: white;
-        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);">
-            <a href="{% url 'groups:manage_group' group.id %}" style="text-decoration: none; color: black">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
-                  <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
-                  <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
-                </svg>
-            </a>
-        </div>
-    {% endif %}
+    <div style="position: fixed; right: 10px; bottom: 10px;">
+        {% if group.owner == user %}
+            <div style=" width: fit-content; display: block; position: sticky;  padding: 5px; border-radius: 10px; background-color: white;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);">
+                <a href="{% url 'groups:manage_group' group.id %}" style="text-decoration: none; color: black">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                      <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                      <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+                    </svg>
+                </a>
+            </div>
+        {% endif %}
     </div>
 
 {% endblock content %}

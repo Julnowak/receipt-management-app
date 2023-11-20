@@ -8,8 +8,9 @@ class ReceiptForm(forms.ModelForm):
 
     class Meta:
         model = Receipt
-        fields = ['receipt_name', 'receipt_img','amount','receipt_info','group','products']
-        labels = {'receipt_name': 'Nazwa', 'receipt_img': 'Zdjęcie',
+        fields = ['receipt_name', 'receipt_img','receipt_pdf','amount','receipt_info','group','products','date_of_receipt_bought',
+                  'receipt_categories']
+        labels = {'receipt_name': 'Nazwa', 'receipt_img': 'Zdjęcie', 'receipt_pdf': 'Pdf',
                   'amount': 'Wartość','receipt_info': 'Dodatkowe informacje',
                   'group': 'Grupa','products': 'Produkty'}
         widgets = {

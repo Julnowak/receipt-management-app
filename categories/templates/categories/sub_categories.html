@@ -4,24 +4,40 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
+    <a href="{% url 'categories:categories' %}">
+        <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+            </svg>
+        </div>
+    </a>
+
     <h1 style="margin-top: 20px">{{ category }}</h1>
 
-    <div style="padding: 10px; margin: 20px">
+    <div style="display: grid; grid-template: auto/ auto auto; justify-content: center; margin: 10px">
         {% for subcat in subcategories %}
-            <div>
-                {{ subcat }}
+
+            <a style="text-decoration: none; color: black;padding: 5px " href="{% url 'categories:products_in_subcategory' subcat.id %} " >
+
+            <div class="color_block" style="background-color: lightgray;border-radius: 10px; padding: 10px">
+                <span style="margin: 0 5px;">{{ subcat }}</span>
             </div>
+
+            </a>
+
         {% empty %}
             <p>Brak podkategorii</p>
+
         {% endfor %}
+
     </div>
 
     <div style="min-width: 200px; text-align: center">
-        <a class="btn btn-dark"  href="{% url 'categories:edit_category' category.slug %}" >Edytuj kategorię</a>
+        <a class="btn btn-dark"  href="{% url 'categories:edit_category' category.id %}" >Edytuj kategorię</a>
     </div>
 
     <div style="min-width: 200px; text-align: center">
-        <a class="btn btn-dark" href="{% url 'categories:new_subcategory' category.slug %}" >Dodaj podkategorię</a>
+        <a class="btn btn-dark" href="{% url 'categories:new_subcategory' category.id %}" >Dodaj podkategorię</a>
 
     </div>
 

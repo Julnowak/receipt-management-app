@@ -76,7 +76,7 @@
 
 
     <div>
-        <h1 style="text-align: center; margin-top: 10px">Twoje wiadomości</h1>
+        <h1 style="text-align: center; margin: 20px">Twoje wiadomości</h1>
     </div>
 
     <div style="margin: auto">
@@ -93,7 +93,7 @@
         </div>
     </div>
 
-<div style="background-color: rgba(183,183,183,0.26); padding-top: 10px;margin-right: 10px; margin-left: 10px; margin-top: -10px; border-radius: 10px; border-style: solid; border-width: 1px">
+<div style="max-width: 600px; min-width:400px;  background-color: rgba(183,183,183,0.26); padding-top: 10px; margin: -10px auto 10px auto; border-radius: 10px; border-style: solid; border-width: 1px">
     <form id="check_form" method="POST" style="display: inline; vertical-align: middle" action="{% url 'my_messages:delete_messages' %}">
         {% csrf_token %}
     <ul>

@@ -65,11 +65,6 @@ def statistics(request):
     dates_added = Expense.objects.filter(owner=request.user).values_list("date_added")
     categories = BaseCategories.objects.values_list("id", "category_name")
 
-    if request.method == 'POST' and 'run_script' in request.POST:
-        now = datetime.today()
-        uk = now - dates_added[3][0].replace(tzinfo=None)
-        return redirect(reverse("statistics"))
-
     # Pie Chart
     try:
         df = pd.DataFrame(list(expenses))

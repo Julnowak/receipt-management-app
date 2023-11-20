@@ -39,7 +39,6 @@ class SubCategories(models.Model):
 class Product(models.Model):
     product_name = models.CharField(max_length=200)
     date_added = models.DateField(auto_now_add=True)
-    description = models.TextField(max_length=400, blank=True, null=True)
     subcategory = models.ForeignKey(SubCategories, on_delete=models.CASCADE, null=True)
 
     class Meta:

@@ -29,6 +29,12 @@
 
         {{ form.products.label }}
         {{ form.products }}
+
+        {{ form.receipt_categories.label }}
+        {{ form.receipt_categories }}
+
+        {{ form.date_of_receipt_bought.label }}
+        {{ form.date_of_receipt_bought }}
         <div style="text-align: center">
             <button style="margin: 20px; min-width: 150px" class="btn btn-dark" type="submit">Zatwierdź</button>
         </div>
@@ -36,11 +42,7 @@
 
     <div style="margin: 20px; padding: 10px">
         Odczytany tekst:
-        {{ receipt.receipt_text_read_by_OCR }}
+        {{ receipt.receipt_text_read_by_OCR|linebreaks }}
     </div>
-
-{#    <div style="text-align: center">#}
-{#        <button style="margin: 20px; min-width: 150px" class="btn btn-dark" type="submit">Zatwierdź</button>#}
-{#    </div>#}
 
 {% endblock content %}

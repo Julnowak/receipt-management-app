@@ -46,9 +46,9 @@
     <div style="display: grid; grid-template: auto/ auto auto; justify-content: center; margin: 10px">
         {% for cat in cat_public%}
 
-            <a style="text-decoration: none; color: black" href="{% url 'categories:subcategories' cat.slug %} " >
+            <a style="text-decoration: none; color: black;padding: 5px " href="{% url 'categories:subcategories' cat.id %} " >
 
-            <div class="color_block" style="background-color: {{ cat.color }};">
+            <div class="color_block" style="background-color: {{ cat.color }};padding: 10px">
                 <span style="margin-right: 10px">{{ cat.icon|safe }}</span>
 
                 <span style="margin: 0 5px;">{{ cat }}</span>
@@ -66,7 +66,7 @@
     <h2>Własne</h2>
     <div style="display: grid; grid-template-columns: auto auto auto; grid-template-rows: auto auto auto;  justify-content: center">
         {% for cat in cat_private %}
-            <a style="text-decoration: none; color: black" href="{% url 'categories:subcategories' cat.slug %} " >
+            <a style="text-decoration: none; color: black" href="{% url 'categories:subcategories' cat.id %} " >
 
             <div class="color_block" style="background-color: {{ cat.color }};">
                 <span style="margin-right: 10px">{{ cat.icon|safe }}</span>

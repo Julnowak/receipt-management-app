@@ -56,7 +56,7 @@
     {% for group in pages %}
         <a href="{% url 'groups:group_site' group.id %}" style="display: inline-block; text-decoration: none; color: black" >
         <div style="margin: 10px">
-           <div style="background-color: lightgray; padding: 15px; border-radius: 10px">
+           <div style="background-color: lightgray; padding: 15px; border-radius: 10px; max-width: 500px;text-align: justify; margin: 0 auto 0 auto">
                 {{ group }}
             </div>
         </div>

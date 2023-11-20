@@ -31,6 +31,24 @@
         </div>
 
         <div style="margin:10px">
+            Data wydania: {{ receipt.date_of_receipt_bought }}
+        </div>
+
+        <h3>Kategorie:</h3>
+        <div>
+            {% for cat in receipt_categoreis %}
+                {{ cat }}
+            {% endfor %}
+        </div>
+
+        <h3>Produkty:</h3>
+        <ul>
+            {% for prod in receipt_products %}
+                <li>{{ prod }}</li>
+            {% endfor %}
+        </ul>
+
+        <div style="margin:10px">
             {% if receipt.group %}
                 Należy do grupy: {{ receipt.group}}
             {% endif %}

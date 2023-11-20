@@ -29,6 +29,11 @@
                 {{ form.receipt_img }}
             </div>
 
+            <div style="margin: 20px">
+                {{ form.receipt_pdf.label }}
+                {{ form.receipt_pdf }}
+            </div>
+
             <div style="margin: 10px">
                 {{ form.receipt_info.label }}
                 {{ form.receipt_info }}
@@ -40,9 +45,43 @@
             </div>
                 {{ form.errors }}
             <div style="margin: 20px; text-align: center">
-                <button style="min-width: 150px" type="submit" class="btn btn-dark">Zapisz</button>
+                <button id="sub_btn" style="min-width: 150px" type="submit" class="btn btn-dark">Zapisz</button>
             </div>
         </form>
     </div>
+
+
+
+    <div id="cont" style="display:none; position: absolute; background-color: black; opacity: 70%; width: 100vw; height: 100%">
+        &nbsp;
+    </div>
+
+    <div id="spinner" style="left: 50%;top: 50%;transform: translate(-50%, -50%);display: none; position: absolute; text-align: center; margin: 20px; z-index: 3">
+        <div class="spinner-border" style="margin:30px; width: 3rem; height: 3rem; color: crimson" role="status">
+            <span class="sr-only"></span>
+        </div>
+        <br>
+        <strong style="color: whitesmoke">
+            Poczekaj chwilkę!
+            <br>
+            Twoje wyniki są ładowane :)
+        </strong>
+    </div>
+
+    <script>
+        var cont = document.getElementById("cont")
+        var spinner = document.getElementById("spinner")
+        var sub_btn = document.getElementById("sub_btn")
+
+            sub_btn.addEventListener("click", function (){
+                cont.style.display = "block";
+                spinner.style.display = "inline-block";
+            })
+
+        $(window).bind("pageshow", function(event) {
+            $("#spinner").hide();
+        });
+
+    </script>
 
 {% endblock content %}

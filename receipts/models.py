@@ -33,14 +33,16 @@ class ListProduct(models.Model):
 
 class Receipt(models.Model):
     receipt_name = models.CharField(max_length=200)
-    receipt_img = models.ImageField(upload_to='images/')
+    receipt_img = models.ImageField(upload_to='images/', null=True, blank=True)
+    receipt_pdf = models.FileField(upload_to='images/', max_length=254, null=True, blank=True)
     date_added = models.DateField(auto_now_add=True)
-    date_of_receipt_bought = models.DateField(default=datetime.date.today())
+    date_of_receipt_bought = models.DateField(default=datetime.date.today(), null=True, blank=True)
     amount = models.DecimalField(default=0.00, decimal_places=2, max_digits=20, validators=[MinValueValidator(0.00)], blank=True, null=True)
     receipt_info = models.TextField(default="", null=True, blank=True)
     receipt_text_read_by_OCR = models.TextField(default="", null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     group = models.ForeignKey(CommonGroups, on_delete=models.CASCADE, blank=True, null=True)
+    receipt_categories = models.ManyToManyField(BaseCategories, related_name='receipt_categories',blank=True)
     products = models.ManyToManyField(Product,blank=True)
 
     def __str__(self):

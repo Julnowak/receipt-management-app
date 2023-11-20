@@ -13,7 +13,8 @@ import cv2
 import re
 from pytesseract import Output
 import numpy as np
-
+from categories.models import BaseCategories
+from django.shortcuts import get_object_or_404
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -35,8 +36,8 @@ def your_receipts(request):
     else:
         flag_g = False
 
-    receipts = Receipt.objects.filter(owner=request.user).order_by("-date_added")[:5]
-    expenses = Expense.objects.filter(owner=request.user).order_by("-date_added")[:5]
+    receipts = Receipt.objects.filter(owner=request.user).order_by("-id")[:5]
+    expenses = Expense.objects.filter(owner=request.user).order_by("-id")[:5]
     guarant = Guarantee.objects.filter(owner=request.user)
     left = []
     for guarantee in guarant:
@@ -100,8 +101,10 @@ def guarantees(request):
 
 @login_required
 def receipt_site(request, receipt_id):
-    receipt = Receipt.objects.get(id=receipt_id)
-    context = {'receipt': receipt}
+    receipt = get_object_or_404(Receipt, pk=receipt_id)
+    categs = receipt.receipt_categories.all()
+    prods = receipt.products.all()
+    context = {'receipt': receipt, 'receipt_categoreis': categs, 'receipt_products': prods}
     return render(request, 'receipts/receipt_site.html', context)
 
 
@@ -219,12 +222,24 @@ def rotate(image, angle, center=None, scale=0.8):
 
 from django.db.models import CharField
 from django.db.models.functions import Lower
-
+from pdf2image import convert_from_path
 CharField.register_lookup(Lower)
+
+poppler_path = r"C:\path\to\poppler-xx\bin"
+
+import calendar
+from collections import Counter
+from difflib import get_close_matches
 
 
 def OCR_site(request, receipt_id):
     receipt = Receipt.objects.get(id=receipt_id)
+
+    if not receipt.receipt_img and receipt.receipt_pdf:
+        img = convert_from_path(f'media/{receipt.receipt_pdf}',poppler_path=r"C:\Users\Julia\Desktop\ZebragonApp\poppler-23.11.0\Library\bin")
+        new_name = 'images/' + receipt.receipt_pdf.url[14:len(receipt.receipt_pdf.url) - 4] + '.jpg'
+        img[0].save(f'media/{new_name}', 'JPEG')
+        receipt.receipt_img = new_name
 
     img = Image.open(f'media/{receipt.receipt_img}').convert('RGB')
     img = np.array(img)
@@ -302,23 +317,35 @@ def OCR_site(request, receipt_id):
         num += 1
         text += pytesseract.image_to_string(cropped_image, config=custom_config)
 
-
-    suma = "Nie udało się odczytać sumy z paragonu!"
-    list_of_prod = []
+    suma = ""
+    potencjalne_produkty = []
+    list_of_dates = []
+    amo = []
+    flag = False
     for elem in text.split("\n"):
-        for e in elem.split(" "):
-            prod = Product.objects.filter(product_name__unaccent__lower__trigram_similar=e)
-            print(prod)
+        elem_list = elem.lower().split(" ")
+        if get_close_matches("fiskalny", elem_list):
+            flag = True
 
-            # zakładam że znajdzie jeden
-            if prod and prod[0] not in receipt.products.all():
-                receipt.products.add(prod[0].id)
+        if get_close_matches("spożywczy", elem_list) or get_close_matches("monopolowy", elem_list):
+            receipt.receipt_categories.add(BaseCategories.objects.get(category_name="Produkty spożywcze"))
 
-        if re.match(f"(\d+-\d+-\d+)",elem) or re.match(f"(\d+.\d+.\d+)",elem):
-            date_string = re.findall(f"(\d+-\d+-\d+)", elem)
-            if date_string:
-                date_string = date_string[0]
-                print(date_string[5:3])
+        if get_close_matches("księgarnia", elem_list):
+            receipt.receipt_categories.add(BaseCategories.objects.get(category_name="Produkty papiernicze"))
+
+        if flag:
+            for e in elem_list:
+                prod = Product.objects.filter(product_name__unaccent__lower__trigram_similar=e)
+
+                # zakładam że znajdzie jeden
+                if prod and prod[0] not in receipt.products.all():
+                    receipt.products.add(prod[0].id)
+
+        if re.search(r'\d+[-\.]\d+[-\.]\d+',elem):
+            date_string_normal = re.findall(r'\d{2}[-\.]\d{2}[-\.]\d{4}', elem)
+            date_string_other = re.findall(r'\d{4}[-\.]\d{2}[-\.]\d{2}', elem)
+            if date_string_normal:
+                date_string = date_string_normal[0]
                 y = int(date_string[6:11])
                 m = int(date_string[3:5])
                 d = int(date_string[:2])
@@ -330,26 +357,61 @@ def OCR_site(request, receipt_id):
                     m = datetime.date.today().month
 
                 if d > 31:
-                    m = datetime.date.today().day
+                    d = datetime.date.today().day
 
                 date_bought = datetime.date(y, m, d)
-                receipt.date_of_receipt_bought = date_bought
+                list_of_dates.append(date_bought)
+            elif date_string_other:
+                date_string = date_string_other[0]
+                d = int(date_string[8:11])
+                m = int(date_string[5:7])
+                y = int(date_string[:4])
+
+                print(d, m, y)
+
+                if y > datetime.date.today().year:
+                    y = datetime.date.today().year
+
+                if m > 12 or m < 1:
+                    m = datetime.date.today().month
+
+                if d > 31:
+                    d = calendar.monthrange(y, m)[1]
+                try:
+                    date_bought = datetime.date(y, m, d)
+                except ValueError:
+                    d = calendar.monthrange(y, m)[1]
+                    date_bought = datetime.date(y, m, d)
+
+                list_of_dates.append(date_bought)
 
         if "suma" in elem.lower() or "do zapłaty" in elem.lower() or "gotówka" in elem.lower():
             suma = elem
-
-            if "," in suma:
-                s = re.findall(f"(\d+,\d+)", suma)[0]
-                receipt.amount = float(s.replace(",", "."))
-            elif "." in suma:
-                s = re.findall(f"(\d+.\d+)", suma)[0]
-                receipt.amount = float(s)
-            else:
-                receipt.amount = 0.00
-
+            try:
+                if "," in suma:
+                    s = re.findall(f"(\d+,\d+)", suma)[0]
+                    amo.append(float(s.replace(",", ".")))
+                elif "." in suma:
+                    s = re.findall(f"(\d+\\.\d+)", suma)[0]
+                    amo.append(float(s))
+            except IndexError:
+                pass
             receipt.receipt_text_read_by_OCR = text
 
-        receipt.save()
+    print(amo)
+    try:
+        receipt.amount = Counter(amo).most_common()[0][0]
+    except:
+        receipt.amount = 0.00
+
+    try:
+        receipt.date_of_receipt_bought = Counter(list_of_dates).most_common()[0][0]
+    except:
+        receipt.date_of_receipt_bought = datetime.date.today()
+    receipt.save()
+
+    for prod in receipt.products.all():
+        receipt.receipt_categories.add(prod.subcategory.category)
 
     img = cv2.imread(f'media/{receipt.receipt_img}', cv2.IMREAD_GRAYSCALE)
 

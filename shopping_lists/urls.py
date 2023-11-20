@@ -1,5 +1,7 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
 
@@ -18,4 +20,4 @@ urlpatterns = [
     path('removed/<int:product_id>/', views.removed, name='removed'),
     path('removed_list/<int:list_id>/', views.list_removed, name='list_removed'),
     path('<int:list_id>/update_is_bought/', views.update_is_bought, name='update_is_bought'),
-]
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

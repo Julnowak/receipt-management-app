@@ -31,3 +31,6 @@ urlpatterns = [
     path('promotions/', include('promotions_and_discounts.urls')),
     path('', include('shopping_lists.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'users.views.handle404'
+handler500 = 'users.views.handle500'

@@ -19,3 +19,11 @@ def register(request):
 
     context = {'form': form }
     return render(request, 'registration/register.html', context)
+
+
+def handle404(request, exception):
+    return render(request, "registration/404.html", status=404)
+
+
+def handle500(request, *args, **argv):
+    return render(request, "registration/500.html", status=500)

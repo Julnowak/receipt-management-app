@@ -33,6 +33,11 @@ def groups(request):
     return render(request, 'groups/your_groups.html', context)
 
 
+import pandas as pd
+from receipts.models import Receipt, Expense
+from categories.models import BaseCategories
+import plotly.express as px
+
 @login_required
 def group_site(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
@@ -40,6 +45,38 @@ def group_site(request, group_id):
     profiles = ProfileInfo.objects.filter(user__in=members).order_by("user_id")
     pam = zip(profiles, members)
     user = request.user
+
+    exps = Expense.objects.filter(group=group).values_list('amount','owner')
+    receipts = Receipt.objects.filter(group=group).values_list('amount','owner')
+
+    df = pd.DataFrame({'owner': list(exps.values_list("owner")) + list(receipts.values_list("owner")),
+                       'amount': list(exps.values_list("amount")) + list(receipts.values_list("amount"))})
+    df['owner'] = df['owner'].apply(lambda x: x[0])
+    df['amount'] = df['amount'].apply(lambda x: x[0])
+
+    users = User.objects.values_list("id", "username")
+    df_temp = pd.DataFrame({'owner': users.values_list("id"),
+                            'username': users.values_list("username")})
+    df_temp['owner'] = df_temp['owner'].apply(lambda x: x[0])
+    df_temp['username'] = df_temp['username'].apply(lambda x: x[0])
+    df2 = pd.merge(df, df_temp, on=['owner'])
+    df2 = df2.sort_values('amount')
+    # Potrzeba ograniczenia
+    try:
+
+        fig_pie = px.pie(df2, values='amount', names='username', height=300, width=400,hole=.5)
+        fig_pie.update_traces(
+            text=list(df2['amount']),
+            textinfo='text',
+        )
+
+        pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
+
+        labels = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"]
+
+    except:
+        pie_chart = "Nie dodano jeszcze żadnych wartości."
+        labels = "Brak"
 
     if user not in members:
         return redirect('groups:not_member_of_group', group_id=group_id)
@@ -60,7 +97,8 @@ def group_site(request, group_id):
     suma = suma_wydatki + suma_paragony
     amount_per_member = math.ceil(suma/group.number_of_members * 100)/100
     context = {"group": group, "members": members, "user": user, 'amount_per_member': str("{:.2f}".format(amount_per_member)).replace(".", ','),
-               "suma": str("{:.2f}".format(suma)).replace(".", ','), "profile_and_members": pam}
+               "suma": str("{:.2f}".format(suma)).replace(".", ','), "profile_and_members": pam,
+               "pie": pie_chart}
     return render(request, 'groups/group_site.html', context)
 
 
@@ -261,8 +299,18 @@ def group_receipts_and_expenses(request, group_id):
     suma_paragony = round(float(suma_paragony), 2)
     suma = suma_wydatki + suma_paragony
 
-    page_number = request.GET.get('page',1)
-    p = Paginator(group_expenses, 1)
+    pn= request.GET.get('page',1)
+    p = Paginator(group_receipts, 3)
+
+    try:
+        p_rec = p.page(pn)
+    except PageNotAnInteger:
+        p_rec = p.page(1)
+    except EmptyPage:
+        p_rec = p.page(p.num_pages)
+
+    page_number = request.GET.get('page', 1)
+    p = Paginator(group_expenses, 3)
 
     try:
         page_obj = p.page(page_number)
@@ -273,7 +321,8 @@ def group_receipts_and_expenses(request, group_id):
 
     context = {'group': group, 'group_expenses': group_expenses, 'suma': suma, 'number_of_members': number_of_members,
                'group_receipts': group_receipts, 'suma_wydatki': str("{:.2f}".format(suma_wydatki)).replace(".", ','),
-               'suma_paragony': str("{:.2f}".format(suma_paragony)).replace(".", ','), 'page_obj': page_obj}
+               'suma_paragony': str("{:.2f}".format(suma_paragony)).replace(".", ','), 'page_obj': page_obj,
+               'p_rec': p_rec}
     return render(request, 'groups/group_receipts_and_expenses.html', context)
 
 
