@@ -2,21 +2,25 @@ import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Receipt, Guarantee, Expense
+from groups.models import CommonGroups
 from receipts.forms import ReceiptForm, ExpenseForm, GuaranteeForm, HandReceiptForm
-import pytesseract
 from profile_mangement.models import ProfileInfo
 from categories.models import Product
-from PIL import Image
-import matplotlib.pyplot as plt
-from receipts.image_processing import *
-import cv2
+from django.contrib import messages
 import re
-from pytesseract import Output
-import numpy as np
 from categories.models import BaseCategories
 from django.shortcuts import get_object_or_404
+from pdf2image import convert_from_path
+import calendar
+from collections import Counter
+from promotions_and_discounts.models import Shop
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from receipts.OCR_algorithm import *
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+poppler_path = r"C:\path\to\poppler-xx\bin"
+
+CharField.register_lookup(Lower)
 
 
 @login_required
@@ -40,15 +44,23 @@ def your_receipts(request):
     expenses = Expense.objects.filter(owner=request.user).order_by("-id")[:5]
     guarant = Guarantee.objects.filter(owner=request.user)
     left = []
+    flags = []
     for guarantee in guarant:
-       result = guarantee.end_date - datetime.date.today()
-       if int(result.days) < 0:
-           guarant.get(id=guarantee.id).delete()
-           guarant.delete()
-       else:
+        result = guarantee.end_date - datetime.date.today()
+        if int(result.days) < 0:
+            guarant.get(id=guarantee.id).delete()
+            guarant.delete()
+        else:
             left.append(result)
+
+            if int(result.days) < 3:
+                flags.append(True)
+            else:
+                flags.append(False)
     guarant = Guarantee.objects.filter(owner=request.user)[:5]
-    info = zip(guarant, left)
+
+    info = zip(guarant, left, flags)
+    info = sorted(list(info), key=lambda x: x[1], reverse=False)
     context = {'receipts': receipts, 'expenses': expenses, 'guarantees': guarant, 'info': info,
                'flag': flag, 'flag_e': flag_e, 'flag_g': flag_g}
     return render(request, 'receipts/your_receipts.html', context)
@@ -73,19 +85,37 @@ def new_receipt(request):
 
 def costs_by_hand(request):
     profile = ProfileInfo.objects.get(user=request.user)
+    groups = CommonGroups.objects.filter(members__username=request.user.username)
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
             cost = form.save(commit=False)
-            cost.owner = request.user
-            form.save()
-            profile.how_many_expenses +=1
-            profile.save()
-            return redirect('receipts:your_receipts')
+            g = groups.get(id=int(form.data['group']))
+            if g.can_receipts_be_added:
+                suma = sum(list(i[0] for i in g.expense_set.values_list('amount'))) + sum(
+                    list(i[0] for i in g.receipt_set.values_list('amount')))
+                if g.limit and float(suma) + float(form.data['amount']) <= g.limit:
+                    cost.owner = request.user
+                    form.save()
+                    profile.how_many_expenses += 1
+                    profile.save()
+                    messages.success(request, f"Dodano opłatę.")
+                    return redirect('receipts:your_receipts')
+                elif not g.limit:
+                    cost.owner = request.user
+                    form.save()
+                    profile.how_many_expenses += 1
+                    profile.save()
+                    messages.success(request, f"Dodano opłatę.")
+                    return redirect('receipts:your_receipts')
+                else:
+                    messages.error(request, f"Przekroczono limit grupy.")
+            else:
+                messages.error(request, f"Dana grupa nie przyjmuje już opłat.")
     else:
         form = ExpenseForm()
 
-    context = {'form': form }
+    context = {'form': form}
     return render(request, 'receipts/costs_by_hand.html', context)
 
 
@@ -104,8 +134,35 @@ def receipt_site(request, receipt_id):
     receipt = get_object_or_404(Receipt, pk=receipt_id)
     categs = receipt.receipt_categories.all()
     prods = receipt.products.all()
-    context = {'receipt': receipt, 'receipt_categoreis': categs, 'receipt_products': prods}
+    poten_prods = receipt.receipt_text_read_by_OCR[2]
+
+    guars = receipt.guarantee_set.all()
+
+    context = {'receipt': receipt, 'receipt_categoreis': categs, 'receipt_products': prods, 'user': request.user,
+               'poten_prods': poten_prods, 'guarantees': guars}
     return render(request, 'receipts/receipt_site.html', context)
+
+
+@login_required
+def change_receipt_starred_status(request, receipt_id):
+    receipt = get_object_or_404(Receipt, pk=receipt_id)
+    if receipt.is_starred:
+        receipt.is_starred = False
+    else:
+        receipt.is_starred = True
+    receipt.save()
+    return redirect("receipts:receipt_site", receipt_id=receipt.id)
+
+
+@login_required
+def change_expense_starred_status(request, expense_id):
+    expense = get_object_or_404(Expense, pk=expense_id)
+    if expense.is_starred:
+        expense.is_starred = False
+    else:
+        expense.is_starred = True
+    expense.save()
+    return redirect("receipts:expense_site", expense_id=expense.id)
 
 
 @login_required
@@ -118,7 +175,7 @@ def new_guarantee(request):
             new_guar = form.save(commit=False)
             new_guar.owner = request.user
             new_guar.save()
-            profile.how_many_guarantees +=1
+            profile.how_many_guarantees += 1
             profile.save()
             return redirect('receipts:your_receipts')
     else:
@@ -130,25 +187,37 @@ def new_guarantee(request):
 
 def receipts_page(request):
     receipts = Receipt.objects.filter(owner=request.user).order_by('-date_added')
-    context = {'receipts': receipts}
+
+    page_number = request.GET.get('page', 1)
+    p = Paginator(receipts, 8)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
+    context = {'receipts': receipts, 'pages': pages, 'user': request.user}
     return render(request, 'receipts/receipts_page.html', context)
 
 
 def expenses_page(request):
-    expenses = Expense.objects.all(owner=request.user).order_by('-date_added')
+    expenses = Expense.objects.filter(owner=request.user).order_by('-date_added')
     context = {'expenses': expenses}
     return render(request, 'receipts/expenses_page.html', context)
 
 
 def expense_site(request, expense_id):
     expense = Expense.objects.get(id=expense_id)
-    context = {'expense': expense}
+    context = {'expense': expense, 'user': request.user}
     return render(request, 'receipts/expense_site.html', context)
 
 
 def guarantee_site(request, guarantee_id):
     guarantee = Guarantee.objects.get(id=guarantee_id)
-    context = {'guarantee': guarantee}
+    context = {'guarantee': guarantee, 'days_left': (guarantee.end_date - datetime.date.today()).days,
+               'user': request.user}
     return render(request, 'receipts/guarantee_site.html', context)
 
 
@@ -163,7 +232,7 @@ def receipt_by_hand(request):
             return redirect('receipts:your_receipts')
     else:
         form = HandReceiptForm()
-    context = {'form':form}
+    context = {'form': form}
     return render(request, 'receipts/receipt_by_hand.html', context)
 
 
@@ -178,11 +247,11 @@ def edit_expense(request, expense_id):
     else:
         form = ExpenseForm(instance=exp)
 
-    context = {'expense':exp, 'form': form}
+    context = {'expense': exp, 'form': form}
     return render(request, 'receipts/edit_expense.html', context)
 
 
-def edit_guarantee(request,guarantee_id):
+def edit_guarantee(request, guarantee_id):
     guar = Guarantee.objects.get(id=guarantee_id)
     if request.method == 'POST':
         form = GuaranteeForm(instance=guar, data=request.POST)
@@ -191,7 +260,7 @@ def edit_guarantee(request,guarantee_id):
             return redirect('receipts:guarantee_site', guarantee_id=guar.id)
     else:
         form = GuaranteeForm(instance=guar)
-    context = {'form': form, 'guarantee': guar }
+    context = {'form': form, 'guarantee': guar}
     return render(request, 'receipts/edit_guarantee.html', context)
 
 
@@ -220,211 +289,239 @@ def rotate(image, angle, center=None, scale=0.8):
 
     return rotated
 
-from django.db.models import CharField
-from django.db.models.functions import Lower
-from pdf2image import convert_from_path
-CharField.register_lookup(Lower)
-
-poppler_path = r"C:\path\to\poppler-xx\bin"
-
-import calendar
-from collections import Counter
-from difflib import get_close_matches
+import timeit
+from autocorrect import Speller
 
 
 def OCR_site(request, receipt_id):
     receipt = Receipt.objects.get(id=receipt_id)
+    products = Product.objects.values_list('product_name')
+    products_list = list(map(lambda x: x[0], products))
 
-    if not receipt.receipt_img and receipt.receipt_pdf:
-        img = convert_from_path(f'media/{receipt.receipt_pdf}',poppler_path=r"C:\Users\Julia\Desktop\ZebragonApp\poppler-23.11.0\Library\bin")
-        new_name = 'images/' + receipt.receipt_pdf.url[14:len(receipt.receipt_pdf.url) - 4] + '.jpg'
-        img[0].save(f'media/{new_name}', 'JPEG')
-        receipt.receipt_img = new_name
-
-    img = Image.open(f'media/{receipt.receipt_img}').convert('RGB')
-    img = np.array(img)
-    img = remove_noise(img)
-    img = thresholding(get_grayscale(img))
-
-
-    width = img.shape[1]
-    height = img.shape[0]
-    text=''
-
-    p = 0
-    i = height // 3
-    custom_config = r'--oem 1 --psm 6 -l pol'
-
-    text += pytesseract.image_to_string(img, config=custom_config)
-    angle, img = correct_skew(img)
-    print(angle)
-
-
-    # img = cv2.fastNlMeansDenoisingColored(img, None, 9, 6, 7, 21)
-
-
-    ratio = img.shape[0] / 2000.0
-    img_resize = imutils.resize(img, height=2000)
-
-
-    img_array = np.array(img_resize)
-
-    if np.mean(img_array[:, :]) < 200:
-        blurred_image = cv2.GaussianBlur(erode(img_resize), (3, 3), 0)
-        edged_img = cv2.Canny(blurred_image, 80, 200)
-        pts = np.argwhere(edged_img > 0)
-
-        # Finding the min and max points
-        y1, x1 = pts.min(axis=0)
-        y2, x2 = pts.max(axis=0)
-
-        # Crop ROI from the givn image
-        output_image = img_resize[y1:y2, x1:x2]
-        org = output_image
-    else:
-        org = img_resize
-
-    img = thresholding(org)
-    height, width = img.shape[0], img.shape[1]
-
-    p = 0
-    i = int(height / 3)
-    num = 0
-    custom_config = r'--oem 1 --psm 6 -l pol'
-
-    while num != 3:
-        if num == 2:
-            cropped_image = img[p:, :]
-        else:
-            cropped_image = img[p:i, :]
-        p = i
-        i += height // 3
-        num += 1
-        text += pytesseract.image_to_string(cropped_image, config=custom_config)
-
-    p = 0
-    i = int(height / 2)
-    num = 0
-
-    text += pytesseract.image_to_string(img, config=custom_config)
-    while num != 2:
-        if num == 1:
-            cropped_image = img[p:, :]
-        else:
-            cropped_image = img[p:i, :]
-        p = i
-        i += height // 2
-        num += 1
-        text += pytesseract.image_to_string(cropped_image, config=custom_config)
-
-    suma = ""
-    potencjalne_produkty = []
-    list_of_dates = []
-    amo = []
-    flag = False
-    for elem in text.split("\n"):
-        elem_list = elem.lower().split(" ")
-        if get_close_matches("fiskalny", elem_list):
-            flag = True
-
-        if get_close_matches("spożywczy", elem_list) or get_close_matches("monopolowy", elem_list):
-            receipt.receipt_categories.add(BaseCategories.objects.get(category_name="Produkty spożywcze"))
-
-        if get_close_matches("księgarnia", elem_list):
-            receipt.receipt_categories.add(BaseCategories.objects.get(category_name="Produkty papiernicze"))
-
-        if flag:
-            for e in elem_list:
-                prod = Product.objects.filter(product_name__unaccent__lower__trigram_similar=e)
-
-                # zakładam że znajdzie jeden
-                if prod and prod[0] not in receipt.products.all():
-                    receipt.products.add(prod[0].id)
-
-        if re.search(r'\d+[-\.]\d+[-\.]\d+',elem):
-            date_string_normal = re.findall(r'\d{2}[-\.]\d{2}[-\.]\d{4}', elem)
-            date_string_other = re.findall(r'\d{4}[-\.]\d{2}[-\.]\d{2}', elem)
-            if date_string_normal:
-                date_string = date_string_normal[0]
-                y = int(date_string[6:11])
-                m = int(date_string[3:5])
-                d = int(date_string[:2])
-
-                if y > datetime.date.today().year:
-                    y = datetime.date.today().year
-
-                if m > 12:
-                    m = datetime.date.today().month
-
-                if d > 31:
-                    d = datetime.date.today().day
-
-                date_bought = datetime.date(y, m, d)
-                list_of_dates.append(date_bought)
-            elif date_string_other:
-                date_string = date_string_other[0]
-                d = int(date_string[8:11])
-                m = int(date_string[5:7])
-                y = int(date_string[:4])
-
-                print(d, m, y)
-
-                if y > datetime.date.today().year:
-                    y = datetime.date.today().year
-
-                if m > 12 or m < 1:
-                    m = datetime.date.today().month
-
-                if d > 31:
-                    d = calendar.monthrange(y, m)[1]
-                try:
-                    date_bought = datetime.date(y, m, d)
-                except ValueError:
-                    d = calendar.monthrange(y, m)[1]
-                    date_bought = datetime.date(y, m, d)
-
-                list_of_dates.append(date_bought)
-
-        if "suma" in elem.lower() or "do zapłaty" in elem.lower() or "gotówka" in elem.lower():
-            suma = elem
-            try:
-                if "," in suma:
-                    s = re.findall(f"(\d+,\d+)", suma)[0]
-                    amo.append(float(s.replace(",", ".")))
-                elif "." in suma:
-                    s = re.findall(f"(\d+\\.\d+)", suma)[0]
-                    amo.append(float(s))
-            except IndexError:
-                pass
-            receipt.receipt_text_read_by_OCR = text
-
-    print(amo)
-    try:
-        receipt.amount = Counter(amo).most_common()[0][0]
-    except:
-        receipt.amount = 0.00
-
-    try:
-        receipt.date_of_receipt_bought = Counter(list_of_dates).most_common()[0][0]
-    except:
-        receipt.date_of_receipt_bought = datetime.date.today()
-    receipt.save()
-
-    for prod in receipt.products.all():
-        receipt.receipt_categories.add(prod.subcategory.category)
-
-    img = cv2.imread(f'media/{receipt.receipt_img}', cv2.IMREAD_GRAYSCALE)
+    shops = Shop.objects.values_list('shop_name')
+    shops_list = list(map(lambda x: x[0], shops))
 
     if request.method == 'POST':
         form = ReceiptForm(instance=receipt, data=request.POST)
+
+        y = datetime.date.today().year
+        m = datetime.date.today().month
+        d = datetime.date.today().day
+
+        guar_date_num = int(request.POST['input_guarant'])
+        guar_date_type = request.POST['select_guarant']
+
+        new_y = y
+        new_m = m
+        new_d = d
+        if guar_date_num > 0:
+            if guar_date_type == 'dni':
+                new_d = d + guar_date_num
+                if new_d > 28:
+                    # luty przestępny
+                    if m == 2 and y%4 == 0:
+                        if new_d > 29:
+                            new_d = new_d - 29
+                            new_m = m + 1
+                        else:
+                            new_d = new_d - 28
+                            new_m = m + 1
+                    if new_d > 30 and m in [4,6,9,11]:
+                        new_d = new_d - 30
+                        new_m = m + 1
+
+                    if new_d > 31 and m in [1,3,5,7,8,10]:
+                        new_d = new_d - 31
+                        new_m = m + 1
+
+                    if new_d>31 and m == 12:
+                        new_d = new_d - 31
+                        new_m = m + 1
+                        new_y = y + 1
+
+            elif guar_date_type == 'miesięcy':
+                new_m = m + guar_date_num
+                new_y = y
+                if new_m > 12:
+                    new_y = y + new_m // 12
+                    new_m = new_m % 12
+
+            else:
+                new_y = y + guar_date_num
+
+            new_date = datetime.date(new_y, new_m, new_d)
+
         if form.is_valid():
             form.save()
+            if guar_date_num > 0:
+                print('gh')
+                new_guar = Guarantee.objects.create(guarantee_name=receipt.receipt_name,
+                                                    end_date=new_date,
+                                                    owner=request.user)
+                new_guar.receipt = receipt
+                new_guar.save()
             return redirect('receipts:receipt_site', receipt_id=receipt.id)
     else:
-        form = ReceiptForm(instance=receipt)
-    context = {'form': form, 'receipt': receipt,'img': img, 'suma': suma}
-    return render(request, 'receipts/OCR_site.html', context)
+        spell = Speller('pl', only_replacements=True)
+        print(request.method)
+        if receipt.receipt_img and (".pdf" in receipt.receipt_img.url or ".png" in receipt.receipt_img.url
+                                    or ".jpg" in receipt.receipt_img.url):
+            if ".pdf" in receipt.receipt_img.url:
+                img = convert_from_path(f'media/{receipt.receipt_img}',
+                                        poppler_path=r"..\ZebragonApp\poppler-23.11.0\Library\bin")
+                new_name = 'images/' + receipt.receipt_img.url[14:len(receipt.receipt_pdf.url) - 4] + '.jpg'
+                img[0].save(f'media/{new_name}', 'JPEG')
+                receipt.receipt_img = new_name
 
+            img = cv2.imread(f'media/{receipt.receipt_img}')
+            print('d')
+            start = timeit.timeit()
+            text_after_OCR, best = make_OCR(img)
+            end = timeit.timeit()
+            print(abs(end - start))
+            text = ' '.join(text_after_OCR)
+
+            suma = ""
+            potencjalne_produkty = []
+            list_of_dates = []
+            amo = []
+            flag = False
+            for elem in text.split("\n"):
+                elem = spell(elem)
+                elem_list = elem.lower().split(" ")
+                if get_close_matches("fiskalny", elem_list) or get_close_matches("paragon", elem_list):
+                    flag = True
+                if get_close_matches("sprzedaż", elem_list) or get_close_matches("suma", elem_list):
+                    flag = False
+
+                if flag:
+                    print("========")
+                    print(elem)
+                    potencjalne_produkty.append(elem)
+
+                for e in elem_list:
+                    # Cutoff pomiędzy 0.6 a 0.7
+                    if flag:
+                        detected_prod = get_close_matches(e, products_list, cutoff=0.68)
+                        if detected_prod:
+                            print("========")
+                            print(e)
+                            print(detected_prod)
+                            print("========")
+                            for dprod in detected_prod:
+                                p = Product.objects.filter(product_name__search=dprod)
+                                for pp in p:
+                                    receipt.products.add(pp)
+
+                    detected_shop = get_close_matches(e, shops_list, cutoff=0.68)
+                    if detected_shop and detected_shop[0] != 'Inne':
+                        s = Shop.objects.get(shop_name__search=detected_shop[0])
+                        receipt.shop = s
+                        receipt.save()
+
+                if get_close_matches("spożywczy", elem_list) or get_close_matches("monopolowy", elem_list):
+                    receipt.receipt_categories.add(BaseCategories.objects.get(category_name="Produkty spożywcze"))
+
+                if get_close_matches("księgarnia", elem_list):
+                    receipt.receipt_categories.add(BaseCategories.objects.get(category_name="Produkty papiernicze"))
+
+
+                # Wykrycie daty
+                if re.search(r'\d+[-\. ]\d+[-\. ]\d+', elem):
+                    date_string_normal = re.findall(r'\d{2}[-\. ]\d{2}[-\. ]\d{4}', elem)
+                    date_string_other = re.findall(r'\d{4}[-\. ]\d{2}[-\. ]\d{2}', elem)
+                    if date_string_normal:
+                        date_string = date_string_normal[0]
+                        y = int(date_string[6:11])
+                        m = int(date_string[3:5])
+                        d = int(date_string[:2])
+
+                        if y > datetime.date.today().year:
+                            y = datetime.date.today().year
+
+                        if m > 12:
+                            m = datetime.date.today().month
+
+                        if d > 31:
+                            d = datetime.date.today().day
+
+                        date_bought = datetime.date(y, m, d)
+                        list_of_dates.append(date_bought)
+                    elif date_string_other:
+                        date_string = date_string_other[0]
+                        d = int(date_string[8:11])
+                        m = int(date_string[5:7])
+                        y = int(date_string[:4])
+
+                        if y > datetime.date.today().year:
+                            y = datetime.date.today().year
+
+                        if m > 12 or m < 1:
+                            m = datetime.date.today().month
+
+                        if d > 31:
+                            d = calendar.monthrange(y, m)[1]
+                        try:
+                            date_bought = datetime.date(y, m, d)
+                        except ValueError:
+                            d = calendar.monthrange(y, m)[1]
+                            date_bought = datetime.date(y, m, d)
+
+                        list_of_dates.append(date_bought)
+
+                if "suma" in elem.lower() or "do zapłaty" in elem.lower() or "gotówka" in elem.lower() or "sprzedaż" in elem.lower():
+                    suma = elem
+                    try:
+                        if "," in suma:
+                            s = re.findall(f"(\d+,\d+)", suma)[0].replace(",", ".")
+                            amo.append(float(s))
+                        elif "." in suma:
+                            s = re.findall(f"(\d+\\.\d+)", suma)[0]
+                            amo.append(float(s))
+                        try:
+                            if "pln" in elem.lower():
+                                amo.append(float(s))
+                                amo.append(float(s))
+                        except:
+                            pass
+                    except IndexError:
+                        pass
+
+
+
+            try:
+                receipt.amount = Counter(amo).most_common()[0][0]
+            except:
+                receipt.amount = 0.00
+
+            try:
+                receipt.date_of_receipt_bought = Counter(list_of_dates).most_common()[0][0]
+            except:
+                receipt.date_of_receipt_bought = datetime.date.today()
+
+            for prod in receipt.products.all():
+                receipt.receipt_categories.add(prod.subcategory.category)
+
+            if receipt.shop is None:
+                receipt.shop = Shop.objects.get(shop_name='Inne')
+
+            if receipt.shop and not receipt.receipt_categories.values_list():
+                for cat in receipt.shop.category.all():
+                    receipt.receipt_categories.add(cat)
+
+            if not receipt.receipt_categories.values_list():
+                receipt.receipt_categories = BaseCategories.objects.get(category_name='Inne')
+
+            receipt.receipt_text_read_by_OCR = '\n'.join(potencjalne_produkty)
+
+            receipt.save()
+            form = ReceiptForm(instance=receipt)
+        else:
+            return redirect('receipts:new_receipt')
+
+    context = {'form': form, 'receipt': receipt, 'img': img, 'suma': suma,
+               'potencjalne_produkty': potencjalne_produkty, 'text': text}
+    return render(request, 'receipts/OCR_site.html', context)
 
 def receipt_data_read(request, receipt_id):
     receipt = Receipt.objects.get(id=receipt_id)

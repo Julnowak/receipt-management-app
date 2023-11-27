@@ -18,14 +18,14 @@ class CommonGroupsForm(forms.ModelForm):
                 'class': "form-control",
                 'style': 'width: 300px; margin: auto',
                 'placeholder': 'Grupa',
-                'label': "Hasło"
+                'label': "Nazwa grupy"
             }),
             'max_number_of_members': forms.NumberInput(attrs={
                 'class': "form-control",
                 'style': 'width: 300px; margin: auto',
                 'max': '50',
                 'min': '1',
-                'label': "Hasło"
+                'label': "Maksymalna liczba członków"
             }),
 
             'password': forms.TextInput(attrs={

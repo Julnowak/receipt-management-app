@@ -3,8 +3,10 @@
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
     <a href="{% url 'receipts:receipt_site' receipt.id %}">
-        <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
+        <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
             </svg>
@@ -13,36 +15,92 @@
 
     <h1 style="text-align: center; margin-top: 20px">Odczytane informacje</h1>
 
-    <form style="padding: 10px; margin: 20px;" method="post" action="{% url 'receipts:edit_receipt' receipt.id %}">
+    <form id="form" style="padding: 10px; margin: 20px auto;" method="post" action="{% url 'receipts:OCR_site' receipt.id %}">
     {% csrf_token %}
-        {{ form.receipt_info.label }}
-        {{ form.receipt_info }}
 
-        {{ form.group.label }}
-        {{ form.group }}
-
-        {{ form.amount.label }}
-        {{ form.amount }}
-
-        {{ form.receipt_name.label }}
-        {{ form.receipt_name }}
-
-        {{ form.products.label }}
-        {{ form.products }}
-
-        {{ form.receipt_categories.label }}
-        {{ form.receipt_categories }}
-
-        {{ form.date_of_receipt_bought.label }}
-        {{ form.date_of_receipt_bought }}
-        <div style="text-align: center">
-            <button style="margin: 20px; min-width: 150px" class="btn btn-dark" type="submit">Zatwierdź</button>
+        <div style="margin: 20px auto; padding: 10px;">
+            {{ form.receipt_name.label }}
+            {{ form.receipt_name }}
         </div>
+
+        <div style="margin: 20px auto; padding: 10px;">
+            {{ form.amount.label }}
+            {{ form.amount }}
+        </div>
+
+        <div style="margin: 20px auto; padding: 10px;">
+            {{ form.date_of_receipt_bought.label }}
+            {{ form.date_of_receipt_bought }}
+        </div>
+
+        <div style="margin: 20px auto; padding: 10px;">
+            {{ form.group.label }}
+            {{ form.group }}
+        </div>
+
+
+        <div style="margin: 20px auto; padding: 10px;">
+            {{ form.receipt_categories.label }}
+            {{ form.receipt_categories }}
+        </div>
+
+{#        <div style="margin: 20px auto; padding: 10px;">#}
+{#        {{ form.products.label }}#}
+{#        {{ form.products }}#}
+{#        </div>#}
+
+        <div style="margin: 20px auto; padding: 10px;">
+            {{ form.shop.label }}
+            {{ form.shop }}
+        </div>
+
+        <div style="margin: 20px auto; padding: 10px;">
+            {{ form.receipt_info.label }}
+            {{ form.receipt_info }}
+        </div>
+
+        <label for="customRange1" class="form-label">Czas gwarancji</label>
+        <div>
+          <input name="input_guarant"  type="range" class="form-range" min="0" step="1" max="31" value="0"  id="customRange1">
+
+            <div>
+              <span style="display: block" id="demo"></span>
+              <select name="select_guarant" class="form-select" id="select" style="display: block; max-width: 200px">
+                  <option value="dni">dni</option>
+                  <option value="miesięcy">miesięcy</option>
+                  <option value="lat">lat</option>
+              </select>
+          </div>
+        </div>
+
+
+        <script>
+        var slider = document.getElementById("customRange1");
+        var output = document.getElementById("demo");
+        var num_inp = document.getElementById('num');
+
+        $(document).ready(function () {
+            $("#num").change(function() {
+                $(this).val(parseFloat($(this).val()).toFixed(2));
+            });
+        });
+
+        output.innerHTML = slider.value;
+
+        slider.oninput = function() {
+          output.innerHTML = this.value;
+        }
+        </script>
+
+        <div style="text-align: center">
+            <button style="margin: 20px; min-width: 150px" form="form" class="btn btn-dark" type="submit">Zatwierdź</button>
+        </div>
+
     </form>
 
     <div style="margin: 20px; padding: 10px">
         Odczytany tekst:
-        {{ receipt.receipt_text_read_by_OCR|linebreaks }}
+        {{ text|linebreaks }}
     </div>
 
 {% endblock content %}

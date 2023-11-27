@@ -71,29 +71,69 @@
 
     </div>
 
+    <div style="margin: 20px auto ; display: inline-block;">
+
+        <span style="display: inline;vertical-align: middle; color: slategrey">
+            {% if group.can_receipts_be_added %}
+
+            {% else %}
+                <span style="display: inline; vertical-align: middle">
+                    <svg xmlns="http://www.w3.org/2000/svg" color="slategrey" width="24" height="24" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                      <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                </span>
+               Właściciel zablokował możliwość dodawania wydatków i paragonów.
+            {% endif %}
+        </span>
+    </div>
+
+    {% if group.limit %}
+        <div style="max-width: 300px;margin: 10px auto;background-color:lightgray;border-radius: 20px">
+            <h1 style="margin: 20px">
+                Limit:
+                <br>
+                {% if group.limit != suma %}
+                    <span>{{ suma}} /  <span style="color: green">{{ group.limit|floatformat:2  }}</span> zł</span>
+                {% else %}
+                    <span style="color: red">{{ suma}} / {{ group.limit|floatformat:2  }} zł</span>
+                {% endif %}
+
+            </h1>
+        </div>
+    {% endif %}
+
+
     <div class="white_block">
         <h3 style="text-align: justify; margin: 0 auto 10px auto;max-width: 400px">
-            Wydatki grupy
+            Finanse grupy
         </h3>
 
         <h6 style=" color: #545454;text-align: justify; margin: 0 auto 20px auto;max-width: 400px">
             Podsumowanie
         </h6>
 
+
             <div style="margin: 0 auto; text-align: center; align-content: center; max-width: 500px">
-                {% autoescape off %}
-                    {{ pie }}
-                {% endautoescape %}
+                {% if flag %}
+                    {% autoescape off %}
+                        {{ pie }}
+                    {% endautoescape %}
+                {% else %}
+
+                {% endif %}
             </div>
 
 
             <div style=" display: block;text-align: justify; margin: 0 auto 0 auto;max-width: 400px">
                 <span>Łączna suma do podziału:</span>
-                <span style="margin: 10px"><b>{{ suma }}</b></span>
+                <span style="margin: 10px"><b>{{ suma }} zł</b></span>
                 <br>
                 <span>Suma na jednego członka:</span>
-                <span style="margin: 10px"><b>{{ amount_per_member }}</b></span>
+                <span style="margin: 10px"><b>{{ amount_per_member }} zł</b></span>
             </div>
+
+
 
 
             <div style="text-align: center; margin-top: 20px">
@@ -104,25 +144,41 @@
                 </a>
             </div>
 
+
+
     </div>
 
+     <div class="white_block">
+        <h3 style="text-align: justify; margin: 0 auto 10px auto;max-width: 400px">
+            Listy zakupowe grupy
+        </h3>
+
+        <div style=" display: block;text-align: justify; margin: 0 auto 0 auto;max-width: 400px">
+         {% for sh in group_sh_list %}
+             {{ sh }}
+         {% empty %}
+             Brak list zakupowych grupy.
+         {% endfor %}
+        </div>
+
+    </div>
+
+
+
     <div class="white_block">
-
-
     <div>
         <h3 style="text-align: justify; margin: 0 auto 20px auto;max-width: 400px">
             Członkowie
-            <span style=" color: #545454;margin-left:150px; text-align: center">
-                {{ group.number_of_members }}/{{ group.max_number_of_members }}
-            </span>
         </h3>
+        <h6 style=" color: #545454;text-align: justify; margin: -10px auto 20px auto;max-width: 400px">
+            {{ group.number_of_members }}/{{ group.max_number_of_members }}
+        </h6>
 
-
-        <div style="margin:auto;display: grid; grid-template: auto/ auto auto;max-width: 400px">
+        <div style="margin:auto;display: grid; grid-template: auto/ 50% 200px; max-width: 500px;">
 
             {% for profile, member in profile_and_members %}
                 {% if profile.is_public or profile.user == user %}
-                    <a href="{% url 'profile_showcase' group.id member.id %}" style="text-decoration: none;color: black;">
+                    <a href="{% url 'profile_showcase' group.id member.id %}" style="justify-self: center;text-decoration: none;color: black;">
                         <div class="member_box">
                                 {{ member }}
                         </div>

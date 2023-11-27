@@ -14,20 +14,37 @@
 
 
         <h1 style="margin-top: 20px;text-align: center">Paragony</h1>
-        <div class="container" style="padding: 10px; margin: 10px auto;max-width: 400px">
+        <div class="container" style="padding: 10px; margin: 10px auto;max-width: 400px; display: inline">
             {% for receipt in p_rec %}
-                <div style="margin: 20px auto">
-                    <div style="display: inline-block">
-                        <h5>{{receipt.receipt_name}} &nbsp; &nbsp; &nbsp; &nbsp;{{receipt.amount}} zł</h5>
+                <div style="margin: 20px auto; display: inline-block;vertical-align: middle">
+                    <div>
+                        <h5>
+                            {% if group.owner == user %}
+                            <a style="text-decoration: none; color: #292929" href="{% url 'receipts:receipt_site' receipt.id %}">{{receipt.receipt_name}}</a>
+                            {% else %}
+                                {{receipt.receipt_name}}
+                            {% endif %}
+                            &nbsp; &nbsp; &nbsp; &nbsp;{{receipt.amount}} zł
+                        </h5>
                         <div>
-                            <div>Data dodania: {{ receipt.date_added|date:"d.m.Y" }}</div>
+                            <div>Data dodania: {{ receipt.date_added|date:"H:i, d.m.Y" }}</div>
                             <div>Dodał: {{ receipt.owner }}</div>
                         </div>
                     </div>
-
                 </div>
+                {% if group.owner == user %}
+                    <div style="margin-left: 100px;display: inline-block; vertical-align: middle">
+                        <a href="{% url 'groups:del_from_group_receipts' group.id receipt.id %}" style="text-decoration: none; color: red">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                            </svg>
+                        </a>
+                    </div>
+                {% endif %}
             {% empty %}
-                <p>Brak wydatków grupy</p>
+                <div style="padding: 10px;margin: 10px auto;max-width: 400px; text-align: center">
+                    Jeszcze nie dodano żadnych paragonów.
+                </div>
             {% endfor %}
         </div>
 
@@ -77,19 +94,34 @@
 
         <div class="container" style="padding: 10px; margin: 10px auto;max-width: 400px">
             {% for expense in page_obj %}
-                <div style="margin: 20px auto">
-                <div style="display: inline-block">
-                    <h5>{{expense.expense_name}} &nbsp; &nbsp; &nbsp; &nbsp;{{expense.amount}} zł</h5>
+                <div style="display: inline-block; vertical-align: middle;margin: 20px auto">
+                    <h5>
+                        {% if group.owner == user %}
+                        <a style="text-decoration: none; color: #292929" href="{% url 'receipts:expense_site' expense.id %}">{{expense.expense_name}}</a>
+                        {% else %}
+                            {{expense.expense_name}}
+                        {% endif %}
+                        &nbsp; &nbsp; &nbsp; &nbsp;{{expense.amount}} zł
+                    </h5>
                     <div>
                         <div>Data dodania: {{ expense.date_added|date:"H:i, d.m.Y"  }}</div>
                         <div>Dodał: {{ expense.owner }}</div>
 
                     </div>
                 </div>
-
-                </div>
+                {% if group.owner == user %}
+                    <div style="margin-left: 100px;display: inline-block; vertical-align: middle">
+                    <a href="{% url 'groups:del_from_group_expenses' group.id expense.id %}" style="text-decoration: none; color: red">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                        </svg>
+                    </a>
+                    </div>
+                {% endif %}
              {% empty %}
-                Brak wydatków grupy
+                <div style="padding: 10px;margin: 10px auto;max-width: 400px; text-align: center">
+                    Jeszcze nie dodano żadnych wydatków.
+                </div>
              {% endfor %}
         </div>
 

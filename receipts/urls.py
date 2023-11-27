@@ -20,5 +20,7 @@ urlpatterns = [
     path('<int:guarantee_id>/edit_guarantee/', views.edit_guarantee, name='edit_guarantee'),
     path('<int:receipt_id>/edit_receipt/', views.edit_receipt, name='edit_receipt'),
     path('<int:receipt_id>/OCR_site/', views.OCR_site, name='OCR_site'),
+    path('<int:receipt_id>/change_receipt_starred_status/', views.change_receipt_starred_status, name='change_receipt_starred_status'),
+    path('<int:expense_id>/change_expense_starred_status/', views.change_expense_starred_status, name='change_expense_starred_status'),
     path('<int:receipt_id>/receipt_data_read/', views.receipt_data_read, name='receipt_data_read'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

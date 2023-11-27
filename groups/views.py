@@ -2,11 +2,8 @@ from django.shortcuts import render, redirect
 from .models import CommonGroups, User
 from groups.forms import CommonGroupsForm
 from django.contrib import messages
-from my_messages.forms import MessageForm
-from receipts.models import Expense, Receipt
 from my_messages.models import Message
 from profile_mangement.models import ProfileInfo
-from django.template.defaultfilters import slugify
 import math
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404
@@ -38,6 +35,7 @@ from receipts.models import Receipt, Expense
 from categories.models import BaseCategories
 import plotly.express as px
 
+
 @login_required
 def group_site(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
@@ -45,6 +43,7 @@ def group_site(request, group_id):
     profiles = ProfileInfo.objects.filter(user__in=members).order_by("user_id")
     pam = zip(profiles, members)
     user = request.user
+    flag = False
 
     exps = Expense.objects.filter(group=group).values_list('amount','owner')
     receipts = Receipt.objects.filter(group=group).values_list('amount','owner')
@@ -61,10 +60,13 @@ def group_site(request, group_id):
     df_temp['username'] = df_temp['username'].apply(lambda x: x[0])
     df2 = pd.merge(df, df_temp, on=['owner'])
     df2 = df2.sort_values('amount')
+    if not df2.empty:
+        flag = True
+
     # Potrzeba ograniczenia
     try:
 
-        fig_pie = px.pie(df2, values='amount', names='username', height=300, width=400,hole=.5)
+        fig_pie = px.pie(df2, values='amount', names='username', height=300, hole=.5)
         fig_pie.update_traces(
             text=list(df2['amount']),
             textinfo='text',
@@ -77,7 +79,6 @@ def group_site(request, group_id):
     except:
         pie_chart = "Nie dodano jeszcze żadnych wartości."
         labels = "Brak"
-
     if user not in members:
         return redirect('groups:not_member_of_group', group_id=group_id)
 
@@ -96,26 +97,24 @@ def group_site(request, group_id):
     suma_paragony = round(float(suma_paragony), 2)
     suma = suma_wydatki + suma_paragony
     amount_per_member = math.ceil(suma/group.number_of_members * 100)/100
+
+    group_sh_list = group.shoppinglist_set.values_list()
+
     context = {"group": group, "members": members, "user": user, 'amount_per_member': str("{:.2f}".format(amount_per_member)).replace(".", ','),
                "suma": str("{:.2f}".format(suma)).replace(".", ','), "profile_and_members": pam,
-               "pie": pie_chart}
+               "pie": pie_chart, "flag": flag, "group_sh_list": group_sh_list}
     return render(request, 'groups/group_site.html', context)
 
 
 @login_required
 def invite_page(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
-    try:
-        mes_last_id = Message.objects.latest('id').id
-    except:
-        mes_last_id = 0
 
     if request.method == 'POST':
             new_message = Message.objects.create(receiver = User.objects.get(username=request.POST["user_to_invite"]),
                                                  sender = request.user, title = "Zaproszenie do grupy " + group.group_name,
                                                  message_type="invitation", group = group
                                                  )
-            new_message.slug = slugify(new_message.title + " " + str(mes_last_id + 1))
             new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
                                "Zapraszam Cię do dołączenia do grupy " + group.group_name + "."
             new_message.save()
@@ -229,7 +228,11 @@ def left_group(request, group_id):
 def manage_group(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     members = [group.owner] + list(group.members.all().order_by("date_joined")[1:])
-    context = {"group": group, "user": request.user, 'members': members}
+    if group.limit:
+        flag = True
+    else:
+        flag = False
+    context = {"group": group, "user": request.user, 'members': members, 'flag': flag}
     return render(request, 'groups/manage_group.html', context)
 
 
@@ -394,4 +397,71 @@ def change_invite_possibility(request, group_id):
     else:
         group.allow_invitations = True
     group.save()
+    return redirect("groups:manage_group", group_id=group.id)
+
+
+@login_required
+def del_from_group_expenses(request, group_id, expense_id):
+    group = get_object_or_404(CommonGroups, id=group_id)
+    try:
+        expense = group.expense_set.get(id=expense_id)
+        group.expense_set.remove(expense)
+        messages.success(request, f"Usunięto wydatek {expense.expense_name} z grupy.")
+        group.save()
+    except:
+        messages.error(request, "Wystąpił błąd.")
+    return redirect("groups:group_receipts_and_expenses", group_id=group.id)
+
+
+@login_required
+def del_from_group_receipts(request, group_id, receipt_id):
+    group = get_object_or_404(CommonGroups, id=group_id)
+    try:
+        receipt = group.receipt_set.get(id=receipt_id)
+        group.expense_set.remove(receipt)
+        messages.success(request, f"Usunięto paragon {receipt.receipt_name} z grupy.")
+        group.save()
+    except:
+        messages.error(request, "Wystąpił błąd.")
+    return redirect("groups:group_receipts_and_expenses", group_id=group.id)
+
+
+@login_required
+def change_adding_possibility(request, group_id):
+    group = get_object_or_404(CommonGroups, id=group_id)
+    try:
+        if group.can_receipts_be_added:
+            group.can_receipts_be_added = False
+        else:
+            group.can_receipts_be_added = True
+        messages.success(request, f"Zmieniono możliwość dodawania wydatków.")
+        group.save()
+    except:
+        messages.error(request, "Wystąpił błąd.")
+    return redirect("groups:manage_group", group_id=group.id)
+
+
+@login_required
+def change_limit(request, group_id):
+    group = get_object_or_404(CommonGroups, id=group_id)
+    if request.method == "POST":
+        if request.POST['is_limit_set'] == "True":
+            text = request.POST['limit']
+            if ',' in text:
+                text = request.POST['limit'].replace(',', '.')
+            try:
+                num = float(text)
+                suma = sum(list(i[0] for i in group.expense_set.values_list('amount'))) + sum(list(i[0] for i in group.receipt_set.values_list('amount')))
+                if suma <= num:
+                    group.limit = num
+                    messages.success(request, f"Zmieniono limit wydatków grupy.")
+                else:
+                    messages.error(request, f"Limit został już przekroczony.")
+            except:
+                group.limit = None
+                messages.error(request, f"Nie udało się zmienić limitu wydatków.")
+        else:
+            group.limit = None
+            messages.error(request, f"Nie udało się zmienić limitu wydatków.")
+        group.save()
     return redirect("groups:manage_group", group_id=group.id)

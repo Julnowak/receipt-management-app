@@ -15,16 +15,67 @@
 
     <h1 style="text-align: center; margin-top: 20px">Edytuj wydatek</h1>
 
-    <div style="padding: 10px; margin: 20px">
-        <form method="post" action="{% url 'receipts:edit_expense' expense.id %}">
+        <div style="padding: 10px; margin: 20px">
+        <form id="form" method="post" action="{% url 'receipts:edit_expense' expense.id %}">
         {% csrf_token %}
-            {{ form.as_p }}
-            <div style="text-align: center">
-                <button style="margin: 20px; min-width: 150px" class="btn btn-dark" type="submit">Zatwierdź</button>
+            <div style="margin: 20px">
+                {{ form.expense_name.label }}
+                {{ form.expense_name }}
             </div>
-        </form>
-    </div>
 
+
+            <div style="margin: 20px;">
+                {{ form.is_recurrent.label }}
+                {{ form.is_recurrent }}
+            </div>
+
+            <div id="time" style="display: none; margin: 20px;">
+                {{ form.time_stamp.label }}
+                {{ form.number }}
+                {{ form.time_stamp }}
+            </div>
+
+            <div style="margin: 20px;">
+                {{ form.amount.label }}
+                {{ form.amount }}
+            </div>
+
+            <div style="margin: 20px;">
+                {{ form.group.label}}
+                {{ form.group }}
+            </div>
+
+            <div style="margin: 20px;">
+                {{ form.category.label }}
+                {{ form.category }}
+            </div>
+
+
+
+            {{ form.errors }}
+            </form>
+        </div>
+
+        <div style="margin: 20px auto;">
+            <button form="form" style="margin: 20px auto; width: 150px;" class="btn btn-dark" type="submit">Zatwierdź</button>
+        </div>
+
+    <script>
+        var is_rec = document.getElementById("is_rec")
+        var time = document.getElementById("time")
+        flag = true
+
+        is_rec.addEventListener("click", function (){
+            if (flag){
+                time.style.display = "block"
+                flag = false
+            }
+            else{
+                time.style.display = "none"
+                flag = true
+            }
+        })
+    </script>
 
 
 {% endblock content %}

@@ -15,23 +15,19 @@
 
     <h1 style="margin-top: 20px">Nowa gwarancja</h1>
 
-   <form method="post" action="{% url 'receipts:new_guarantee' %}" style="margin: 10px; padding: 10px">
+   <form style="margin: 10px auto" method="post" action="{% url 'receipts:new_guarantee' %}" >
         {% csrf_token %}
-        <div style="display: inline-block; margin: 10px">
-            <div>
-                {{ form.guarantee_name.label }}
-            </div>
+        <div style=" margin: 10px">
+            {{ form.guarantee_name.label }}
             {{ form.guarantee_name }}
         </div>
 
-        <div style="display: inline-block; margin: 10px">
-            <div>
-                {{ form.end_date.label }}
-            </div>
+        <div style=" margin: 10px">
+            {{ form.end_date.label }}
             {{ form.end_date }}
         </div>
 
-        <div id="my_check_div" style="display: inline-block; margin: 10px">
+        <div id="my_check_div">
             <input type="checkbox" name="check" id="my_check">
             <label for="my_check">Czy chcesz dodać jakieś uwagi?</label>
         </div>
@@ -42,7 +38,7 @@
         </div>
 
        <div style="text-align: center">
-          <button style="display: inline-block; margin: 10px" type="submit" class="btn btn-dark">Dodaj</button>
+          <button style="display: inline-block; margin: 10px; width: 150px" type="submit" class="btn btn-dark">Dodaj</button>
        </div>
 
     </form>
@@ -54,7 +50,7 @@
 
         my_check_div.addEventListener("click", function (){
             if (my_check.checked){
-                regards_box.style.display = "inline-block";
+                regards_box.style.display = "block";
             }
             else{
                 regards_box.style.display = "none";

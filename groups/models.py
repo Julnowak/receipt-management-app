@@ -25,6 +25,8 @@ class CommonGroups(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner')
     members = models.ManyToManyField(User, related_name='member')
     allow_invitations = models.BooleanField(default=True)
+    can_receipts_be_added = models.BooleanField(default=True)
+    limit = models.FloatField(blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Common groups'

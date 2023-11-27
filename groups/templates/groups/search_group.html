@@ -15,8 +15,8 @@
     <h3 style="margin: 20px auto 10px auto"> {{ text }}: </h3>
     {% if exists %}
         {% for group in pages %}
-                {% if user in group.members %}
-                    <div style="margin: 20px; ">
+                {% if user in group.members.all %}
+                    <div style="margin: 10px auto;min-width: 300px; max-width: 500px ">
                         <a href="{% url 'groups:group_site' group.id %}" style="text-decoration: none; color: black">
                             <div style="background-color: lightgray; padding: 15px; border-radius: 10px">
                                 {{ group }}
@@ -24,7 +24,7 @@
                         </a>
                     </div>
                 {% else %}
-                    <div style="margin: 20px; ">
+                    <div style="margin: 10px auto;min-width: 300px; max-width: 500px ">
                         <a href="{% url 'groups:not_member_of_group' group.id %}" style="text-decoration: none; color: black">
                             <div style="background-color: lightgray; padding: 15px; border-radius: 10px">
                                 {{ group }}

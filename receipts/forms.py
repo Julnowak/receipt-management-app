@@ -8,30 +8,57 @@ class ReceiptForm(forms.ModelForm):
 
     class Meta:
         model = Receipt
-        fields = ['receipt_name', 'receipt_img','receipt_pdf','amount','receipt_info','group','products','date_of_receipt_bought',
-                  'receipt_categories']
-        labels = {'receipt_name': 'Nazwa', 'receipt_img': 'Zdjęcie', 'receipt_pdf': 'Pdf',
+        fields = ['receipt_name', 'receipt_img','amount','receipt_info','group','products','date_of_receipt_bought',
+                  'receipt_categories','shop']
+        labels = {'receipt_name': 'Nazwa', 'receipt_img': 'Zdjęcie',
                   'amount': 'Wartość','receipt_info': 'Dodatkowe informacje',
-                  'group': 'Grupa','products': 'Produkty'}
+                  'group': 'Grupa','products': 'Produkty','shop': 'Sklep'}
         widgets = {
             'products': forms.SelectMultiple(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto; border-color: black',
             }),
 
             'receipt_name': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto; border-color: black',
             }),
 
             'receipt_info': forms.Textarea(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto; border-color: black',
             }),
 
             'group': forms.Select(attrs={
                 'class': "form-select",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto; border-color: black',
+            }),
+
+            'receipt_img': forms.FileInput(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto; border-color: black',
+            }),
+
+            'amount': forms.NumberInput(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto; border-color: black',
+                'id': 'num',
+                'min': 0,
+            }),
+
+            'shop': forms.Select(attrs={
+                'class': "form-select",
+                'style': 'max-width: 300px; margin: auto; border-color: black',
+            }),
+
+            'date_of_receipt_bought': forms.DateInput(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto; border-color: black',
+            }),
+
+            'receipt_categories': forms.SelectMultiple(attrs={
+                'class': "form-select",
+                'style': 'max-width: 300px; margin: auto; border-color: black',
             }),
         }
 
@@ -39,29 +66,45 @@ class ReceiptForm(forms.ModelForm):
 class HandReceiptForm(forms.ModelForm):
     class Meta:
         model = Receipt
-        fields = ['receipt_name', 'receipt_img','amount','receipt_info','group','products']
-        labels = {'receipt_name': 'Nazwa', 'receipt_img': 'Zdjęcie',
+        fields = ['receipt_name', 'receipt_img','amount','receipt_info','group','products','shop']
+        labels = {'receipt_name': 'Nazwa', 'receipt_img': 'Zdjęcie','shop': 'Sklep',
                   'amount': 'Wartość','receipt_info': 'Dodatkowe informacje',
                   'group': 'Grupa','products': 'Produkty'}
         widgets = {
             'products': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto; border-color: black',
             }),
 
             'receipt_name': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto; border-color: black',
             }),
 
             'receipt_info': forms.Textarea(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto; border-color: black',
             }),
 
             'group': forms.Select(attrs={
                 'class': "form-select",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto; border-color: black',
+            }),
+
+            'shop': forms.Select(attrs={
+                'class': "form-select",
+                'style': 'max-width: 300px; margin: auto; border-color: black',
+            }),
+
+            'receipt_img': forms.FileInput(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto; border-color: black',
+            }),
+            'amount': forms.NumberInput(attrs={
+                'class': "form-control",
+                'style': 'max-width: 300px; margin: auto; border-color: black',
+                'format': '%.2f',
+                'min': 0,
             }),
         }
 
@@ -77,33 +120,34 @@ class ExpenseForm(forms.ModelForm):
         widgets = {
             'amount': forms.NumberInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto; border-color: black; border-color: black',
                 'min': 0,
             }),
             'category': forms.Select(attrs={
                 'class': "form-select",
-                'style': 'max-width: 300px; margin: auto',}),
+                'style': 'max-width: 300px; margin: auto; border-color: black; border-color: black',}),
 
             'is_recurrent': forms.CheckboxInput(attrs={
                 'class': "checkbox",
-                'style': "width: 30px"
+                'style': "width: 30px; border-color: black",
+                'id': "is_rec"
             }),
 
             'expense_name': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',}),
+                'style': 'max-width: 300px; margin: auto; border-color: black',}),
 
             'group': forms.Select(attrs={
                 'class': "form-select",
-                'style': 'max-width: 300px; margin: auto',}),
+                'style': 'max-width: 300px; margin: auto; border-color: black',}),
 
             'time_stamp': forms.Select(attrs={
                 'class': "form-select",
-                'style': 'max-width: 300px; margin: auto',}),
+                'style': 'max-width: 300px; margin: auto; border-color: black',}),
 
             'number': forms.NumberInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',}),
+                'style': 'max-width: 300px; margin: auto; border-color: black',}),
 
         }
 
@@ -129,6 +173,7 @@ class GuaranteeForm(forms.ModelForm):
         widgets = {
             'guarantee_name': forms.TextInput(attrs={
                 'class': "form-control",
+                'style': 'max-width: 300px; border-color: black'
             }),
 
             'end_date': forms.SelectDateWidget(empty_label=("Wybierz rok", "Wybierz miesiąc", "Wybierz dzień"),
@@ -148,8 +193,10 @@ class GuaranteeForm(forms.ModelForm):
                                                     },
                                                attrs={
                 'class': "form-control",
+                'style': 'max-width: 200px; border-color: black'
             }),
             'regards': forms.Textarea(attrs={
                 'class': "form-control",
+                'style': 'max-width: 350px; border-color: black'
             })
         }

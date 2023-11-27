@@ -4,7 +4,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
-        <div style="height:60px">
+    <div style="height:60px">
         {% if messages %}
             {% for message in messages %}
                 {% if message.tags == 'success' %}
@@ -44,11 +44,11 @@
         <div id="lista" style="margin: 10px 10px 30px;">
             <ol class="list-group list-group-numbered" >
                 {% for member in members%}
-                    <li class="list-group-item" >
+                    <li class="list-group-item" style="max-width: 400px; min-width: 400px; margin: 0 auto; display: inline" >
                         {{ member }}
                         {% if member == group.owner %}
-                            <div style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 10px; width: 95vw; margin: auto; ">
-                                <div style="margin: auto; height: 40px; width: 40px;">
+                            <div style="padding: 10px; margin: 10px auto; display: inline-block; vertical-align: middle ">
+                                <div style="margin-left: 100px; height: 40px; width: 40px;">
                                         <div style="color: black; border-radius: 2px; position: absolute;display: inline-block;
                                         width: 40px;height: 40px">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
@@ -58,8 +58,8 @@
                                 </div>
                             </div>
                         {% else %}
-                            <div style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 10px; width: 95vw; margin: auto; ">
-                                <div style="margin: auto; height: 40px; width: 40px;">
+                            <div style="padding: 10px; margin: 10px auto; max-width: 500px;display: inline-block; vertical-align: middle  ">
+                                <div style="margin-left: 100px; height: 40px; width: 40px;">
                                         <a class="x_button" href="{% url 'groups:remove_member' group.id member.id %}" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: inline-block;
                                         width: 40px;height: 40px">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
@@ -71,8 +71,6 @@
                         {% endif %}
 
                     </li>
-
-
             {% empty %}
                 <div style="margin: 10px; text-align: center">
                    <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
@@ -84,9 +82,80 @@
 
     </div>
 
+    <div style="margin: 20px auto; max-width: 500px; text-align: justify">
+        <h3>Ustaw limit wydatków grupy</h3>
+        Możesz ustalić limit wydatków dla członków swojej grupy. Można go zmienić w każdym momencie.
+        <form style="margin: 10px auto" id="formid" action="{% url 'groups:change_limit' group.id %}" method="post">
+            {% csrf_token %}
+            <label>
+                <input id="check_lim"  type="radio" name="is_limit_set" value=False {% if not flag %}checked{% endif %}>
+                Brak limitu
+            </label>
+            <br>
+            <label>
+                <input id="check_lim_2"  type="radio" name="is_limit_set" value=True {% if flag %}checked{% endif %}>
+                Limit ustawiony
+            </label>
+            <br>
+            <label >
+                <input id="limit_inp" {% if not flag %}style="display: none;"{% endif %} style="margin: 20px auto" class="form-control" type="text" name="limit" placeholder={{ group.limit }}>
+            </label>
+        </form>
 
-    <div style="margin: 20px">
-    <h3>Zmień możliwość wysyłania zaproszeń</h3>
+        <div style="text-align: center; margin: auto">
+            <button type="submit" style="width: 150px; margin: 20px auto;" form="formid" class="btn btn-dark">
+                Zapisz
+            </button>
+        </div>
+    </div>
+
+    <script>
+        var limit_field = document.getElementById("limit_inp")
+        var check_lim = document.getElementById("check_lim")
+        var check_lim_2 = document.getElementById("check_lim_2")
+
+        check_lim.addEventListener("click",function (){
+            if(!check_lim.checked){
+                limit_field.style.display = "block";
+            }
+            else{
+                limit_field.style.display = "none";
+            }
+        })
+
+        check_lim_2.addEventListener("click",function (){
+            if(check_lim_2.checked){
+                limit_field.style.display = "block";
+            }
+            else{
+                limit_field.style.display = "none";
+            }
+        })
+
+    </script>
+
+    <div style="margin: 20px auto; max-width: 500px; text-align: justify">
+        <h3>Zmień możliwość dodawania wydatków</h3>
+        Możesz zablokować możliwość dodawania wydatków do Twojej grupy. Użytkownicy mogą się odznaczyć i poinformować, że spłacili
+        swoją część. Aktualnie
+        {% if group.can_receipts_be_added %}
+            <b> mogą być dodawane.</b>
+        {% else %}
+            <b> nie mogą być dodawane.</b>
+        {% endif %}
+    </div>
+
+    <div style="text-align: center; margin: 10px">
+        {% if group.owner == user %}
+            <a style="width: 150px" href="{% url 'groups:change_adding_possibility' group.id %}" class="btn btn-dark">
+                Zmień
+            </a>
+        {% endif %}
+    </div>
+
+
+    <div style="margin: 20px auto; max-width: 500px; text-align: justify">
+        <h3>Zmień możliwość wysyłania zaproszeń</h3>
         Aktualnie możliwość wysyłania zaproszeń przez użytkowników innych niż admin jest
         {% if group.allow_invitations %}
             <b>
@@ -98,7 +167,8 @@
             </b>
         {% endif %}
     </div>
-        <div style="text-align: center">
+
+    <div style="text-align: center; margin: 10px">
         {% if group.owner == user %}
             <a style="width: 150px" href="{% url 'groups:change_invite_possibility' group.id %}" class="btn btn-dark">
                 Zmień
@@ -106,14 +176,19 @@
         {% endif %}
     </div>
 
-    <div style="text-align: center">
+
+    <div style="margin: 20px auto; max-width: 500px; text-align: justify">
+        <h3>Usuń grupę</h3>
+        Jeśli chcesz usunąć swoją grupę, kliknij poniższy przycisk. Usunięcie grupy jest nieodwracalne,
+        więc pamiętaj, aby dobrze przemyśleć tę decyzję. Obecni członkowie zostaną poinformowani o usunięciu grupy.
+    </div>
+
+    <div style="text-align: center; margin: 10px">
         {% if group.owner == user %}
             <a style="width: 150px" href="{% url 'groups:group_deletion' group.id %}" class="btn btn-danger">
                 Usuń grupę
             </a>
         {% endif %}
     </div>
-    </div>
-
 
 {% endblock content %}

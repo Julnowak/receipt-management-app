@@ -4,6 +4,30 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
+    <div style="height:60px">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                     <div id="messages" class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% else %}
+                     <div id="messages" class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <script>
+            var mess = document.getElementById("messages")
+
+            setTimeout(function(){
+                mess.style.display="none";
+            },2000)
+        </script>
+    </div>
+
     <style>
 
         .box{
@@ -28,13 +52,13 @@
 
     <div style="margin: 20px; padding: 10px">
         {% for receipt in receipts %}
-                <a class="text" href="{% url 'receipts:receipt_site' receipt.id%}">
-                    <div class="box">
+                <a class="text"  href="{% url 'receipts:receipt_site' receipt.id%}">
+                    <div class="box" style="max-width: 500px; margin: 10px auto">
                         {{ receipt.receipt_name }}
                     </div>
                 </a>
         {% empty %}
-            Brak paragonów
+            <div style="text-align: center">Nie dodano jeszcze żadnego paragonu.</div>
         {% endfor %}
 
         {% if flag %}
@@ -45,48 +69,43 @@
         </div>
         {% endif %}
 
-        <div style="display: block; horiz-align: center; text-align: center">
-
-            <div style="margin-top: 40px">
-                <a href="{% url 'receipts:new_receipt' %}" style="text-decoration: none; color: black">
-                    <div style="display:inline-block;background-color: lightgrey; width: fit-content;border-radius: 20px;
-                                margin: 10px;padding: 10px">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-                          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+        <div style="margin:40px 20px 10px 20px; text-align: center">
+            <a href="{% url 'receipts:new_receipt' %}" style="text-decoration: none; color: black;text-align: center;">
+                <div id="add_btn" class="add_btn" style="display: inline; horiz-align: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5z"/>
+                          <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/>
                         </svg>
-                        Nowy paragon (OCR)
-                    </div>
-                </a>
-            </div>
-
-            <a href="{% url 'receipts:receipt_by_hand' %}" style="text-decoration: none; color: black">
-                <div style="display:inline-block; background-color: lightgrey; width: fit-content;border-radius: 20px;
-                    margin: 10px;padding: 10px">
-                       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                        </svg>
-                        Nowy paragon
+                        <span>Dodaj z OCR</span>
                 </div>
             </a>
-
         </div>
 
+        <div style="margin: 10px; text-align: center">
+            <a href="{% url 'receipts:receipt_by_hand' %}" style="text-decoration: none; color: black; text-align: center;">
+                <div id="add_btn_by_hand" class="add_btn" style="display: inline; horiz-align: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus-fill" viewBox="0 0 16 16">
+                      <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zM8.5 6v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 1 0z"/>
+                    </svg>
+                </div>
+                <span>Dodaj ręcznie</span>
+            </a>
+        </div>
     </div>
 
     <div>
-        <h2 style="text-align: center">Opłaty</h2>
+        <h2 style="text-align: center">Opłaty i wydatki</h2>
     </div>
 
     <div style="margin: 20px; padding: 10px">
         {% for expense in expenses %}
             <a class="text" href="{% url 'receipts:expense_site' expense.id%}">
-                <div class="box">
+                <div class="box" style="max-width: 500px; margin: 10px auto">
                     {{ expense.expense_name }}
                 </div>
             </a>
         {% empty %}
-            Brak wydatków
+            <div style="text-align: center">Nie dodano jeszcze żadnej opłaty.</div>
         {% endfor %}
 
         {% if flag_e %}
@@ -97,35 +116,40 @@
             </div>
         {% endif %}
 
-        <div style="margin-top: 40px">
-        <a href="{% url 'receipts:costs_by_hand' %}" style="text-decoration: none; color: black">
-            <div style="background-color: lightgrey; width: fit-content;border-radius: 20px;
-                        margin: 10px auto;padding: 10px">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+        <div id="icons_container_id" style="text-align: center;margin: 20px">
+            <a href="{% url 'receipts:costs_by_hand' %}" style="text-decoration: none; color: black;display: inline; horiz-align: center; margin-right: 20px">
+                <div id="add_btn_by_hand" class="add_btn" style="display: inline; horiz-align: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus-fill" viewBox="0 0 16 16">
+                      <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zM8.5 6v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 1 0z"/>
                     </svg>
-                    Nowy wydatek
-            </div>
-        </a>
+                </div>
+                <span>Nowa opłata</span>
+            </a>
         </div>
 
     </div>
 
 
     <div>
-        <h2 style="text-align: center">Gwarancje i terminy zwrotu</h2>
+        <h2 style="text-align: center">Terminy gwarancji i zwrotów</h2>
     </div>
 
     <div style="margin: 20px; padding: 10px">
 
-            {% for guarantee, left in info %}
+            {% for guarantee, left, flag in info %}
                     <a class="text" href="{% url 'receipts:guarantee_site' guarantee.id %}">
-                        <div class="box">
+                    {%  if flag %}
+                        <div class="box" style="max-width: 500px; margin: 10px auto; background-color: palevioletred">
                             {{ guarantee.guarantee_name }} {{ left.days }} dni
                         </div>
+                    {%  else %}
+                        <div class="box" style="max-width: 500px; margin: 10px auto">
+                            {{ guarantee.guarantee_name }} {{ left.days }} dni
+                        </div>
+                    {% endif %}
                     </a>
             {% empty %}
-                <div>Nie dodano jeszcze żadnej gwarancji.</div>
+                <div style="text-align: center">Nie dodano jeszcze żadnego terminu.</div>
             {% endfor %}
 
 
@@ -137,16 +161,15 @@
         </div>
         {% endif %}
 
-        <div style="margin-top: 40px">
-        <a href="{% url 'receipts:new_guarantee' %}" style="text-decoration: none; color: black">
-            <div style="background-color: lightgrey; width: fit-content;border-radius: 20px;
-                        margin: 10px auto;padding: 10px">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+        <div id="icons_container_id" style="text-align: center;margin: 20px">
+            <a href="{% url 'receipts:new_guarantee' %}" style="text-decoration: none; color: black;display: inline; horiz-align: center; margin-right: 20px">
+                <div id="add_btn_by_hand" class="add_btn" style="display: inline; horiz-align: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus-fill" viewBox="0 0 16 16">
+                      <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zM8.5 6v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 1 0z"/>
                     </svg>
-                    Nowa gwarancja
-            </div>
-        </a>
+                </div>
+                <span>Nowy termin</span>
+            </a>
         </div>
 
     </div>

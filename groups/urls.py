@@ -16,8 +16,12 @@ urlpatterns = [
     path('delete_group/<int:group_id>/', views.delete_group, name='delete_group'),
     path('group_deletion/<int:group_id>/', views.group_deletion, name='group_deletion'),
     path('<int:group_id>/password_check/', views.password_check, name='password_check'),
+    path('<int:group_id>/change_limit/', views.change_limit, name='change_limit'),
+    path('<int:group_id>/change_adding_possibility/', views.change_adding_possibility, name='change_adding_possibility'),
     path('<int:group_id>/not_member_of_group/', views.not_member_of_group, name='not_member_of_group'),
     path('<int:group_id>/change_invite_possibility/', views.change_invite_possibility, name='change_invite_possibility'),
     path('<int:group_id>/remove_member/<int:member_id>/', views.remove_member, name='remove_member'),
+    path('<int:group_id>/del_from_group_expenses/<int:expense_id>/', views.del_from_group_expenses, name='del_from_group_expenses'),
+    path('<int:group_id>/del_from_group_receipts/<int:receipt_id>/', views.del_from_group_receipts, name='del_from_group_receipts'),
     path('<int:group_id>/profile_not_public/', views.profile_not_public, name='profile_not_public'),
 ]
