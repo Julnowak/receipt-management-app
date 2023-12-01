@@ -45,8 +45,12 @@
     </div>
 
 
-    <div style="margin: 20px auto; text-align: center">
+    <div style="margin: 10px auto; text-align: center">
         <a style="width: 150px" href="{% url 'receipts:edit_guarantee' guarantee.id %}" class="btn btn-dark">Edytuj</a>
+    </div>
+
+    <div style="margin: 10px auto; text-align: center">
+        <a style="width: 150px" href="{% url 'receipts:edit_guarantee' guarantee.id %}" class="btn btn-dark">Przedłuż</a>
     </div>
 
 {% endblock content %}

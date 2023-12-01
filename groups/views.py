@@ -382,6 +382,7 @@ def remove_member(request, group_id, member_id):
     try:
         member = group.members.get(id=member_id)
         group.members.remove(member)
+        group.number_of_members -= 1
         messages.success(request, f"Usunięto użytkownika {member.username} z grupy.")
         group.save()
     except:
@@ -396,6 +397,7 @@ def change_invite_possibility(request, group_id):
         group.allow_invitations = False
     else:
         group.allow_invitations = True
+    messages.success(request, f"Zmieniono możliwość dodawania wydatków.")
     group.save()
     return redirect("groups:manage_group", group_id=group.id)
 
@@ -434,7 +436,7 @@ def change_adding_possibility(request, group_id):
             group.can_receipts_be_added = False
         else:
             group.can_receipts_be_added = True
-        messages.success(request, f"Zmieniono możliwość dodawania wydatków.")
+        messages.success(request, "Zmieniono możliwość dodawania wydatków")
         group.save()
     except:
         messages.error(request, "Wystąpił błąd.")
@@ -462,6 +464,6 @@ def change_limit(request, group_id):
                 messages.error(request, f"Nie udało się zmienić limitu wydatków.")
         else:
             group.limit = None
-            messages.error(request, f"Nie udało się zmienić limitu wydatków.")
+            messages.success(request, f"Zmieniono limit wydatków grupy.")
         group.save()
     return redirect("groups:manage_group", group_id=group.id)

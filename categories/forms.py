@@ -13,16 +13,18 @@ class NewCategoryForm(forms.ModelForm):
         widgets = {
             'category_name': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'min-width: 300px; max-width: 600px; margin: auto;'
+                         'border-color:black',
             }),
             'icon': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'min-width: 300px;max-width: 600px; margin: auto; border-color:black',
             }),
 
             'public': forms.CheckboxInput(attrs={
                 'class': "form-check",
-                'style': 'height:20px; width:20px',
+                'style': 'height:25px; width:25px;accent-color: black;'
+                         'border-radius: 10px',
             })
         }
 
@@ -30,8 +32,20 @@ class NewCategoryForm(forms.ModelForm):
 class NewSubCategoryForm(forms.ModelForm):
     class Meta:
         model = SubCategories
-        fields = ['subcategory_name', 'color', 'icon', 'category']
+        fields = ['subcategory_name','color', 'public']
         labels = {'subcategory_name': "Nazwa podkategorii",
-                  'category': "Kategoria",
-                  'color': 'Kolor',
-                  'icon': 'Ikona'}
+                  'color': "Kolor",
+                  'public': 'Czy podkategoria publiczna?'}
+        widgets = {
+                    'subcategory_name': forms.TextInput(attrs={
+                        'class': "form-control",
+                        'style': 'min-width: 300px; max-width: 600px; margin: auto;'
+                                 'border-color:black',
+                    }),
+
+                    'public': forms.CheckboxInput(attrs={
+                        'class': "form-check",
+                        'style': 'height:25px; width:25px;accent-color: black;'
+                                 'border-radius: 10px',
+                    })
+                }

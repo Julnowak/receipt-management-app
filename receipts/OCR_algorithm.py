@@ -198,44 +198,33 @@ def make_OCR(img):
 
     custom_config = r'--oem 1 --psm 4 -l pol'
 
-    last_conf = 0
-    corrected_img = img
-    corrected_img_second = img
-    gray = get_grayscale(corrected_img)
+    max_conf = 0
+    second_conf = 0
+    gray = get_grayscale(img)
+    corrected_img = gray
     # Rotacja obrazu w głównych kątach - wybór prawidłowej orientacji
     for angle in angles:
         print('afsf')
-        data_orig = np.array(gray)
+        data_orig = np.array(corrected_img)
         data_rot = rotation(data_orig, angle)
         _, after_img = cv2.threshold(data_rot, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
         text = pytesseract.image_to_data(after_img, output_type=Output.DICT, config=custom_config)
         conf = sum(text['conf']) / len(text['conf'])
-        if conf > last_conf:
-            if last_conf != 0:
-                corrected_img_second = corrected_img
-            last_conf = conf
+        if conf > max_conf:
+            second_conf = max_conf
+            print(second_conf)
+            max_conf = conf
+            corrected_img_second = corrected_img
             corrected_img = after_img
 
-    plt.imshow(corrected_img)
-    plt.show()
-
-    plt.imshow(corrected_img_second)
-    plt.show()
-    if abs(conf -last_conf) > 6:
+    if abs(conf -max_conf) > 6:
         result = algo(corrected_img)
-        result2 = []
+
+        return result[0], result[1]
     else:
         result = algo(corrected_img)
         result2 = algo(corrected_img_second)
+        return result[0] + result2[0], result[1] + result2[1]
 
 
-
-
-    return result[0] + result2, result[1]
-
-
-def postprocessing(text):
-    info = {}
-
-    return info

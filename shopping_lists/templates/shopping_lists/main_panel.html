@@ -1,28 +1,31 @@
 {% extends "shopping_lists/base.html" %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
     <style>
 
         body{
-            background-color: #797979;
             text-align: center
         }
 
         .basic_white{
             background-color: white;
             border-radius: 10px;
-            padding:20px;
+            padding: 20px;
             margin: 10px;
         }
 
         .chosen_one_box{
-            background-color: darkgrey;
+            background-color: lightgray;
             padding: 10px;
             margin: 5px 5px 0 5px;
             transition: 0.5s, opacity 1s;
-            border-radius: 10px 10px 0 0;
+            border-radius: 20px;
             cursor: pointer;
-            width: 15px;
+            width: 60px;
             display: inline-block;
         }
 
@@ -33,15 +36,14 @@
 
         .main_expenses_field{
             margin: 0 7px;
-            background-color: red;
             padding: 11px;
-            border-radius: 0 0 10px 10px;
+            border-radius: 10px;
 
         }
 
     </style>
 
-    <div style="color: white; margin: 20px; font-size: 20px">
+    <h1 style=" margin: 20px; word-wrap: break-word">
 
     {% if user.is_authenticated %}
         Witaj, {{ user.username }}!
@@ -49,9 +51,10 @@
         Witaj, Gościu!
     {% endif %}
 
-    </div>
+    </h1>
 
-    <div class="basic_white">
+    <div class="basic_white" style="border: 1px solid black; margin: 20px auto;min-width: 400px; max-width: 600px">
+        <h4>Wiadomości</h4>
         {% if new_messages_number == 0 %}
             <div style="display: inline; vertical-align: middle">
                 Brak nowych wiadomości
@@ -78,34 +81,31 @@
         {% endif %}
     </div>
 
-    <div class="basic_white">
-    Statystyki główne
+    <div class="basic_white" style="border: 1px solid black; margin: 20px auto;min-width: 400px; max-width: 600px">
+        <h4>Terminy</h4>
     </div>
 
-    <div class="basic_white">
+    <div class="main_expenses_field"  style="border: 1px solid black; margin: 20px auto;min-width: 400px; max-width: 600px">
         <h4>Wydatki</h4>
         <div>
-            <div id="year_box" class="chosen_one_box">Roczne</div>
+            <div id="year_box" class="chosen_one_box">
+                Roczne
+            </div>
             <div id="month_box" class="chosen_one_box">M</div>
             <div id="week_box" class="chosen_one_box">T</div>
             <div id="day_box" class="chosen_one_box"> D</div>
-            <div id="custom_box" class="chosen_one_box">W</div>
         </div>
-        <div class="main_expenses_field">
-            <h4 id="expenses_title">Content</h4>
+        <div class="basic_white" id="expenses_title">
+            {% autoescape off %}
+                {{ pie_chart }}
+            {% endautoescape %}
         </div>
-
     </div>
 
-    <div class="basic_white">
-        <h3> Pie Chart </h3>
-        {% autoescape off %}
-            {{ pie_chart }}
-        {% endautoescape %}
-    </div>
 
-    <div class="basic_white">
-        <h3> Porównaj się z innymi! </h3>
+
+    <div class="basic_white" style="border: 1px solid black; margin: 20px auto;min-width: 400px; max-width: 600px">
+        <h4> Porównaj się z innymi! </h4>
     </div>
 
     <script>
@@ -113,7 +113,6 @@
         var month_box = document.getElementById("month_box")
         var week_box = document.getElementById("week_box")
         var day_box = document.getElementById("day_box")
-        var custom_box = document.getElementById("custom_box")
         var exp_title = document.getElementById("expenses_title")
 
         var boxes = [
@@ -121,14 +120,13 @@
             month_box,
             week_box,
             day_box,
-            custom_box,
              ];
 
-        var names = ["Roczne", "Miesięczne", "Tygodniowe", "Dzienne", "Wybrane"];
-        var short_names = ["R", "M", "T", "D", "W"];
+        var names = ["Roczne", "Miesięczne", "Tygodniowe", "Dzienne"];
+        var short_names = ["R", "M", "T", "D"];
 
         year_box.style.transition = "0";
-        year_box.style.backgroundColor = "red";
+        year_box.style.backgroundColor = "slategrey";
         year_box.style.width = "100px";
         boxes.forEach((item) => {item.addEventListener('click', wrapper)});
 
@@ -138,22 +136,22 @@
 
           function on_click(box){
               var counter = 0
-              box.style.backgroundColor = "red";
+              box.style.backgroundColor = "slategrey";
               boxes.forEach((item) => {
                   if (item === box){
-                      item.style.backgroundColor = "red";
+                      item.style.backgroundColor = "slategrey";
                       item.style.width = "100px";
 
                       item.style.opacity = '100%';
                       let temp = names[counter];
                       setTimeout(function() {
                           item.innerHTML = temp
-                        }, 250);
+                        }, 400);
                   }
                   else
                   {
                       item.style.backgroundColor = "darkgray";
-                      item.style.width = "15px";
+                      item.style.width = "60px";
                       item.style.opacity = '50%';
                       item.innerHTML = short_names[counter]
                   }
@@ -164,9 +162,5 @@
 
 
     </script>
-
-    <form method="post">
-    {% csrf_token %}
-</form>
 
 {% endblock content %}

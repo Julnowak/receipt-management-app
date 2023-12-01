@@ -47,9 +47,9 @@
 
 
 
-    <form method="post" class="form_control" id="username_form" action="{% url 'change_name' %}" style="display: none">
+    <form  method="post" class="form_control" id="username_form" action="{% url 'change_name' %}" style="display: none">
     {% csrf_token %}
-        <div style=" text-align: center; margin: 20px 10px 10px">
+        <div style=" text-align: center; margin: 20px auto">
             <div>
                 Zmień nazwę:
             </div>
@@ -66,7 +66,7 @@
 
 
 
-    <div style="display: inline-block; text-align: center; margin: 30px 10px">
+    <div style="display: inline-block; margin: 30px auto">
 
         <a href="{% url 'change_image' %}" class="btn btn-dark" style="display: inline; margin: 10px 10px;padding: 10px">
             <svg style="display: inline; vertical-align: middle;margin-right: 10px" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-image-fill" viewBox="0 0 16 16">
@@ -120,12 +120,12 @@
     </script>
 
 
-    <div style="margin: 10px 20px">
-        <h3 style="font-weight:1000;">Opis</h3>
+    <div style="margin: 10px auto; min-width: 360px">
+        <h3>Opis</h3>
             {% if my_profile.text %}
-                <p style="text-align: justify">{{ my_profile.text }}</p>
+                <p style="text-align: justify;max-width: 360px; word-wrap: break-word ">{{ my_profile.text }}</p>
             {% else %}
-                <p style="text-align: center">Użytkownik nie dodał jeszcze opisu.</p>
+                <p style="text-align: justify">Użytkownik nie dodał jeszcze opisu.</p>
             {% endif %}
         <div style="text-align: center; margin-top: 40px; margin-bottom: 20px">
              <a href="{% url 'change_description' %}" class="btn btn-dark" style="display: inline; margin: 10px 10px;padding: 10px" >
@@ -140,10 +140,10 @@
         </div>
     </div>
 
-    <div style="margin: 10px 20px">
-        <h3 style="font-weight:1000;">Wiek: {{ age }} lat </h3>
+    <div style="margin: 10px auto; text-align: justify; min-width: 360px">
+        <h3>Wiek: {{ age }} lat </h3>
         {% if have_birthday %}
-            <div style="margin: 10px; text-align: center; background-color: lightgreen; padding: 10px; border-radius: 10px">
+            <div style="margin: 10px; text-align: justify; background-color: lightgreen; padding: 10px; border-radius: 10px">
                 <svg style="margin: 10px;"xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-cake" viewBox="0 0 16 16">
                   <path d="m7.994.013-.595.79a.747.747 0 0 0 .101 1.01V4H5a2 2 0 0 0-2 2v3H2a2 2 0 0 0-2 2v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a2 2 0 0 0-2-2h-1V6a2 2 0 0 0-2-2H8.5V1.806A.747.747 0 0 0 8.592.802l-.598-.79ZM4 6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v.414a.911.911 0 0 1-.646-.268 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0A.911.911 0 0 1 4 6.414V6Zm0 1.414c.49 0 .98-.187 1.354-.56a.914.914 0 0 1 1.292 0c.748.747 1.96.747 2.708 0a.914.914 0 0 1 1.292 0c.374.373.864.56 1.354.56V9H4V7.414ZM1 11a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.793l-.354.354a.914.914 0 0 1-1.293 0 1.914 1.914 0 0 0-2.707 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0L1 11.793V11Zm11.646 1.854a1.915 1.915 0 0 0 2.354.279V15H1v-1.867c.737.452 1.715.36 2.354-.28a.914.914 0 0 1 1.292 0c.748.748 1.96.748 2.708 0a.914.914 0 0 1 1.292 0c.748.748 1.96.748 2.707 0a.914.914 0 0 1 1.293 0Z"/>
                 </svg>
@@ -159,18 +159,18 @@
         {% endif %}
     </div>
 
-    <div style="margin: 10px 20px;">
-        <h3 style="font-weight:1000;">Ostatnie logowanie: </h3>
+    <div style="margin: 10px auto; text-align: justify; min-width: 360px">
+        <h3>Ostatnie logowanie: </h3>
         <h5>{{ user.last_login|date:'d.m.Y' }}</h5>
     </div>
 
-    <div style="margin: 10px 20px">
-        <h3 style="font-weight:1000;">Członek od: </h3>
+    <div style="margin: 10px auto; text-align: justify; min-width: 360px">
+        <h3>Członek od: </h3>
         <h5>{{ user.date_joined|date:'d.m.Y' }}</h5>
     </div>
 
-    <div style="margin: 10px; padding: 10px">
-        <h3 style="font-weight:1000;">Dane użytkownika</h3>
+    <div style="margin: 10px auto; text-align: justify; min-width: 360px">
+        <h3>Dane użytkownika</h3>
         <div>
             Twój obecny adres email to:
             <br>
@@ -180,7 +180,7 @@
     </div>
 
 
-    <form method="post" class="form_control" id="email_form" action="{% url 'change_email' %}" style="display: none">
+    <form method="post" class="form_control" id="email_form" action="{% url 'change_email' %}" style="display: none; margin: 10px auto">
     {% csrf_token %}
         <div style=" text-align: center">
             <div>
@@ -200,7 +200,7 @@
     </form>
 
 
-    <div style="display: inline-block; text-align: center; margin: 10px">
+    <div style="display: inline-block; text-align: center; margin: 10px auto ">
 
         <a id="change_email_id" class="btn btn-dark" style="display: inline; margin: 10px 10px;padding: 10px">
             <svg style="display: inline; vertical-align: middle;margin-right: 10px" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-envelope-at" viewBox="0 0 16 16">
@@ -245,8 +245,8 @@
         })
     </script>
 
-    <div style="margin: 10px; padding: 10px">
-        <h3 style="font-weight:1000;">Prywatność</h3>
+    <div style="margin: 30px auto; text-align: justify; min-width: 360px">
+        <h3>Prywatność</h3>
         {% if my_profile.is_public %}
             <div>
                 Twoja strona jest <b>publiczna</b>.
@@ -281,15 +281,13 @@
         </div>
     </div>
 
-    <div style="margin: 10px; padding: 10px; display: inline-block; vertical-align: middle">
-        <h3 style="font-weight:1000;">Twoja strona</h3>
+    <div style="margin: 10px auto; text-align: justify; min-width: 360px">
+        <h3>Twoja strona</h3>
         <div>
-            <div>
-                Kliknij, aby zobaczyć, jak inni widzą Twój profil.
-            </div>
+            Kliknij, aby zobaczyć, jak inni widzą Twój profil.
 
             <br>
-            <div style="text-align: center">
+            <div style="text-align: center; margin: 20px auto">
                 <a href="{% url 'profile_showcase_second' my_profile.user.id %}" class="btn btn-dark" >
                     <svg style="margin-right: 10px; display: inline-block; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person-square" viewBox="0 0 16 16">
                       <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
@@ -303,8 +301,8 @@
         </div>
     </div>
 
-    <div style="margin: 10px; padding: 10px; display: inline-block; vertical-align: middle">
-        <h3 style="font-weight:1000;">Usuń konto</h3>
+    <div style="margin: 10px auto; text-align: justify; min-width: 360px; max-width: 360px; display: inline-block; vertical-align: middle">
+        <h3>Usuń konto</h3>
         Możesz w każdej chwili usunąć konto. W bazie nie pozostaną żadne Twoje dane - wszystko zostanie
         usunięte bezpowrotnie! Bądź ostrożny, aby przypadkiem nie usunąć swoich danych.
 

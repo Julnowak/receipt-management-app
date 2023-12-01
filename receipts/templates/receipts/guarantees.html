@@ -17,12 +17,90 @@
     <div class="list-group" style="margin: 20px;">
         {% for guarantee in guarantees %}
             <a href="{% url 'receipts:guarantee_site' guarantee.id %}" style="text-decoration: none; color: black">
-                <div style=" padding: 10px" class="list-group-item list-group-item-action">
-                    {{ guarantee }}
+                <div style="vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;">
+                    <span style="vertical-align: middle">{{ guarantee }}</span>
                 </div>
             </a>
         {% endfor %}
     </div>
 
+
+    <div style="text-align:center; position: sticky; flex: 6; margin-top: auto; margin-bottom: 40px; display: flex; flex-direction: column-reverse;">
+        <div id="icons_container_id" class="icons_container">
+
+            <a href="{% url 'receipts:new_guarantee' %}" style="text-decoration: none; color: black">
+                <div id="add_btn" class="add_btn" style="display: inline; horiz-align: center; color: black">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5z"/>
+                          <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/>
+                        </svg>
+                </div>
+            </a>
+
+
+            <div id="delete_btn" class="del_btn" style="display: inline; horiz-align: center; margin-left: 20px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-minus-fill" viewBox="0 0 16 16">
+                  <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zM6 7.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1 0-1z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+
+
+          <!-- Skrypt obsługi eventów przycisków-->
+    <script>
+    var del_btn = document.getElementById("delete_btn")
+    var del_btns = document.getElementsByClassName("x_button")
+    var flag_del = true;
+
+    var add_btn = document.getElementById("add_btn")
+    var add_btn_by_hand = document.getElementById("add_btn_by_hand")
+
+    var is_from_web_checked = true;
+
+
+    $('#check_from_web').on( "click", function() {
+        if(is_from_web_checked){
+            $('#page_url').css("display","block");
+               is_from_web_checked = false;
+        }
+        else {
+            $('#page_url').css("display","none");
+               is_from_web_checked = true;
+        }
+
+    } );
+
+    del_btn.addEventListener('click', function (e) {
+        if(flag_del){
+            del_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                  </svg>`
+            for (let i = 0; i < del_btns.length; i++)
+            {
+                del_btns[i].style.display = "inline-block";
+            }
+            flag_del = false;
+            add_btn.style.pointerEvents= 'none'
+            add_btn.style.color = 'gray';
+        }
+        else
+        {
+            del_btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-minus-fill" viewBox="0 0 16 16">
+                                  <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zM6 7.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1 0-1z"/>
+                                </svg>`
+            for (let i = 0; i < del_btns.length; i++)
+            {
+                del_btns[i].style.display = "none";
+            }
+            flag_del = true;
+            add_btn.style.pointerEvents = 'auto'
+            add_btn.style.color = 'black';
+        }
+
+    })
+    </script>
 
 {% endblock content %}

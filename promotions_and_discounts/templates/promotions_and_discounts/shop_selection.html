@@ -8,22 +8,21 @@
     <h1 style="text-align: center;margin-top: 20px">Promocje</h1>
     <h3 style="text-align: center">Dostępne sklepy:</h3>
 
-    {% for shop in shops %}
-        <a href="{% url 'promotions_and_discounts:shop_site' shop.id %}" class="shops"
-           style="text-decoration: none; color: black;min-width: 300px; max-width: 500px; margin: 10px auto">
-            <div style="margin: 10px; padding: 20px; background-color: lightgray;border-radius: 10px">
-                    {{ shop }}
+    <div style="margin: 20px auto; padding: 10px; min-width: 300px; max-width: 600px">
+        {% for shop in shops %}
+            <a href="{% url 'promotions_and_discounts:shop_site' shop.id %}" style="text-decoration: none; color: black;">
+                <div style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
+                    <span style="display: inline-grid;vertical-align: middle">{{ shop }}</span>
+                </div>
+            </a>
+        {% empty %}
+            <div style="text-decoration: none; color: black;">
+                <div style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
+                    <span style="display: inline-grid;vertical-align: middle">Nie ma jeszcze dostępnych sklepów</span>
+                </div>
             </div>
-        </a>
-
-    {% empty %}
-        <div style="margin: 10px; text-align: center">
-            <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
-                Nie ma jeszcze dostępnych sklepów
-            </div>
-        </div>
-    {% endfor %}
-
+        {% endfor %}
+    </div>
 
     <div id="spinner" style="display: none; text-align: center; margin: 20px">
         <div class="spinner-border" style="margin:30px; width: 3rem; height: 3rem; color: crimson" role="status">

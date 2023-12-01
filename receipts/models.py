@@ -43,6 +43,7 @@ class Receipt(models.Model):
     products = models.ManyToManyField(Product,blank=True)
     is_starred = models.BooleanField(default=False)
     shop = models.ForeignKey(Shop, blank=True,null=True, on_delete=models.SET_NULL)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.receipt_name
@@ -59,6 +60,7 @@ class Expense(models.Model):
     number = models.PositiveIntegerField(blank=True, null=True)
     time_stamp = models.CharField(max_length=12, choices=TIME_STAMP_CHOICES,default="MIESIĘCY", blank=True, null=True)
     is_starred = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.expense_name
@@ -71,6 +73,7 @@ class Guarantee(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     regards = models.TextField(blank=True, null=True)
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, blank=True, null=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.guarantee_name

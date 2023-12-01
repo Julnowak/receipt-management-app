@@ -4,6 +4,7 @@ from datetime import datetime
 from my_messages.models import Message
 from categories.models import BaseCategories
 from receipts.models import Receipt, Guarantee, Expense
+from promotions_and_discounts.models import Shop
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.datasets import load_iris
@@ -12,9 +13,11 @@ from sklearn.datasets import load_iris
 def statistics(request):
     exps = Expense.objects.filter(owner=request.user)
     guarantees = Guarantee.objects.filter(owner=request.user)
+    shops = Shop.objects.all()
     receipts = Receipt.objects.filter(owner=request.user)
     expenses = exps.values_list("category", "amount")
     expenses_2 = exps.values_list("date_added", "amount","is_recurrent","time_stamp")
+
 
     e = pd.DataFrame(list(expenses.values_list("amount"))).sum()[0]
     g = 0
@@ -36,15 +39,30 @@ def statistics(request):
 
         fig_pie = px.pie(df2, values='amount', names='category_name', height=300, title="Wydatki stałe")
 
-        for i in df2['category_name']:
-            dropdown_buttons.append({'label': i,
-                                     'method': 'update',
-                                     'args': [{'showlegend': True}]
+        dropdown_options = []
+        for i in df2['category_name'].drop_duplicates():
+            print(i)
+            dropdown_options.append({'label': i,
+                                     "method": "update",
+                                     "args": [{"visible": i}],
                                      })
 
-        fig_pie.update_layout({
-                           'updatemenus': [{'type': 'dropdown', 'buttons': dropdown_buttons}],
-                           })
+
+        # Add dropdown to the layout
+        fig_pie.update_layout(
+            updatemenus=[
+                {
+                    'buttons': dropdown_options,
+                    'direction': 'down',
+                    'pad': {'r': 10, 't': 10},
+                    'showactive': True,
+                    'x': 0.1,
+                    'xanchor': 'left',
+                    'y': 1.1,
+                    'yanchor': 'top'
+                },
+            ],
+        )
 
         pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
 

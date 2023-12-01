@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, reverse
 from .models import ShoppingList, ListProduct
-from receipts.models import Expense
+from receipts.models import Expense, Receipt,Guarantee
 from .forms import ShoppingListForm, ProductForm
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
@@ -137,31 +137,42 @@ def edit_product(request, product_id):
 
 import plotly.express as px
 from django.shortcuts import render
-from datetime import datetime
+from datetime import datetime,date
 
 @login_required
 def main_panel(request):
-    expenses = Expense.objects.filter(owner=request.user).values_list("category","amount")
-    dates_added = Expense.objects.filter(owner=request.user).values_list( "date_added")
+    expenses = Expense.objects.filter(owner=request.user).values_list("category","amount","date_added")
+    receipts = Receipt.objects.filter(owner=request.user).values_list("receipt_categories", "amount", "date_added")
     new_messages_number = Message.objects.filter(receiver=request.user, new=True).count()
     categories = BaseCategories.objects.values_list("id","category_name")
 
-    if request.method == 'POST' and 'run_script' in request.POST:
-        now = datetime.today()
-        uk = now - dates_added[3][0].replace(tzinfo=None)
-        # return user to required page
-        return redirect(reverse("main_panel"))
-
-
+    df = pd.DataFrame(list(expenses))
+    df_rec = pd.DataFrame(list(receipts))
+    df.columns = ['category', 'amount', "date_added"]
+    df_rec.columns = ['category', 'amount', "date_added"]
+    # new = pd.concat([df, df_rec])
+    # print(new)
+    # for i in range(len(new)):
+    #     print(i)
+    #     print(str(new.loc[i, 'date_added']))
+    # print(new["date_added"])
 
     # Pie Chart
+    df_temp = pd.DataFrame(list(categories))
+    df_temp.columns = ['category', 'category_name']
+    df2 = pd.merge(df, df_temp, on=['category'])
+
+
     try:
-        df = pd.DataFrame(list(expenses))
-        df.columns = ['category','amount']
-        df_temp = pd.DataFrame(list(categories))
-        df_temp.columns = ['category', 'category_name']
-        df2 = pd.merge(df, df_temp, on=['category'])
-        fig_pie = px.pie(df2, values='amount', names='category_name', height=300,title="Wydatki stałe")
+
+        for i in range(len(df2)):
+            df2.loc[i, 'date_added'] = date(int(str(df2.loc[i, 'date_added'])[:4]),
+                                            int(str(df2.loc[i, 'date_added'])[5:7]),
+                                            int(str(df2.loc[i, 'date_added'])[8:10]))
+
+        print(df2[(df2["date_added"] > date(2023,11,1))])
+
+        fig_pie = px.pie(df2, values='amount', names='category_name', height=300)
 
         pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
 

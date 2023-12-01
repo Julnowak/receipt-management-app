@@ -14,32 +14,33 @@
 
     <h1 style="margin-top: 20px">Nowa kategoria</h1>
 
-    <form action="{% url 'categories:new_category' %}" method="post" style="margin: 10px;padding: 10px">
+    <form style="margin: 20px auto" id="form" action="{% url 'categories:new_category' %}" method="post" style="margin: 10px;padding: 10px">
         {% csrf_token %}
-        <div>
+        <div style="margin: 20px auto">
             {{ form.category_name.label }}
             {{ form.category_name }}
         </div>
 
-        <div>
+        <div style="margin: 20px auto">
             {{ form.icon.label }}
             {{ form.icon }}
         </div>
 
         {% if user.is_superuser %}
-        <div>
-            {{ form.public }}{{ form.public.label }}
+        <div style="margin: 40px auto; display: inline">
+            <span style="vertical-align: middle; display: inline-block">{{ form.public }}</span>
+            <span style="vertical-align: middle; display: inline-block; margin-left: 20px">{{ form.public.label }}</span>
         </div>
         {% endif %}
 
-        <div>
+        <div style="margin: 30px auto">
             <label class="form-label">Kolor
-                <input name="color" type="color" class="form-control form-control-color" id="exampleColorInput" value="#563d7c" title="Choose your color">
+                <input style="border-color: black; width: 100px;" name="color" type="color" class="form-control form-control-color" id="color" value="#797979" title="Choose your color">
             </label>
         </div>
-
-        <div style="text-align: center;">
-            <button name="post_btn" style="width: 150px" type="submit" class="btn btn-dark">Utwórz</button>
-        </div>
     </form>
+
+    <div style="text-align: center;">
+        <button form="form" name="post_btn" style="width: 150px" type="submit" class="btn btn-dark">Utwórz</button>
+    </div>
 {% endblock content %}

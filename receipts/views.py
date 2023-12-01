@@ -16,6 +16,8 @@ from collections import Counter
 from promotions_and_discounts.models import Shop
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from receipts.OCR_algorithm import *
+import timeit
+from autocorrect import Speller
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 poppler_path = r"C:\path\to\poppler-xx\bin"
@@ -40,16 +42,17 @@ def your_receipts(request):
     else:
         flag_g = False
 
-    receipts = Receipt.objects.filter(owner=request.user).order_by("-id")[:5]
-    expenses = Expense.objects.filter(owner=request.user).order_by("-id")[:5]
-    guarant = Guarantee.objects.filter(owner=request.user)
+    receipts = Receipt.objects.filter(owner=request.user,is_deleted=False).order_by("-id")[:5]
+    expenses = Expense.objects.filter(owner=request.user,is_deleted=False).order_by("-id")[:5]
+    guarant = Guarantee.objects.filter(owner=request.user,is_deleted=False)
     left = []
     flags = []
     for guarantee in guarant:
         result = guarantee.end_date - datetime.date.today()
         if int(result.days) < 0:
-            guarant.get(id=guarantee.id).delete()
-            guarant.delete()
+            g = guarant.get(id=guarantee.id)
+            g.is_deleted = True
+            g.save()
         else:
             left.append(result)
 
@@ -57,7 +60,7 @@ def your_receipts(request):
                 flags.append(True)
             else:
                 flags.append(False)
-    guarant = Guarantee.objects.filter(owner=request.user)[:5]
+    guarant = Guarantee.objects.filter(owner=request.user,is_deleted=False)[:5]
 
     info = zip(guarant, left, flags)
     info = sorted(list(info), key=lambda x: x[1], reverse=False)
@@ -83,6 +86,7 @@ def new_receipt(request):
     return render(request, 'receipts/new_receipt.html', {'form': form})
 
 
+@login_required
 def costs_by_hand(request):
     profile = ProfileInfo.objects.get(user=request.user)
     groups = CommonGroups.objects.filter(members__username=request.user.username)
@@ -121,11 +125,22 @@ def costs_by_hand(request):
 
 @login_required
 def guarantees(request):
-    guarantees = Guarantee.objects.filter(owner=request.user)
+    guarantees = Guarantee.objects.filter(owner=request.user, is_deleted=False)
+
+    page_number = request.GET.get('page', 1)
+    p = Paginator(guarantees, 4)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
     left = None
     for guarantee in guarantees:
         left = guarantee.end_date - datetime.date.today()
-    context = {'guarantees': guarantees, 'time_left': left}
+    context = {'guarantees': guarantees, 'time_left': left,'pages': pages}
     return render(request, 'receipts/guarantees.html', context)
 
 
@@ -185,8 +200,9 @@ def new_guarantee(request):
     return render(request, 'receipts/new_guarantee.html', context)
 
 
+@login_required
 def receipts_page(request):
-    receipts = Receipt.objects.filter(owner=request.user).order_by('-date_added')
+    receipts = Receipt.objects.filter(owner=request.user, is_deleted=False).order_by('-date_added')
 
     page_number = request.GET.get('page', 1)
     p = Paginator(receipts, 8)
@@ -202,18 +218,32 @@ def receipts_page(request):
     return render(request, 'receipts/receipts_page.html', context)
 
 
+@login_required
 def expenses_page(request):
-    expenses = Expense.objects.filter(owner=request.user).order_by('-date_added')
-    context = {'expenses': expenses}
+    expenses = Expense.objects.filter(owner=request.user, is_deleted=False).order_by('-date_added')
+
+    page_number = request.GET.get('page', 1)
+    p = Paginator(expenses, 4)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
+    context = {'expenses': expenses, 'pages': pages}
     return render(request, 'receipts/expenses_page.html', context)
 
 
+@login_required
 def expense_site(request, expense_id):
     expense = Expense.objects.get(id=expense_id)
     context = {'expense': expense, 'user': request.user}
     return render(request, 'receipts/expense_site.html', context)
 
 
+@login_required
 def guarantee_site(request, guarantee_id):
     guarantee = Guarantee.objects.get(id=guarantee_id)
     context = {'guarantee': guarantee, 'days_left': (guarantee.end_date - datetime.date.today()).days,
@@ -221,21 +251,45 @@ def guarantee_site(request, guarantee_id):
     return render(request, 'receipts/guarantee_site.html', context)
 
 
+@login_required
 def receipt_by_hand(request):
+    groups = CommonGroups.objects.filter(members__username=request.user.username)
+    profile = ProfileInfo.objects.get(user=request.user)
     if request.method == 'POST':
         form = HandReceiptForm(request.POST, request.FILES)
 
         if form.is_valid():
+            g = groups.get(id=int(form.data['group']))
             new_rec = form.save(commit=False)
-            new_rec.owner = request.user
-            new_rec.save()
-            return redirect('receipts:your_receipts')
+
+            if g.can_receipts_be_added:
+                suma = sum(list(i[0] for i in g.expense_set.values_list('amount'))) + sum(
+                    list(i[0] for i in g.receipt_set.values_list('amount')))
+                if g.limit and float(suma) + float(form.data['amount']) <= g.limit:
+                    new_rec.owner = request.user
+                    form.save()
+                    profile.how_many_receipts += 1
+                    profile.save()
+                    new_rec.save()
+                    messages.success(request, f"Dodano opłatę.")
+                    return redirect('receipts:your_receipts')
+                elif not g.limit:
+                    new_rec.owner = request.user
+                    form.save()
+                    profile.how_many_receipts += 1
+                    profile.save()
+                    new_rec.save()
+                    messages.success(request, f"Dodano opłatę.")
+                    return redirect('receipts:your_receipts')
+                else:
+                    messages.error(request, f"Przekroczono limit grupy.")
     else:
         form = HandReceiptForm()
     context = {'form': form}
     return render(request, 'receipts/receipt_by_hand.html', context)
 
 
+@login_required
 def edit_expense(request, expense_id):
     exp = Expense.objects.get(id=expense_id)
 
@@ -251,6 +305,7 @@ def edit_expense(request, expense_id):
     return render(request, 'receipts/edit_expense.html', context)
 
 
+@login_required
 def edit_guarantee(request, guarantee_id):
     guar = Guarantee.objects.get(id=guarantee_id)
     if request.method == 'POST':
@@ -264,6 +319,7 @@ def edit_guarantee(request, guarantee_id):
     return render(request, 'receipts/edit_guarantee.html', context)
 
 
+@login_required
 def edit_receipt(request, receipt_id):
     rec = Receipt.objects.get(id=receipt_id)
     if request.method == 'POST':
@@ -275,6 +331,22 @@ def edit_receipt(request, receipt_id):
         form = ReceiptForm(instance=rec)
     context = {'form': form, 'receipt': rec}
     return render(request, 'receipts/edit_receipt.html', context)
+
+
+@login_required
+def delete_receipt(request, receipt_id):
+    rec = Receipt.objects.get(id=receipt_id)
+    rec.is_deleted = True
+    rec.save()
+    return redirect("receipts:your_receipts")
+
+
+@login_required
+def delete_expense(request, expense_id):
+    exp = Expense.objects.get(id=expense_id)
+    exp.is_deleted = True
+    exp.save()
+    return redirect("receipts:your_receipts")
 
 
 def rotate(image, angle, center=None, scale=0.8):
@@ -289,10 +361,8 @@ def rotate(image, angle, center=None, scale=0.8):
 
     return rotated
 
-import timeit
-from autocorrect import Speller
 
-
+@login_required
 def OCR_site(request, receipt_id):
     receipt = Receipt.objects.get(id=receipt_id)
     products = Product.objects.values_list('product_name')
@@ -394,9 +464,8 @@ def OCR_site(request, receipt_id):
                 if get_close_matches("sprzedaż", elem_list) or get_close_matches("suma", elem_list):
                     flag = False
 
+                print(elem)
                 if flag:
-                    print("========")
-                    print(elem)
                     potencjalne_produkty.append(elem)
 
                 for e in elem_list:
@@ -469,7 +538,7 @@ def OCR_site(request, receipt_id):
 
                         list_of_dates.append(date_bought)
 
-                if "suma" in elem.lower() or "do zapłaty" in elem.lower() or "gotówka" in elem.lower() or "sprzedaż" in elem.lower():
+                if "suma" in elem.lower() or get_close_matches("suma", elem_list) or "do zapłaty" in elem.lower() or "gotówka" in elem.lower() or "karta" in elem.lower():
                     suma = elem
                     try:
                         if "," in suma:
@@ -479,14 +548,14 @@ def OCR_site(request, receipt_id):
                             s = re.findall(f"(\d+\\.\d+)", suma)[0]
                             amo.append(float(s))
                         try:
-                            if "pln" in elem.lower():
+                            if "pln" in elem.lower() or get_close_matches("pln", elem_list):
                                 amo.append(float(s))
                                 amo.append(float(s))
                         except:
                             pass
                     except IndexError:
                         pass
-
+            print(amo)
 
 
             try:
@@ -523,7 +592,62 @@ def OCR_site(request, receipt_id):
                'potencjalne_produkty': potencjalne_produkty, 'text': text}
     return render(request, 'receipts/OCR_site.html', context)
 
+
+@login_required
 def receipt_data_read(request, receipt_id):
-    receipt = Receipt.objects.get(id=receipt_id)
+    receipt = Receipt.objects.get(id=receipt_id,is_deleted=False)
     context = {'receipt': receipt}
     return render(request, 'receipts/receipt_data_read.html', context)
+
+
+####### Przekierowania #####
+@login_required
+def receipt_site_from_mainpage(request, receipt_id):
+    receipt = get_object_or_404(Receipt, pk=receipt_id,is_deleted=False)
+    categs = receipt.receipt_categories.all()
+    prods = receipt.products.all()
+    poten_prods = receipt.receipt_text_read_by_OCR[2]
+
+    guars = receipt.guarantee_set.all()
+
+    context = {'receipt': receipt, 'receipt_categoreis': categs, 'receipt_products': prods, 'user': request.user,
+               'poten_prods': poten_prods, 'guarantees': guars}
+    return render(request, 'receipts/receipt_site_from_mainpage.html', context)
+
+
+@login_required
+def receipt_site_from_grouppage(request, receipt_id, group_id):
+    group = CommonGroups.objects.get(id=group_id,is_deleted=False)
+    receipt = get_object_or_404(Receipt, pk=receipt_id,is_deleted=False)
+    categs = receipt.receipt_categories.all()
+    prods = receipt.products.all()
+    poten_prods = receipt.receipt_text_read_by_OCR[2]
+
+    guars = receipt.guarantee_set.all()
+
+    context = {'receipt': receipt, 'receipt_categoreis': categs, 'receipt_products': prods, 'user': request.user,
+               'poten_prods': poten_prods, 'guarantees': guars, 'group': group}
+    return render(request, 'receipts/receipt_site_from_grouppage.html', context)
+
+
+@login_required
+def expense_site_from_mainpage(request, expense_id):
+    expense = Expense.objects.get(id=expense_id,is_deleted=False)
+    context = {'expense': expense, 'user': request.user}
+    return render(request, 'receipts/expense_site_from_mainpage.html', context)
+
+
+@login_required
+def expense_site_from_grouppage(request, expense_id, group_id):
+    group = CommonGroups.objects.get(id=group_id,is_deleted=False)
+    expense = Expense.objects.get(id=expense_id,is_deleted=False)
+    context = {'expense': expense, 'user': request.user, 'group': group}
+    return render(request, 'receipts/expense_site_from_mainpage.html', context)
+
+
+@login_required
+def guarantee_site_from_mainpage(request, guarantee_id):
+    guarantee = Guarantee.objects.get(id=guarantee_id,is_deleted=False)
+    context = {'guarantee': guarantee, 'days_left': (guarantee.end_date - datetime.date.today()).days,
+               'user': request.user}
+    return render(request, 'receipts/guarantee_site_from_mainpage.html', context)

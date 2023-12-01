@@ -12,10 +12,9 @@
             </svg>
         </div>
     </a>
+    <h1 style="text-align: center; margin-top: 20px">Profil użytkownika</h1>
 
-    <h2 style="text-align: center; margin-top: 20px">Profil użytkownika</h2>
-
-    <div style="display:inline-block; width: fit-content; text-align: center; margin: 20px auto 0 auto;" class="profile_image_div" id="prof_div">
+    <div style="display:inline-block; width: fit-content; text-align: center; margin: 20px auto 20px auto;" class="profile_image_div" id="prof_div">
         {% if my_profile.profile_image %}
             <div id="img_prof" style="display:inline-block;background-color: {{ my_profile.profile_image_background_color }}; border-radius: 82px; margin: auto; padding: 20px; color: {{ my_profile.profile_image_color }};">
                 {{ img|safe }}
@@ -30,8 +29,7 @@
     </div>
 
         {% if user.is_superuser %}
-        <div style="padding: 20px 30px;background-color: goldenrod; border-radius: 10px; margin: 10px auto 10px auto; width: fit-content">
-
+        <div style="padding: 20px 30px; background-color: goldenrod; border-radius: 10px;  margin: 10px auto 10px auto; width: fit-content">
             <div style="display: inline-block; vertical-align: middle">
                 <svg style="display: inline; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
                   <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>
@@ -42,16 +40,16 @@
                 Admin
             </h5>
         </div>
-    {% endif %}
+        {% endif %}
 
 
     <div style="margin: 20px; text-align: center">
         <div style="margin: 20px">
-            <h3 style="font-weight:1000;">Opis: </h3>
+            <h3 style="font-weight:1000;">Opis</h3>
             {% if my_profile.text %}
-                <p style="text-align: justify">{{ my_profile.text }}</p>
+                <p style="text-align: justify;margin: 0 auto; max-width: 400px; word-wrap: break-word">{{ my_profile.text }}</p>
             {% else %}
-                <p style="text-align: center">Użytkownik nie dodał jeszcze opisu.</p>
+                <p style="text-align: center;margin: 0 auto;">Użytkownik nie dodał jeszcze opisu.</p>
             {% endif %}
         </div>
 
@@ -59,12 +57,11 @@
             <h3 style="font-weight:1000;">Wiek: {{ age }} lat</h3>
             {% if have_birthday %}
                 <div style="margin: 10px; text-align: center; background-color: lightgreen; padding: 10px; border-radius: 10px">
-                    <svg style="margin: 10px;"xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-cake" viewBox="0 0 16 16">
+                    <svg style="margin: 10px;" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-cake" viewBox="0 0 16 16">
                       <path d="m7.994.013-.595.79a.747.747 0 0 0 .101 1.01V4H5a2 2 0 0 0-2 2v3H2a2 2 0 0 0-2 2v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a2 2 0 0 0-2-2h-1V6a2 2 0 0 0-2-2H8.5V1.806A.747.747 0 0 0 8.592.802l-.598-.79ZM4 6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v.414a.911.911 0 0 1-.646-.268 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0A.911.911 0 0 1 4 6.414V6Zm0 1.414c.49 0 .98-.187 1.354-.56a.914.914 0 0 1 1.292 0c.748.747 1.96.747 2.708 0a.914.914 0 0 1 1.292 0c.374.373.864.56 1.354.56V9H4V7.414ZM1 11a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.793l-.354.354a.914.914 0 0 1-1.293 0 1.914 1.914 0 0 0-2.707 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0L1 11.793V11Zm11.646 1.854a1.915 1.915 0 0 0 2.354.279V15H1v-1.867c.737.452 1.715.36 2.354-.28a.914.914 0 0 1 1.292 0c.748.748 1.96.748 2.708 0a.914.914 0 0 1 1.292 0c.748.748 1.96.748 2.707 0a.914.914 0 0 1 1.293 0Z"/>
                     </svg>
                         <div>
                             Użytkownik ma dzisiaj urodziny!
-
                         </div>
 
                 </div>

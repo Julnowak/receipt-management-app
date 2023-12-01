@@ -20,7 +20,7 @@
                     <div>
                         <h5>
                             {% if group.owner == user %}
-                            <a style="text-decoration: none; color: #292929" href="{% url 'receipts:receipt_site' receipt.id %}">{{receipt.receipt_name}}</a>
+                            <a style="text-decoration: none; color: #292929" href="{% url 'receipts:receipt_site_from_grouppage' receipt.id group.id %}">{{receipt.receipt_name}}</a>
                             {% else %}
                                 {{receipt.receipt_name}}
                             {% endif %}
@@ -97,7 +97,7 @@
                 <div style="display: inline-block; vertical-align: middle;margin: 20px auto">
                     <h5>
                         {% if group.owner == user %}
-                        <a style="text-decoration: none; color: #292929" href="{% url 'receipts:expense_site' expense.id %}">{{expense.expense_name}}</a>
+                        <a style="text-decoration: none; color: #292929" href="{% url 'receipts:expense_site_from_grouppage' expense.id group.id %}">{{expense.expense_name}}</a>
                         {% else %}
                             {{expense.expense_name}}
                         {% endif %}

@@ -30,12 +30,6 @@
 
     <style>
 
-        .box{
-            background-color: gainsboro;
-            padding: 10px;
-            margin: 10px;
-        }
-
         .text{
             color: black;
             text-decoration: none;
@@ -45,18 +39,29 @@
 
 
     <div>
-        <h2 style="text-align: center; margin-top: 20px">Paragony</h2>
+        <h1 style="text-align: center; margin-top: 20px">Paragony</h1>
     </div>
 
     <div>
 
-    <div style="margin: 20px; padding: 10px">
+    <div style="margin: 20px auto; padding: 10px; max-width: 600px">
         {% for receipt in receipts %}
-                <a class="text"  href="{% url 'receipts:receipt_site' receipt.id%}">
-                    <div class="box" style="max-width: 500px; margin: 10px auto">
-                        {{ receipt.receipt_name }}
+            {% if receipt.is_starred %}
+                <a href="{% url 'receipts:receipt_site_from_mainpage' receipt.id %}" style="text-decoration: none; color: black;">
+                    <div style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
+                        <span style="display: inline-grid;vertical-align: middle">{{ receipt }}</span>
+                        <svg style="display: inline-grid;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" color="goldenrod" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                          <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                        </svg>
                     </div>
                 </a>
+            {% else %}
+                <a href="{% url 'receipts:receipt_site_from_mainpage' receipt.id %}" style="text-decoration: none; color: black">
+                    <div style="vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;">
+                        <span style="vertical-align: middle">{{ receipt }}</span>
+                    </div>
+                </a>
+            {% endif %}
         {% empty %}
             <div style="text-align: center">Nie dodano jeszcze żadnego paragonu.</div>
         {% endfor %}
@@ -97,13 +102,24 @@
         <h2 style="text-align: center">Opłaty i wydatki</h2>
     </div>
 
-    <div style="margin: 20px; padding: 10px">
+    <div style="margin: 20px auto; padding: 10px; max-width: 600px">
         {% for expense in expenses %}
-            <a class="text" href="{% url 'receipts:expense_site' expense.id%}">
-                <div class="box" style="max-width: 500px; margin: 10px auto">
-                    {{ expense.expense_name }}
-                </div>
-            </a>
+            {% if expense.is_starred %}
+                <a href="{% url 'receipts:expense_site_from_mainpage' expense.id %}" style="text-decoration: none; color: black;">
+                    <div style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
+                        <span style="display: inline-grid;vertical-align: middle">{{ expense }}</span>
+                        <svg style="display: inline-grid;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" color="goldenrod" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                          <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                        </svg>
+                    </div>
+                </a>
+            {% else %}
+                <a href="{% url 'receipts:expense_site_from_mainpage' expense.id %}" style="text-decoration: none; color: black">
+                    <div style="vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;">
+                        <span style="vertical-align: middle">{{ expense }}</span>
+                    </div>
+                </a>
+            {% endif %}
         {% empty %}
             <div style="text-align: center">Nie dodano jeszcze żadnej opłaty.</div>
         {% endfor %}
@@ -134,20 +150,22 @@
         <h2 style="text-align: center">Terminy gwarancji i zwrotów</h2>
     </div>
 
-    <div style="margin: 20px; padding: 10px">
+    <div style="margin: 20px auto; padding: 10px; max-width: 600px">
 
             {% for guarantee, left, flag in info %}
-                    <a class="text" href="{% url 'receipts:guarantee_site' guarantee.id %}">
+                    <a class="text" href="{% url 'receipts:guarantee_site_from_mainpage' guarantee.id %}" style="text-decoration: none; color: black">
                     {%  if flag %}
-                        <div class="box" style="max-width: 500px; margin: 10px auto; background-color: palevioletred">
-                            {{ guarantee.guarantee_name }} {{ left.days }} dni
+                        <div style="display: grid;grid-template: auto/ 90% 10%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid #d05980; background-color: palevioletred" >
+                            <span style="display: inline-grid;vertical-align: middle">{{ guarantee.guarantee_name }}</span>
+                            <span style="display: inline-grid;vertical-align: middle">{{ left.days }} dni</span>
                         </div>
                     {%  else %}
-                        <div class="box" style="max-width: 500px; margin: 10px auto">
-                            {{ guarantee.guarantee_name }} {{ left.days }} dni
+                        <div style="vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;">
+                            <span style="vertical-align: middle">{{ guarantee.guarantee_name }} {{ left.days }} dni</span>
                         </div>
                     {% endif %}
                     </a>
+
             {% empty %}
                 <div style="text-align: center">Nie dodano jeszcze żadnego terminu.</div>
             {% endfor %}
@@ -173,15 +191,18 @@
         </div>
 
     </div>
-        <a href="{% url 'categories:categories' %}" style="text-decoration: none; color: black">
-            <div style="background-color: lightgrey; width: fit-content;border-radius: 20px;
-                        margin: 10px auto;padding: 10px">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-grid-3x3-gap" viewBox="0 0 16 16">
-                      <path d="M4 2v2H2V2h2zm1 12v-2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V7a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 10v-2a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V7a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V2a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 2v2H7V2h2zm5 0v2h-2V2h2zM4 7v2H2V7h2zm5 0v2H7V7h2zm5 0h-2v2h2V7zM4 12v2H2v-2h2zm5 0v2H7v-2h2zm5 0v2h-2v-2h2zM12 1a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zm-1 6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2z"/>
-                    </svg>
-                    Kategorie
-            </div>
-        </a>
+
     </div>
 
+    <a href="{% url 'categories:categories' %}" style="text-decoration: none; color: black">
+        <div style="min-width:100%;background-color: lightgrey;border-radius: 100%/140px 140px 0 0;
+                    margin: 0 auto;padding: 20px;text-align: center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-grid-3x3-gap" viewBox="0 0 16 16">
+                  <path d="M4 2v2H2V2h2zm1 12v-2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V7a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 10v-2a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V7a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V2a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 2v2H7V2h2zm5 0v2h-2V2h2zM4 7v2H2V7h2zm5 0v2H7V7h2zm5 0h-2v2h2V7zM4 12v2H2v-2h2zm5 0v2H7v-2h2zm5 0v2h-2v-2h2zM12 1a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zm-1 6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2z"/>
+                </svg>
+            <span style="margin-left: 10px">
+                Kategorie
+            </span>
+        </div>
+    </a>
 {% endblock content %}

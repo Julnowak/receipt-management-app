@@ -1,7 +1,4 @@
 {% extends "shopping_lists/base.html" %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
@@ -23,12 +20,47 @@
             cursor: pointer;
         }
 
+        .color_block_noclick{
+            width: 150px;
+            height: 90%;
+            border-radius: 10px;
+            margin: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+
         .color_block:hover{
             filter: brightness(85%);
             transition: 0.5s;
         }
 
     </style>
+
+    <div>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                     <div id="messages" class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% else %}
+                     <div id="messages" class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <script>
+            var mess = document.getElementById("messages")
+
+            setTimeout(function(){
+                mess.style.display="none";
+            },2000)
+        </script>
+    </div>
+
 
     <a href="{% url 'receipts:your_receipts' %}">
         <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
@@ -43,8 +75,8 @@
     </div>
 
     <h2 style="margin-top: 20px">Główne</h2>
-    <div style="display: grid; grid-template: auto/ auto auto; justify-content: center; margin: 10px">
-        {% for cat in cat_public%}
+    <div style="display: grid; grid-template: 33% 33% 33%/ auto auto; height: 300px; justify-content: center; margin: 10px">
+        {% for cat in pages_public %}
 
             <a style="text-decoration: none; color: black;padding: 5px " href="{% url 'categories:subcategories' cat.id %} " >
 
@@ -57,14 +89,51 @@
             </a>
 
         {% empty %}
-            <p>Brak głównych kategorii.</p>
-
+           <div class="color_block_noclick" style="width:300px;background-color: lightgrey;padding: 10px">
+                <span style="margin: 0 auto;">Brak głównych kategorii.</span>
+            </div>
         {% endfor %}
 
     </div>
 
+    <div style="text-align: center; margin: 10px auto">
+        {% if pages_public.has_other_pages %}
+          <ul class="pagination">
+            {% if pages_public.has_previous %}
+              <li><a style="text-decoration: none; color: black" href="?page={{ pages_public.previous_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+
+              <li class="active" style="margin:0 20px"><span>{{ pages_public.number }}/{{ pages_public.paginator.num_pages }} <span class="sr-only"></span></span></li>
+
+            {% if pages_public.has_next %}
+              <li><a style="text-decoration: none; color: black" href="?page={{ pages_public.next_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+          </ul>
+        {% endif %}
+    </div>
+
     <h2>Własne</h2>
-    <div style="display: grid; grid-template-columns: auto auto auto; grid-template-rows: auto auto auto;  justify-content: center">
+    <div style="display: grid; grid-template: 33% 33% 33%/ auto auto; height: 300px; justify-content: center; margin: 10px">
         {% for cat in cat_private %}
             <a style="text-decoration: none; color: black" href="{% url 'categories:subcategories' cat.id %} " >
 
@@ -76,14 +145,58 @@
 
             </a>
         {% empty %}
-            <p>Brak własnych kategorii.</p>
-
+           <div class="color_block_noclick" style="width:300px;background-color: lightgrey;padding: 10px">
+                <span style="margin: 0 auto;">Brak własnych kategorii.</span>
+            </div>
         {% endfor %}
     </div>
 
-    <div style="text-align: center; margin: 20px">
-        <a href="{% url 'categories:new_category' %}" class="btn btn-dark" >Dodaj kategorię</a>
+    <div style="text-align: center; margin: 10px auto">
+        {% if pages_private.has_other_pages %}
+          <ul class="pagination">
+            {% if pages_private.has_previous %}
+              <li><a style="text-decoration: none; color: black" href="?page={{ pages_private.previous_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+
+              <li class="active" style="margin:0 20px"><span>{{ pages_private.number }}/{{ pages_private.paginator.num_pages }} <span class="sr-only"></span></span></li>
+
+            {% if pages_private.has_next %}
+              <li><a style="text-decoration: none; color: black" href="?page={{ pages_private.next_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+          </ul>
+        {% endif %}
     </div>
 
+    <div id="icons_container_id" style="text-align: center; margin: 20px;">
+        <a href="{% url 'categories:new_category' %}" style="text-decoration: none; color: black;display: inline; horiz-align: center; margin-right: 20px">
+            <div style="display: inline; horiz-align: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5z"/>
+                  <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/>
+                </svg>
+            </div>
+            <span style="margin-left: 10px">Dodaj kategorię</span>
+        </a>
+    </div>
 
 {% endblock content %}

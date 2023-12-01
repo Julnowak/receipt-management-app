@@ -21,11 +21,11 @@ class BaseCategories(models.Model):
 
 class SubCategories(models.Model):
     subcategory_name = models.CharField(max_length=200)
-    color = models.CharField(max_length=7)
+    color = models.CharField(max_length=7, blank=True, null=True)
     date_added = models.DateField(auto_now_add=True)
-    icon = models.CharField(max_length=1500, default="", blank=True)
-    category = models.ForeignKey(BaseCategories, on_delete=models.CASCADE, null=True)
-    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subcategory_owner', blank=True, null=True)
+    icon = models.CharField(max_length=1500, default="", blank=True, null=True)
+    category = models.ForeignKey(BaseCategories, on_delete=models.CASCADE, null=True, blank=True,)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subcategory_owner', null=True, blank=True,)
     public = models.BooleanField(default=False)
 
     class Meta:
