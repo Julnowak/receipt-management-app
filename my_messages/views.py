@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from .models import Message, User
 from groups.models import CommonGroups
 from .forms import NewMessageForm
-from django.template.defaultfilters import slugify
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
@@ -245,6 +244,7 @@ def delete_messages(request):
             elif request.user == mes.receiver:
                 mes.is_seen_by_receiver = False
             mes.save()
+            messages.success(request, "Usunięto wiadomości")
         return redirect("my_messages:your_messages")
 
 
@@ -254,6 +254,7 @@ def delete_sent_messages(request):
         keys = list(request.POST.keys())[1:]
         for key_id in keys:
             Message.objects.get(id=int(key_id)).delete()
+        messages.success(request, "Usunięto wiadomość")
         return redirect("my_messages:message_sent")
 
 
@@ -319,6 +320,8 @@ def delete_all(request):
     for mr in messages_received:
         mr.is_seen_by_receiver = False
         mr.save()
+
+    messages.success(request, "Usunięto wiadomości")
 
     return redirect("my_messages:your_messages")
 

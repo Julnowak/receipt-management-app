@@ -19,7 +19,8 @@
         }
 
         .chosen_one_box{
-            background-color: lightgray;
+            background-color: white;
+            border: 1px solid lightgrey;
             padding: 10px;
             margin: 5px 5px 0 5px;
             transition: 0.5s, opacity 1s;
@@ -81,9 +82,62 @@
         {% endif %}
     </div>
 
-    <div class="basic_white" style="border: 1px solid black; margin: 20px auto;min-width: 400px; max-width: 600px">
+    <div class="basic_white" style="border: 1px solid black; margin: 20px auto;min-width: 400px; max-width: 600px;">
         <h4>Terminy</h4>
+        {%  for left, deadline in pages %}
+            <a class="text" href="#" style="text-decoration: none; color: black; text-align: justify">
+                <div style="display: grid;grid-template: auto/ 80% 20%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid grey;" >
+                    <span style="display: inline-grid;vertical-align: middle; word-wrap: break-word">{{ deadline.guarantee_name }}</span>
+                    <span style="color:red; display: inline-grid;vertical-align: middle">
+                        {% if left == 0 %}
+                            Dzisiaj!
+                        {% else %}
+                            {{ left }} dni
+                        {% endif %}
+                    </span>
+                </div>
+            </a>
+        {% empty %}
+            Brak nadciągających terminów
+        {% endfor %}
+
+        <div style="text-align: center; margin: 10px auto; display: inline-block">
+            {% if pages.has_other_pages %}
+              <ul class="pagination" >
+                {% if pages.has_previous %}
+                  <li><a style="text-decoration: none; color: black" href="?page={{ pages.previous_page_number }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                    </svg>
+                  </a></li>
+                {% else %}
+                  <li class="disabled"><span>
+                    <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                    </svg>
+                  </span></li>
+                {% endif %}
+
+                  <li class="active" style="margin:0 20px"><span>{{ pages.number }}/{{ pages.paginator.num_pages }} <span class="sr-only"></span></span></li>
+
+                {% if pages.has_next %}
+                  <li><a style="text-decoration: none; color: black" href="?page={{ pages.next_page_number }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                    </svg>
+                  </a></li>
+                {% else %}
+                  <li class="disabled"><span>
+                    <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                    </svg>
+                  </span></li>
+                {% endif %}
+              </ul>
+            {% endif %}
+        </div>
     </div>
+
 
     <div class="main_expenses_field"  style="border: 1px solid black; margin: 20px auto;min-width: 400px; max-width: 600px">
         <h4>Wydatki</h4>
@@ -95,17 +149,36 @@
             <div id="week_box" class="chosen_one_box">T</div>
             <div id="day_box" class="chosen_one_box"> D</div>
         </div>
+
         <div class="basic_white" id="expenses_title">
-            {% autoescape off %}
-                {{ pie_chart }}
-            {% endautoescape %}
+            <div id="year" style="align-items: center; margin: auto; height:300px">
+                {% autoescape off %}
+                    {{ pie_chart_year }}
+                {% endautoescape %}
+            </div>
+
+            <div id="month" style="display: none;align-items: center; margin: auto; height: 300px">
+                {% autoescape off %}
+                    {{ pie_chart_month }}
+                {% endautoescape %}
+            </div>
+
+            <div id="week" style="display: none;align-items: center; margin: auto; height:300px">
+                {% autoescape off %}
+                    {{ pie_chart_week }}
+                {% endautoescape %}
+            </div>
+
+            <div id="day" style="display: none;align-items: center; margin: auto; height:300px">
+                {% autoescape off %}
+                    {{ pie_chart_day }}
+                {% endautoescape %}
+            </div>
         </div>
-    </div>
+        <h3 id="text" style="margin: 10px">
+            Łącznie: {{ year_sum|floatformat:2 }} zł
+        </h3>
 
-
-
-    <div class="basic_white" style="border: 1px solid black; margin: 20px auto;min-width: 400px; max-width: 600px">
-        <h4> Porównaj się z innymi! </h4>
     </div>
 
     <script>
@@ -113,7 +186,11 @@
         var month_box = document.getElementById("month_box")
         var week_box = document.getElementById("week_box")
         var day_box = document.getElementById("day_box")
-        var exp_title = document.getElementById("expenses_title")
+        var y = document.getElementById("year")
+        var m = document.getElementById("month")
+        var w = document.getElementById("week")
+        var d = document.getElementById("day")
+        var text = document.getElementById("text")
 
         var boxes = [
             year_box,
@@ -126,8 +203,8 @@
         var short_names = ["R", "M", "T", "D"];
 
         year_box.style.transition = "0";
-        year_box.style.backgroundColor = "slategrey";
-        year_box.style.width = "100px";
+        year_box.style.backgroundColor = "lightgrey";
+        year_box.style.width = "120px";
         boxes.forEach((item) => {item.addEventListener('click', wrapper)});
 
           function wrapper(){
@@ -136,31 +213,55 @@
 
           function on_click(box){
               var counter = 0
-              box.style.backgroundColor = "slategrey";
+              box.style.backgroundColor = "white";
+              if (box === year_box){
+                  y.style.display = 'grid';
+                  m.style.display = 'none';
+                  w.style.display = 'none';
+                  d.style.display = 'none';
+                  text.innerHTML = `Łącznie: {{ year_sum|floatformat:2 }} zł`
+              }
+              else if (box === month_box){
+                  m.style.display = 'grid';
+                  y.style.display = 'none';
+                  w.style.display = 'none';
+                  d.style.display = 'none';
+                  text.innerHTML = `Łącznie: {{ month_sum|floatformat:2 }} zł`
+              }
+              else if (box === week_box){
+                  m.style.display = 'none';
+                  y.style.display = 'none';
+                  w.style.display = 'grid';
+                  d.style.display = 'none';
+                  text.innerHTML = `Łącznie: {{ week_sum|floatformat:2 }} zł`
+              }
+              else if (box === day_box){
+                  m.style.display = 'none';
+                  y.style.display = 'none';
+                  w.style.display = 'none';
+                  d.style.display = 'grid';
+                  text.innerHTML = `Łącznie: {{ day_sum|floatformat:2 }} zł`
+              }
               boxes.forEach((item) => {
                   if (item === box){
-                      item.style.backgroundColor = "slategrey";
-                      item.style.width = "100px";
-
+                      item.style.backgroundColor = "lightgray";
+                      item.style.width = "120px";
                       item.style.opacity = '100%';
                       let temp = names[counter];
                       setTimeout(function() {
                           item.innerHTML = temp
-                        }, 400);
+                        }, 300);
                   }
                   else
                   {
-                      item.style.backgroundColor = "darkgray";
+                      item.style.backgroundColor = "white";
                       item.style.width = "60px";
                       item.style.opacity = '50%';
                       item.innerHTML = short_names[counter]
                   }
                   counter += 1;
               });
-              exp_title.innerHTML = box.innerText + " wydatki"
           }
-
-
     </script>
 
 {% endblock content %}

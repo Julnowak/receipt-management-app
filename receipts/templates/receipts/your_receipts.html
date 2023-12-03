@@ -160,8 +160,9 @@
                             <span style="display: inline-grid;vertical-align: middle">{{ left.days }} dni</span>
                         </div>
                     {%  else %}
-                        <div style="vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;">
-                            <span style="vertical-align: middle">{{ guarantee.guarantee_name }} {{ left.days }} dni</span>
+                        <div style="display: grid;grid-template: auto/ 90% 10%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid black;" >
+                            <span style="display: inline-grid;vertical-align: middle">{{ guarantee.guarantee_name }}</span>
+                            <span style="display: inline-grid;vertical-align: middle">{{ left.days }} dni</span>
                         </div>
                     {% endif %}
                     </a>

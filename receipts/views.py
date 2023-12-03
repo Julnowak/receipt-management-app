@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from .models import Receipt, Guarantee, Expense
 from groups.models import CommonGroups
 from receipts.forms import ReceiptForm, ExpenseForm, GuaranteeForm, HandReceiptForm
-from profile_mangement.models import ProfileInfo
 from categories.models import Product
 from django.contrib import messages
 import re
@@ -71,15 +70,12 @@ def your_receipts(request):
 
 @login_required
 def new_receipt(request):
-    profile = ProfileInfo.objects.get(user=request.user)
     if request.method == 'POST':
         form = ReceiptForm(request.POST, request.FILES)
         if form.is_valid():
             new_receipt = form.save(commit=False)
             new_receipt.owner = request.user
             new_receipt.save()
-            profile.how_many_receipts += 1
-            profile.save()
             return redirect('receipts:OCR_site', receipt_id=new_receipt.id)
     else:
         form = ReceiptForm()
@@ -88,34 +84,35 @@ def new_receipt(request):
 
 @login_required
 def costs_by_hand(request):
-    profile = ProfileInfo.objects.get(user=request.user)
     groups = CommonGroups.objects.filter(members__username=request.user.username)
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
             cost = form.save(commit=False)
-            g = groups.get(id=int(form.data['group']))
-            if g.can_receipts_be_added:
-                suma = sum(list(i[0] for i in g.expense_set.values_list('amount'))) + sum(
-                    list(i[0] for i in g.receipt_set.values_list('amount')))
-                if g.limit and float(suma) + float(form.data['amount']) <= g.limit:
-                    cost.owner = request.user
-                    form.save()
-                    profile.how_many_expenses += 1
-                    profile.save()
-                    messages.success(request, f"Dodano opłatę.")
-                    return redirect('receipts:your_receipts')
-                elif not g.limit:
-                    cost.owner = request.user
-                    form.save()
-                    profile.how_many_expenses += 1
-                    profile.save()
-                    messages.success(request, f"Dodano opłatę.")
-                    return redirect('receipts:your_receipts')
+            if form.data['group']:
+                g = groups.get(id=int(form.data['group']))
+                if g.can_receipts_be_added:
+                    suma = sum(list(i[0] for i in g.expense_set.values_list('amount'))) + sum(
+                        list(i[0] for i in g.receipt_set.values_list('amount')))
+                    if g.limit and float(suma) + float(form.data['amount']) <= g.limit:
+                        cost.owner = request.user
+                        form.save()
+                        messages.success(request, f"Dodano opłatę.")
+                        return redirect('receipts:your_receipts')
+                    elif not g.limit:
+                        cost.owner = request.user
+                        form.save()
+                        messages.success(request, f"Dodano opłatę.")
+                        return redirect('receipts:your_receipts')
+                    else:
+                        messages.error(request, f"Przekroczono limit grupy.")
                 else:
-                    messages.error(request, f"Przekroczono limit grupy.")
+                    messages.error(request, f"Dana grupa nie przyjmuje już opłat.")
             else:
-                messages.error(request, f"Dana grupa nie przyjmuje już opłat.")
+                cost.owner = request.user
+                form.save()
+                messages.success(request, f"Dodano opłatę.")
+                return redirect('receipts:your_receipts')
     else:
         form = ExpenseForm()
 
@@ -182,7 +179,6 @@ def change_expense_starred_status(request, expense_id):
 
 @login_required
 def new_guarantee(request):
-    profile = ProfileInfo.objects.get(user=request.user)
     if request.method == 'POST':
         form = GuaranteeForm(request.POST, request.FILES)
 
@@ -190,8 +186,6 @@ def new_guarantee(request):
             new_guar = form.save(commit=False)
             new_guar.owner = request.user
             new_guar.save()
-            profile.how_many_guarantees += 1
-            profile.save()
             return redirect('receipts:your_receipts')
     else:
         form = GuaranteeForm()
@@ -254,7 +248,6 @@ def guarantee_site(request, guarantee_id):
 @login_required
 def receipt_by_hand(request):
     groups = CommonGroups.objects.filter(members__username=request.user.username)
-    profile = ProfileInfo.objects.get(user=request.user)
     if request.method == 'POST':
         form = HandReceiptForm(request.POST, request.FILES)
 
@@ -268,16 +261,12 @@ def receipt_by_hand(request):
                 if g.limit and float(suma) + float(form.data['amount']) <= g.limit:
                     new_rec.owner = request.user
                     form.save()
-                    profile.how_many_receipts += 1
-                    profile.save()
                     new_rec.save()
                     messages.success(request, f"Dodano opłatę.")
                     return redirect('receipts:your_receipts')
                 elif not g.limit:
                     new_rec.owner = request.user
                     form.save()
-                    profile.how_many_receipts += 1
-                    profile.save()
                     new_rec.save()
                     messages.success(request, f"Dodano opłatę.")
                     return redirect('receipts:your_receipts')

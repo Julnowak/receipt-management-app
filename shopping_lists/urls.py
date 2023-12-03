@@ -10,6 +10,7 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('your_lists/', views.your_lists, name='your_lists'),
     path('single_list/<int:list_id>/', views.single_list, name='single_list'),
+    path('<int:group_id>/single_list_redirected/<int:list_id>/', views.single_list_redirected, name='single_list_redirected'),
     path('del_shopping_lists/', views.del_shopping_lists, name='del_shopping_lists'),
     path('new_product/<int:list_id>/', views.new_product, name='new_product'),
     path('new_list/', views.new_list, name='new_list'),

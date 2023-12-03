@@ -34,16 +34,28 @@ import pandas as pd
 from receipts.models import Receipt, Expense
 from categories.models import BaseCategories
 import plotly.express as px
+import plotly.graph_objects as go
 
 
 @login_required
 def group_site(request, group_id):
-    group = get_object_or_404(CommonGroups, id=group_id)
+    group = CommonGroups.objects.get(id=group_id)
     members = group.members.all().order_by("id")
+
     profiles = ProfileInfo.objects.filter(user__in=members).order_by("user_id")
     pam = zip(profiles, members)
+
+    page_number = request.GET.get('page', 1)
+    p = Paginator(list(pam), 5)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
     user = request.user
-    flag = False
 
     exps = Expense.objects.filter(group=group).values_list('amount','owner')
     receipts = Receipt.objects.filter(group=group).values_list('amount','owner')
@@ -60,27 +72,69 @@ def group_site(request, group_id):
     df_temp['username'] = df_temp['username'].apply(lambda x: x[0])
     df2 = pd.merge(df, df_temp, on=['owner'])
     df2 = df2.sort_values('amount')
-    if not df2.empty:
-        flag = True
+    df2 = df2[['username', 'amount']]
 
-    # Potrzeba ograniczenia
+    df_rank = df2.copy()
     try:
-
-        fig_pie = px.pie(df2, values='amount', names='username', height=300, hole=.5)
-        fig_pie.update_traces(
-            text=list(df2['amount']),
-            textinfo='text',
-        )
-
-        pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
-
-        labels = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"]
-
+        df2 = df2[['amount', 'username']].groupby('username', as_index=False).sum().sort_values(
+                by=['amount'], ascending=False)
+        new = df2[:3]
+        if len(new) >= 3:
+            new.loc[len(new)] = ["Inni", df2['amount'][3:].sum()]
+            df2 = new
+        if group.limit:
+            df2.loc[len(df2)] = ['Pozostało', round(group.limit - float(df2['amount'].sum()), 2)]
+        if df2.empty:
+            pie_chart = "Brak danych"
+        else:
+            fig_pie = go.Figure(go.Pie(
+                name="",
+                hole=0.5,
+                values=df2['amount'],
+                labels=df2['username'],
+                texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
+                textposition="inside",
+            ))
+            fig_pie.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51','lightgray']))
+            fig_pie.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
+                                  autosize=False,
+                                  height=500,
+                                  width=400,
+                                  legend=dict(orientation="h"))
+            pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
     except:
-        pie_chart = "Nie dodano jeszcze żadnych wartości."
-        labels = "Brak"
+        pie_chart= "None"
+
     if user not in members:
         return redirect('groups:not_member_of_group', group_id=group_id)
+
+    try:
+        df_rank = df_rank[['amount', 'username']].groupby('username', as_index=False).sum().sort_values(
+            by=['amount'], ascending=False)
+        new = df_rank[:3]
+        df_rank = new
+
+        if df_rank.empty:
+            bars_chart = "Brak danych"
+        else:
+
+            fig_bars = go.Figure(data=[
+                go.Bar(name='SF Zoo',
+                       x=df_rank['username'],
+                       y=df_rank['amount'],
+                       text=df_rank['amount'],
+                       textposition="outside",
+                       marker_color=['#4f000b', '#720026', '#ce4257', '#ff7f51'],
+                       texttemplate=" %{y:.2} zł", )
+            ])
+            # marker_color = ["#d4af37", '#c0c0c0', '#cd7f32'],
+            fig_bars.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=500,width=400,)
+
+            fig_bars.update_layout(barmode='group')
+            bars_chart = fig_bars.to_html(full_html=False, include_plotlyjs=False)
+
+    except:
+        bars_chart = "None"
 
     group_expenses = Expense.objects.filter(group=group_id)
     group_receipts = Receipt.objects.filter(group=group_id)
@@ -98,11 +152,20 @@ def group_site(request, group_id):
     suma = suma_wydatki + suma_paragony
     amount_per_member = math.ceil(suma/group.number_of_members * 100)/100
 
-    group_sh_list = group.shoppinglist_set.values_list()
+    group_sh_list = group.shoppinglist_set.all()
+    pg_num = request.GET.get('page', 1)
+    ppag = Paginator(group_sh_list, 3)
+
+    try:
+        pag = ppag.page(pg_num)
+    except PageNotAnInteger:
+        pag = ppag.page(1)
+    except EmptyPage:
+        pag = ppag.page(ppag.num_pages)
 
     context = {"group": group, "members": members, "user": user, 'amount_per_member': str("{:.2f}".format(amount_per_member)).replace(".", ','),
-               "suma": str("{:.2f}".format(suma)).replace(".", ','), "profile_and_members": pam,
-               "pie": pie_chart, "flag": flag, "group_sh_list": group_sh_list}
+               "suma": str("{:.2f}".format(suma)).replace(".", ','), "pages": pages, 'pag': pag,
+               "pie": pie_chart, "group_sh_list": group_sh_list, 'bars_chart': bars_chart}
     return render(request, 'groups/group_site.html', context)
 
 
@@ -228,11 +291,34 @@ def left_group(request, group_id):
 def manage_group(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     members = [group.owner] + list(group.members.all().order_by("date_joined")[1:])
+
+    page_number = request.GET.get('page', 1)
+    p = Paginator(list(members), 5)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
     if group.limit:
         flag = True
     else:
         flag = False
-    context = {"group": group, "user": request.user, 'members': members, 'flag': flag}
+
+    group_sh_list = group.shoppinglist_set.all()
+    pg_num = request.GET.get('page', 1)
+    ppag = Paginator(group_sh_list, 3)
+
+    try:
+        pag = ppag.page(pg_num)
+    except PageNotAnInteger:
+        pag = ppag.page(1)
+    except EmptyPage:
+        pag = ppag.page(ppag.num_pages)
+    context = {"group": group, 'pages': pages, "user": request.user, 'members': members, 'flag': flag,
+               'pag': pag}
     return render(request, 'groups/manage_group.html', context)
 
 
@@ -262,11 +348,11 @@ def search_group(request):
     if number == 0:
         text = "Brak wyników."
     elif number == 1:
-        text = "Znaleziono 1 wynik"
+        text = "Znaleziono 1 wynik:"
     elif number in [2,3,4]:
-        text = f"Znaleziono {number} wyniki"
+        text = f"Znaleziono {number} wyniki:"
     else:
-        text = f"Znaleziono {number} wyników"
+        text = f"Znaleziono {number} wyników:"
 
     page_number = request.GET.get('page',1)
     p = Paginator(groups_searched, 5)
@@ -279,7 +365,7 @@ def search_group(request):
         pages = p.page(p.num_pages)
 
     context = {"pages": pages, "text": text, "user": request.user, 'exists': exists, 'groups': groups_searched,
-               'number': number, 'query': group_name}
+               'number': number, 'query': group_name,}
     return render(request, 'groups/search_group.html', context)
 
 
@@ -420,12 +506,27 @@ def del_from_group_receipts(request, group_id, receipt_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     try:
         receipt = group.receipt_set.get(id=receipt_id)
-        group.expense_set.remove(receipt)
+        group.receipt_set.remove(receipt)
         messages.success(request, f"Usunięto paragon {receipt.receipt_name} z grupy.")
         group.save()
     except:
         messages.error(request, "Wystąpił błąd.")
     return redirect("groups:group_receipts_and_expenses", group_id=group.id)
+
+
+from shopping_lists.models import ShoppingList
+@login_required
+def del_list_from_group(request, group_id, list_id):
+    lis = get_object_or_404(ShoppingList, id=list_id)
+    group = CommonGroups.objects.get(id=group_id)
+
+    try:
+        group.shoppinglist_set.remove(lis)
+        messages.success(request, f"Odczepiono listę {lis.text} z grupy.")
+        group.save()
+    except:
+        messages.error(request, "Wystąpił błąd.")
+    return redirect("groups:manage_group", group_id=group.id)
 
 
 @login_required

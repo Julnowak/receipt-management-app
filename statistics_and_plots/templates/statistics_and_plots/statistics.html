@@ -13,23 +13,136 @@
             <div>
                 Wydatki, paragony
 
+
+            </div>
+<div>
+            <div id="year_box" class="chosen_one_box">
+                Roczne
+            </div>
+            <div id="month_box" class="chosen_one_box">M</div>
+            <div id="week_box" class="chosen_one_box">T</div>
+            <div id="day_box" class="chosen_one_box"> D</div>
+        </div>
+
+        <div class="basic_white" id="expenses_title">
+            <div id="year" style="align-items: center; margin: auto; height:300px">
                 {% autoescape off %}
                     {{ exp_rec_pie }}
                 {% endautoescape %}
             </div>
 
-            <div>
-                Kategorie
+            <div id="month" style="display: none;align-items: center; margin: auto; height: 300px">
                 {% autoescape off %}
-                    {{ pie_chart }}
+                    {{ pie_chart_month }}
                 {% endautoescape %}
             </div>
 
+            <div id="week" style="display: none;align-items: center; margin: auto; height:300px">
+
+            </div>
+
+            <div id="day" style="display: none;align-items: center; margin: auto; height:300px">
+
+            </div>
+        </div>
+        <h3 id="text" style="margin: 10px">
+            Łącznie: {{ year_sum|floatformat:2 }} zł
+        </h3>
+
+    </div>
+
+    <script>
+        var year_box = document.getElementById("year_box")
+        var month_box = document.getElementById("month_box")
+        var week_box = document.getElementById("week_box")
+        var day_box = document.getElementById("day_box")
+        var y = document.getElementById("year")
+        var m = document.getElementById("month")
+        var w = document.getElementById("week")
+        var d = document.getElementById("day")
+        var text = document.getElementById("text")
+
+        var boxes = [
+            year_box,
+            month_box,
+            week_box,
+            day_box,
+             ];
+
+        var names = ["Roczne", "Miesięczne", "Tygodniowe", "Dzienne"];
+        var short_names = ["R", "M", "T", "D"];
+
+        year_box.style.transition = "0";
+        year_box.style.backgroundColor = "lightgrey";
+        year_box.style.width = "120px";
+        boxes.forEach((item) => {item.addEventListener('click', wrapper)});
+
+          function wrapper(){
+              on_click(event.target)
+          }
+
+          function on_click(box){
+              var counter = 0
+              box.style.backgroundColor = "white";
+              if (box === year_box){
+                  y.style.display = 'grid';
+                  m.style.display = 'none';
+                  w.style.display = 'none';
+                  d.style.display = 'none';
+                  {#text.innerHTML = `Łącznie: {{ year_sum|floatformat:2 }} zł`#}
+              }
+              else if (box === month_box){
+                  m.style.display = 'grid';
+                  y.style.display = 'none';
+                  w.style.display = 'none';
+                  d.style.display = 'none';
+                  {#text.innerHTML = `Łącznie: {{ month_sum|floatformat:2 }} zł`#}
+              }
+              else if (box === week_box){
+                  m.style.display = 'none';
+                  y.style.display = 'none';
+                  w.style.display = 'grid';
+                  d.style.display = 'none';
+                  {#text.innerHTML = `Łącznie: {{ week_sum|floatformat:2 }} zł`#}
+              }
+              else if (box === day_box){
+                  m.style.display = 'none';
+                  y.style.display = 'none';
+                  w.style.display = 'none';
+                  d.style.display = 'grid';
+                  {#text.innerHTML = `Łącznie: {{ day_sum|floatformat:2 }} zł`#}
+              }
+              boxes.forEach((item) => {
+                  if (item === box){
+                      item.style.backgroundColor = "lightgray";
+                      item.style.width = "120px";
+                      item.style.opacity = '100%';
+                      let temp = names[counter];
+                      setTimeout(function() {
+                          item.innerHTML = temp
+                        }, 300);
+                  }
+                  else
+                  {
+                      item.style.backgroundColor = "white";
+                      item.style.width = "60px";
+                      item.style.opacity = '50%';
+                      item.innerHTML = short_names[counter]
+                  }
+                  counter += 1;
+              });
+          }
+    </script>
+
+{#            <div>#}
+{#                Kategorie#}
+{#                {% autoescape off %}#}
+{#                    {{ pie_chart }}#}
+{#                {% endautoescape %}#}
+{#            </div>#}
+
             <div>
 
-{#                {% autoescape off %}#}
-{#                    {{ fig }}#}
-{#                {% endautoescape %}#}
                 Posiadasz <b>{{ rec_num }}</b> paragonów.
                 <br>
                 Posiadasz <b>{{ expen_num }}</b> wydatków.
@@ -40,6 +153,11 @@
             <div>
                 Wydano łącznie <b>{{ suma }}</b> zł.
             </div>
+
+            <div class="basic_white" style="border: 1px solid black; margin: 20px auto;min-width: 400px; max-width: 600px">
+                <h4> Porównaj się z innymi! </h4>
+            </div>
+
 
             <br>
             <div style="text-align: center">

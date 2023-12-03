@@ -3,15 +3,15 @@
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
     <h1 style="text-align: center;margin-top: 20px">Promocje</h1>
     <h3 style="text-align: center">Dostępne sklepy:</h3>
 
     <div style="margin: 20px auto; padding: 10px; min-width: 300px; max-width: 600px">
         {% for shop in shops %}
-            <a href="{% url 'promotions_and_discounts:shop_site' shop.id %}" style="text-decoration: none; color: black;">
-                <div style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
+            <a class="shops" href="{% url 'promotions_and_discounts:shop_site' shop.id %}" style="text-decoration: none; color: black;">
+                <div  style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
                     <span style="display: inline-grid;vertical-align: middle">{{ shop }}</span>
                 </div>
             </a>
@@ -24,27 +24,39 @@
         {% endfor %}
     </div>
 
-    <div id="spinner" style="display: none; text-align: center; margin: 20px">
-        <div class="spinner-border" style="margin:30px; width: 3rem; height: 3rem; color: crimson" role="status">
+    <span style="color: gray; text-align: center">Więcej ofert sklepów już wkrótce!</span>
+
+    <div id="spinner" style="left: 50%;top: 50%;transform: translate(-50%, -50%);display: none; position: absolute; text-align: center; margin: 20px; z-index: 3">
+        <div class="spinner-border" style="margin:30px; width: 3rem; height: 3rem; color: #ffffff" role="status">
             <span class="sr-only"></span>
         </div>
         <br>
-        <strong>
+        <strong style="color: whitesmoke">
             Poczekaj chwilkę!
             <br>
             Twoje wyniki są ładowane :)
         </strong>
     </div>
 
+    <div id="cont" style="display:none; position: absolute; background-color: black; opacity: 70%; width: 100vw; height: 100%;">
+        &nbsp;
+    </div>
+
     <script>
+        var cont = document.getElementById("cont")
         var spinner = document.getElementById("spinner")
         var shops = document.getElementsByClassName("shops")
 
         for (var i=0;i<shops.length;i++){
             shops[i].addEventListener("click", function (){
-                spinner.style.display = "inline-block";
-            })
-        }
+                cont.style.display = "block";
+                spinner.style.display = "block";
+            })}
+
+        $(window).bind("pageshow", function(event) {
+            $("#spinner").hide();
+            $("#cont").hide();
+        });
 
     </script>
 {% endblock content %}

@@ -8,20 +8,41 @@
     <style>
 
         .white_block{
-            background-color: ghostwhite;
-            margin: 20px;
+            border: 1px solid black;
+            margin: 20px auto;
             padding: 20px;
+            min-width: 430px;
+            max-width: 500px;
             border-radius: 10px;
         }
 
         .member_box{
-            background-color: gainsboro;
+            border: 1px solid black;
             padding: 10px;
             border-radius: 10px;
             min-width: 140px;
             margin: 10px;
             text-align: center;
         }
+
+
+        .chosen_one_box{
+            background-color: white;
+            border: 1px solid lightgrey;
+            padding: 10px;
+            margin: 5px 5px 0 5px;
+            transition: 0.5s, opacity 1s;
+            border-radius: 20px;
+            cursor: pointer;
+            width: 60px;
+            display: inline-block;
+        }
+
+        .chosen_one_box:hover{
+            filter: brightness(85%);
+            transition: 0.5s, opacity 1s;
+        }
+
 
     </style>
 
@@ -89,7 +110,7 @@
     </div>
 
     {% if group.limit %}
-        <div style="max-width: 300px;margin: 10px auto;background-color:lightgray;border-radius: 20px">
+        <div class="white_block" style="max-width: 300px;margin: 10px auto;background-color:lightgray;border-radius: 20px">
             <h1 style="margin: 20px">
                 Limit:
                 <br>
@@ -113,19 +134,85 @@
             Podsumowanie
         </h6>
 
+        <div style="margin: 20px auto; text-align: center;">
+            <div id="circle_box" class="chosen_one_box">
+                Ogólne
+            </div>
+            <div id="top_box" class="chosen_one_box">T</div>
+        </div>
 
-            <div style="margin: 0 auto; text-align: center; align-content: center; max-width: 500px">
-                {% if flag %}
+        <div style="height: 500px;display: flex;justify-content: center;align-items: center; ">
+                <div id="circle" style="margin: auto;text-align: center; align-content: center; max-width: 500px">
                     {% autoescape off %}
                         {{ pie }}
                     {% endautoescape %}
-                {% else %}
+                </div>
 
-                {% endif %}
-            </div>
+                <div id="bars" style="display:none;margin: 0 auto; text-align: center; align-content: center; max-width: 500px">
+                    {% autoescape off %}
+                        {{ bars_chart }}
+                    {% endautoescape %}
+                </div>
+        </div>
+
+    <script>
+        var circle_box = document.getElementById("circle_box")
+        var top_box = document.getElementById("top_box")
+        var c = document.getElementById("circle")
+        var t = document.getElementById("bars")
+
+        var boxes = [circle_box,top_box];
+
+        var names = ["Ogólne", "TOP3",];
+        var short_names = ["O", "T",];
+
+        circle_box.style.transition = "0";
+        circle_box.style.backgroundColor = "lightgrey";
+        circle_box.style.width = "120px";
+        boxes.forEach((item) => {item.addEventListener('click', wrapper)});
+
+          function wrapper(){
+              on_click(event.target)
+          }
+
+          function on_click(box){
+              var counter = 0
+              box.style.backgroundColor = "white";
+              if (box === circle_box){
+                  c.style.display = 'grid';
+                  t.style.display = 'none';
+              }
+              else if (box === top_box){
+                  t.style.display = 'grid';
+                  c.style.display = 'none';
+              }
+
+              boxes.forEach((item) => {
+                  if (item === box){
+                      item.style.backgroundColor = "lightgray";
+                      item.style.width = "120px";
+                      item.style.opacity = '100%';
+                      let temp = names[counter];
+                      setTimeout(function() {
+                          item.innerHTML = temp
+                        }, 300);
+                  }
+                  else
+                  {
+                      item.style.backgroundColor = "white";
+                      item.style.width = "60px";
+                      item.style.opacity = '50%';
+                      item.innerHTML = short_names[counter]
+                  }
+                  counter += 1;
+              });
+          }
+
+    </script>
 
 
-            <div style=" display: block;text-align: justify; margin: 0 auto 0 auto;max-width: 400px">
+
+            <div style=" display: block;text-align: justify; margin: 30px auto ;max-width: 400px">
                 <span>Łączna suma do podziału:</span>
                 <span style="margin: 10px"><b>{{ suma }} zł</b></span>
                 <br>
@@ -153,32 +240,86 @@
             Listy zakupowe grupy
         </h3>
 
-        <div style=" display: block;text-align: justify; margin: 0 auto 0 auto;max-width: 400px">
-         {% for sh in group_sh_list %}
-             {{ sh }}
+        <div style=" margin: 20px auto 10px auto ;max-width: 400px">
+         {% for sh in pag %}
+             <a href="{% url 'single_list_redirected' list_id=sh.id group_id=group.id %}" style="text-decoration: none;margin: 10px auto; color: black">
+                {% if sh.is_completed %}
+                     <div style="display: grid;grid-template: auto/90% 10%;margin: 10px auto;border: 1px solid black; background-color: palegreen; padding: 12px; border-radius: 10px">
+                        {{ sh }}
+                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
+                          <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/>
+                          <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
+                        </svg>
+                     </div>
+                 {% else %}
+                    <div style="border: 1px solid black;margin: 10px auto; padding: 14px; border-radius: 10px">
+                        {{ sh }}
+                    </div>
+                 {% endif %}
+             </a>
          {% empty %}
-             Brak list zakupowych grupy.
+             <div style="border: 1px solid black; padding: 10px; border-radius: 10px">
+                Brak list zakupowych grupy.
+             </div>
          {% endfor %}
         </div>
 
+     <div style="text-align: center; margin: 30px auto 10px auto;">
+        {% if pag.has_other_pages %}
+          <ul class="pagination" style="display: inline-block;">
+            {% if pag.has_previous %}
+              <li style="display: inline-block;"><a style="text-decoration: none; color: black" href="?page={{ pag.previous_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li class="disabled" style="display: inline-block;"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+
+              <li class="active" style="margin:0 auto;display: inline-block"><span>{{ pag.number }}/{{ pag.paginator.num_pages }} <span class="sr-only"></span></span></li>
+
+            {% if pag.has_next %}
+              <li style="display: inline;"><a style="text-decoration: none; color: black" href="?page={{ pag.next_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li style="display: inline;" class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+          </ul>
+        {% endif %}
+        </div>
     </div>
 
 
 
     <div class="white_block">
     <div>
-        <h3 style="text-align: justify; margin: 0 auto 20px auto;max-width: 400px">
-            Członkowie
-        </h3>
-        <h6 style=" color: #545454;text-align: justify; margin: -10px auto 20px auto;max-width: 400px">
-            {{ group.number_of_members }}/{{ group.max_number_of_members }}
-        </h6>
+        <div style="display: grid; grid-template: auto/ 90% 10%">
+            <h3 style="margin: 10px ">
+                Członkowie
+            </h3>
+            <h4 style=" color: #545454; margin: auto -10px">
+                {{ group.number_of_members }}/{{ group.max_number_of_members }}
+            </h4>
+        </div>
 
-        <div style="margin:auto;display: grid; grid-template: auto/ 50% 200px; max-width: 500px;">
 
-            {% for profile, member in profile_and_members %}
+        <div style="margin:auto;max-width: 500px;">
+
+            {% for profile, member in pages %}
                 {% if profile.is_public or profile.user == user %}
-                    <a href="{% url 'profile_showcase' group.id member.id %}" style="justify-self: center;text-decoration: none;color: black;">
+                    <a href="{% url 'profile_showcase' group.id member.id %}" style="text-decoration: none;color: black;">
                         <div class="member_box">
                                 {{ member }}
                         </div>
@@ -193,6 +334,42 @@
             {% endfor %}
         </div>
     </div>
+
+    <div style="text-align: center; margin: 30px auto 10px auto;">
+        {% if pages.has_other_pages %}
+          <ul class="pagination" style="display: inline-block;">
+            {% if pages.has_previous %}
+              <li style="display: inline-block;"><a style="text-decoration: none; color: black" href="?page={{ pages.previous_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li class="disabled" style="display: inline-block;"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+
+              <li class="active" style="margin:0 auto;display: inline-block"><span>{{ pages.number }}/{{ pages.paginator.num_pages }} <span class="sr-only"></span></span></li>
+
+            {% if pages.has_next %}
+              <li style="display: inline;"><a style="text-decoration: none; color: black" href="?page={{ pages.next_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li style="display: inline;" class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+          </ul>
+        {% endif %}
+        </div>
 
     <div style="text-align: center; margin: 20px">
         {% if user != group.owner %}

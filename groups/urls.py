@@ -23,5 +23,6 @@ urlpatterns = [
     path('<int:group_id>/remove_member/<int:member_id>/', views.remove_member, name='remove_member'),
     path('<int:group_id>/del_from_group_expenses/<int:expense_id>/', views.del_from_group_expenses, name='del_from_group_expenses'),
     path('<int:group_id>/del_from_group_receipts/<int:receipt_id>/', views.del_from_group_receipts, name='del_from_group_receipts'),
+    path('<int:group_id>/del_list_from_group/<int:list_id>/', views.del_list_from_group, name='del_list_from_group'),
     path('<int:group_id>/profile_not_public/', views.profile_not_public, name='profile_not_public'),
 ]

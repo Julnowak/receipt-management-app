@@ -7,9 +7,10 @@ from receipts.models import Receipt, Guarantee, Expense
 from promotions_and_discounts.models import Shop
 import plotly.express as px
 import plotly.graph_objects as go
-from sklearn.datasets import load_iris
 
 
+from django.contrib.auth.decorators import login_required
+@login_required
 def statistics(request):
     exps = Expense.objects.filter(owner=request.user)
     guarantees = Guarantee.objects.filter(owner=request.user)
@@ -24,9 +25,6 @@ def statistics(request):
     r = 0
 
     suma = e+g+r
-    dropdown_buttons = []
-
-    dates_added = Expense.objects.filter(owner=request.user).values_list("date_added")
     categories = BaseCategories.objects.values_list("id", "category_name")
 
     # Pie Chart
@@ -92,20 +90,33 @@ def statistics(request):
             sum_exp += exp[1] * multiplier
 
         sum_rec = pd.DataFrame(list(receipts.values_list("amount"))).sum()[0]
-
         df_exp_rec = pd.DataFrame({'Rodzaj': ['Wydatki', 'Paragony'],
                                    'Suma': [sum_exp, sum_rec]})
-        fig_pie_exp_rec = px.pie(df_exp_rec, values='Suma', names='Rodzaj', height=300, title="Rozkład wydatków")
 
-        exp_rec_pie = fig_pie_exp_rec.to_html(full_html=False, include_plotlyjs=False)
+        if df_exp_rec.empty:
+            exp_rec_pie = "Brak danych z tego roku"
+        else:
+            fig_pie_exp_rec = go.Figure(go.Pie(
+                name="",
+                hole=0.5,
+                values=df_exp_rec['Suma'],
+                labels=df_exp_rec['Rodzaj'],
+                texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
+                textposition="inside",
+            ))
+            fig_pie_exp_rec.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_pie_exp_rec.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
+                                       legend=dict(orientation="h"))
 
-        labels_exp_rec = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"]
-
+            exp_rec_pie = fig_pie_exp_rec.to_html(full_html=False, include_plotlyjs=False)
     except:
         exp_rec_pie = "Nie dodano jeszcze żadnych wartości."
-        labels_exp_rec = "Brak"
-
 
     context = {"pie_chart": pie_chart, 'labels': labels,'guar_num': guarantees.count(), 'rec_num': receipts.count(),
-               "expen_num": expenses.count(), "suma": suma,"exp_rec_pie":exp_rec_pie, "labels_exp_rec": labels_exp_rec}
+               "expen_num": expenses.count(), "suma": suma,"exp_rec_pie":exp_rec_pie, }
     return render(request, "statistics_and_plots/statistics.html",context)
+
+
+def category_charts(request):
+    context = {}
+    return render(request, "statistics_and_plots/category_charts.html", context)

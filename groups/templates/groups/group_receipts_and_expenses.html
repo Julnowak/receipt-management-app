@@ -4,6 +4,30 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
+        <div >
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                     <div id="messages" class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% else %}
+                     <div id="messages" class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <script>
+            var mess = document.getElementById("messages")
+
+            setTimeout(function(){
+                mess.style.display="none";
+            },2000)
+        </script>
+    </div>
+
         <a href="{% url 'groups:group_site' group.id %}">
             <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
@@ -14,41 +38,40 @@
 
 
         <h1 style="margin-top: 20px;text-align: center">Paragony</h1>
-        <div class="container" style="padding: 10px; margin: 10px auto;max-width: 400px; display: inline">
-            {% for receipt in p_rec %}
-                <div style="margin: 20px auto; display: inline-block;vertical-align: middle">
-                    <div>
-                        <h5>
-                            {% if group.owner == user %}
-                            <a style="text-decoration: none; color: #292929" href="{% url 'receipts:receipt_site_from_grouppage' receipt.id group.id %}">{{receipt.receipt_name}}</a>
-                            {% else %}
-                                {{receipt.receipt_name}}
-                            {% endif %}
-                            &nbsp; &nbsp; &nbsp; &nbsp;{{receipt.amount}} zł
-                        </h5>
-                        <div>
-                            <div>Data dodania: {{ receipt.date_added|date:"H:i, d.m.Y" }}</div>
-                            <div>Dodał: {{ receipt.owner }}</div>
+                    {% for receipt in p_rec %}
+                <div class="container" style="border: 1px solid black;border-radius: 10px;max-width: 400px; text-align: justify; display:grid; grid-template: auto/ 80% 20%; padding: 10px; margin: 20px auto; ">
+                    <div style="margin: 20px auto; vertical-align: middle;">
+                            <h5>
+                                {% if group.owner == user %}
+                                <a style="text-decoration: none; color: #292929" href="{% url 'receipts:receipt_site_from_grouppage' receipt.id group.id %}">{{receipt.receipt_name}}</a>
+                                {% else %}
+                                    {{receipt.receipt_name}}
+                                {% endif %}
+                                &nbsp; &nbsp; &nbsp; &nbsp;{{receipt.amount}} zł
+                            </h5>
+                            <div>
+                                <div>Data dodania: {{ receipt.date_added|date:"H:i, d.m.Y" }}</div>
+                                <div>Dodał: {{ receipt.owner }}</div>
+                            </div>
+                    </div>
+                    {% if group.owner == user %}
+                        <div style="margin: auto;vertical-align: middle">
+                            <a href="{% url 'groups:del_from_group_receipts' group.id receipt.id %}" style="text-decoration: none; color: red">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                                </svg>
+                            </a>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
-                {% if group.owner == user %}
-                    <div style="margin-left: 100px;display: inline-block; vertical-align: middle">
-                        <a href="{% url 'groups:del_from_group_receipts' group.id receipt.id %}" style="text-decoration: none; color: red">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
-                            </svg>
-                        </a>
-                    </div>
-                {% endif %}
             {% empty %}
-                <div style="padding: 10px;margin: 10px auto;max-width: 400px; text-align: center">
+                <div style="padding: 10px;margin: 20px auto; width: 100%; text-align: center">
                     Jeszcze nie dodano żadnych paragonów.
                 </div>
             {% endfor %}
-        </div>
 
-        <div style="padding: 10px;margin: 10px auto;max-width: 400px">
+
+        <div style="padding: 10px;margin: 20px auto;max-width: 400px; text-align: center">
             <b>
                 Suma z paragonów: {{ suma_paragony }} zł
             </b>
@@ -92,9 +115,9 @@
 
         <h2 style="margin-top: 20px;text-align: center">Wydatki</h2>
 
-        <div class="container" style="padding: 10px; margin: 10px auto;max-width: 400px">
-            {% for expense in page_obj %}
-                <div style="display: inline-block; vertical-align: middle;margin: 20px auto">
+          {% for expense in page_obj %}
+              <div class="container" style="border: 1px solid black;border-radius: 10px;max-width: 400px;text-align: justify; display:grid; grid-template: auto/ 80% 20%; padding: 10px; margin: 20px auto; ">
+                <div style="margin: 20px auto; vertical-align: middle;">
                     <h5>
                         {% if group.owner == user %}
                         <a style="text-decoration: none; color: #292929" href="{% url 'receipts:expense_site_from_grouppage' expense.id group.id %}">{{expense.expense_name}}</a>
@@ -110,7 +133,7 @@
                     </div>
                 </div>
                 {% if group.owner == user %}
-                    <div style="margin-left: 100px;display: inline-block; vertical-align: middle">
+                    <div style="margin: auto;vertical-align: middle">
                     <a href="{% url 'groups:del_from_group_expenses' group.id expense.id %}" style="text-decoration: none; color: red">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
                             <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
@@ -118,12 +141,13 @@
                     </a>
                     </div>
                 {% endif %}
+              </div>
              {% empty %}
-                <div style="padding: 10px;margin: 10px auto;max-width: 400px; text-align: center">
+                <div style="padding: 10px;margin: 20px auto;max-width: 400px; text-align: center">
                     Jeszcze nie dodano żadnych wydatków.
                 </div>
              {% endfor %}
-        </div>
+
 
         <div style="padding: 10px;margin: 10px auto;max-width: 400px">
             <b>

@@ -39,30 +39,18 @@
         <h1 style="margin: 20px auto" id="title">Twoje listy</h1>
     </div>
 
-    <div class="list-group" id="lista" style="margin: 10px 10px 30px;">
-            {% for list in pages %}
-                {% if list.is_completed %}
-                    <a style="text-decoration: none; color: black; display: inline-block; margin: auto 0 " href="{% url 'single_list' list.id %}" >
-                    <div class="list-group-item list-group-item-success" style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 15px; width: 95vw; margin: auto; ">
-                        <div style="display: inline; max-width: 85%; margin:auto 0;">
-                             {{ list }}
+    <div id="lista" style="margin: 10px auto;">
+        {% for list in pages %}
+            {% if list.is_completed %}
+                <div style="margin: 10px auto;display: grid;background-color: palegreen; grid-template: auto/80% 20%; z-index:1;border-radius:10px; border:1px solid black;min-width: 400px; max-width: 600px;">
+                    <a style="text-decoration: none; color: black;" href="{% url 'single_list' list.id %}" >
+                        <div style="margin: 20px; ">
+                            {{ list }}
                         </div>
-                        <div style="margin: auto; height: 40px; width: 40px;">
-                            {% if list.owner != user %}
-                                {% if not list.display_only %}
-                                <a class="x_button" href="{% url 'list_removed' list.id %}" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: none;
-                                width: 40px;height: 40px">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
-                                      <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
-                                    </svg>
-                                </a>
-                                <a class="edit_small_button" href="{%  url 'edit_list' list.id %}" id="{{ list.id }}" style="position: absolute; color: black; background-color: white; display: none; border: 1px solid lightgrey; border-radius: 20px" >
-                                    <svg style="display: inline;vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                      <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                                    </svg>
-                                </a>
-                                {% endif %}
-                            {% else %}
+                    </a>
+
+                    {% if list.owner != user %}
+                            {% if not list.display_only %}
                                 <a class="x_button" href="{% url 'list_removed' list.id %}" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: none;
                                 width: 40px;height: 40px">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
@@ -75,59 +63,79 @@
                                     </svg>
                                 </a>
                             {% endif %}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
-                              <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/>
-                              <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
-                            </svg>
+                    {% else %}
+                        <div class="edit_small_button" style="margin: auto; display: none;">
+                            <a  href="{%  url 'edit_list' list.id %}" id="{{ list.id }}" style="text-decoration: none; color: black" >
+                                <svg style="display: inline;vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                  <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                                </svg>
+                            </a>
                         </div>
+                        <div class="x_button" style="margin: auto;display: none;">
+                            <a  href="{% url 'list_removed' list.id %}" style="text-decoration: none; color: red" >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    {% endif %}
+                    <div style="margin: auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
+                          <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/>
+                          <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
+                        </svg>
                     </div>
-                    </a>
-                {% else %}
-                    <a style="text-decoration: none; color: black; display: inline-block; margin: auto 0 " href="{% url 'single_list' list.id %}" >
-                    <div class="list-group-item list-group-item-action" style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 15px; width: 95vw; margin: auto; ">
-                        <div style="display: inline; max-width: 85%; margin:auto 0;">
-                             {{ list }}
-                        </div>
-                        <div style="margin: auto; height: 40px; width: 40px;">
-                                {% if list.owner != user %}
-                                    {% if not list.display_only %}
-                                        <a class="edit_small_button" href="{%  url 'edit_list' list.id %}" id="{{ list.id }}" style="position: absolute; color: black; background-color: white; display: none; border: 1px solid lightgrey; border-radius: 20px" >
-                                            <svg style="display: inline;vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                              <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                                            </svg>
-                                        </a>
-                                        <a class="x_button" href="{% url 'list_removed' list.id %}" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: none;
-                                        width: 40px;height: 40px">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
-                                              <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
-                                            </svg>
-                                        </a>
-                                    {% endif %}
-                                {% else %}
-                                        <a class="edit_small_button" href="{%  url 'edit_list' list.id %}" id="{{ list.id }}" style="position: absolute; color: black; background-color: white; display: none; border: 1px solid lightgrey; border-radius: 20px" >
-                                            <svg style="display: inline;vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                              <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                                            </svg>
-                                        </a>
-                                        <a class="x_button" href="{% url 'list_removed' list.id %}" style="color: red; background-color: gainsboro; border-radius: 2px; position: absolute;display: none;
-                                        width: 40px;height: 40px">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
-                                              <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
-                                            </svg>
-                                        </a>
-                                {% endif %}
-                        </div>
-                    </div>
-                    </a>
-                {% endif %}
 
-            {% empty %}
-                <div style="margin: 10px; text-align: center">
-                   <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
-                        Nie została jeszcze dodana żadna lista!
-                    </div>
                 </div>
-            {% endfor %}
+            {% else %}
+                <div style="margin: 10px auto;display: grid; grid-template: auto/80% 20%; z-index:1;border-radius:10px; border:1px solid black;min-width: 400px; max-width: 600px;">
+                    <a style="text-decoration: none; color: black;" href="{% url 'single_list' list.id %}" >
+                        <div style="margin: 20px">
+                            {{ list }}
+                        </div>
+                    </a>
+                        {% if list.owner != user %}
+                            {% if not list.display_only %}
+                                <div class="edit_small_button" style="margin: auto; display: none;">
+                                    <a  href="{%  url 'edit_list' list.id %}" id="{{ list.id }}" style="text-decoration: none; color: black" >
+                                        <svg style="display: inline;vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                          <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                                <div class="x_button" style="margin: auto;display: none;">
+                                    <a  href="{% url 'list_removed' list.id %}" style="text-decoration: none; color: red" >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                          <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="edit_small_button" style="margin: auto; display: none;">
+                                <a  href="{%  url 'edit_list' list.id %}" id="{{ list.id }}" style="text-decoration: none; color: black" >
+                                    <svg style="display: inline;vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                      <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                                    </svg>
+                                </a>
+                            </div>
+                            <div class="x_button" style="margin: auto;display: none;">
+                                <a  href="{% url 'list_removed' list.id %}" style="text-decoration: none; color: red" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                      <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+            {% endif %}
+        {% empty %}
+            <div style="margin: 10px; text-align: center">
+               <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
+                    Nie została jeszcze dodana żadna lista!
+                </div>
+            </div>
+        {% endfor %}
     </div>
 
 </body>
@@ -237,7 +245,7 @@
                                   </svg>`
             for (let i = 0; i < del_btns.length; i++)
             {
-                del_btns[i].style.display = "inline-block";
+                del_btns[i].style.display = "inline";
             }
             flag_del = false;
             edit_btn.style.pointerEvents = 'none'

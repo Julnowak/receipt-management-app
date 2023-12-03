@@ -56,9 +56,9 @@
 
     <h1 style="margin-top: 20px">Czarna lista</h1>
 
-    <div class="list-group" id="lista" style="margin: 30px 10px 30px;">
+    <div id="lista" style="margin: 30px auto; min-width: 400px">
             {% for banned_person in pages %}
-                    <div class="list-group-item list-group-item-action" style="display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 15px; width: 95vw; margin: auto; ">
+                    <div style="border: 1px solid black;border-radius: 10px;display: grid; grid-template: 60px/85% 15%; z-index:1; padding: 15px; width: 95vw; margin: 10px auto; max-width: 500px ">
                         <div style="display: inline; max-width: 85%; margin:auto 0;">
                              {{ banned_person }}
                         </div>
@@ -74,7 +74,7 @@
 
             {% empty %}
                 <div style="margin: 10px; text-align: center">
-                   <div style="background-color: gainsboro; padding: 15px; border-radius: 10px">
+                   <div style="border: 1px solid black; padding: 15px; border-radius: 10px">
                         Nie dodano jeszcze żadnego użytkownika!
                     </div>
                 </div>

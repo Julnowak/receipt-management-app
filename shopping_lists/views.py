@@ -13,6 +13,7 @@ from groups.models import CommonGroups
 from bs4 import BeautifulSoup
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
+from django.contrib import messages
 
 
 def homepage(request):
@@ -96,8 +97,32 @@ def single_list(request, list_id):
     except:
         products = None
 
-    context = {'current_list': sh_list, 'products': products,'list_shared':list_shared}
+    context = {'current_list': sh_list, 'products': products,'list_shared':list_shared,
+               'user':request.user}
     return render(request, 'shopping_lists/shopping_list_page.html', context)
+
+
+@login_required
+def single_list_redirected(request, list_id, group_id):
+    """ Your shopping lists page"""
+    sh_list = ShoppingList.objects.get(id=list_id)
+    group = CommonGroups.objects.get(id=group_id)
+
+    list_shared = False
+    if sh_list.owner != request.user:
+        list_shared = True
+
+    if request.user not in sh_list.realizators.all():
+        return Http404
+
+    try:
+        products = ListProduct.objects.filter(shopping_list=sh_list).order_by('-date_added')
+    except:
+        products = None
+
+    context = {'current_list': sh_list, 'products': products,'list_shared':list_shared,
+               'user':request.user, 'group': group}
+    return render(request, 'shopping_lists/single_list_redirected.html', context)
 
 
 @login_required
@@ -138,6 +163,8 @@ def edit_product(request, product_id):
 import plotly.express as px
 from django.shortcuts import render
 from datetime import datetime,date
+from calendar import monthrange
+import plotly.graph_objects as go
 
 @login_required
 def main_panel(request):
@@ -145,45 +172,195 @@ def main_panel(request):
     receipts = Receipt.objects.filter(owner=request.user).values_list("receipt_categories", "amount", "date_added")
     new_messages_number = Message.objects.filter(receiver=request.user, new=True).count()
     categories = BaseCategories.objects.values_list("id","category_name")
+    guarantees = Guarantee.objects.filter(owner=request.user, is_deleted=False)
+
+    year_sum = 0
+    month_sum = 0
+    week_sum = 0
+    day_sum = 0
+
+    #### DEADLINES ####
+    guar_list = []
+    left = []
+    for guar in guarantees:
+        days_left = (guar.end_date - date.today()).days
+        if days_left < 3:
+            guar_list.append(guar)
+            left.append(days_left)
+
+    deadlines = zip(left,guar_list)
+
+    page_number = request.GET.get('page', 1)
+    p = Paginator(sorted(list(deadlines), key=lambda x: x[0]), 3)
+
+    #### CHARTS ####
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
 
     df = pd.DataFrame(list(expenses))
     df_rec = pd.DataFrame(list(receipts))
     df.columns = ['category', 'amount', "date_added"]
     df_rec.columns = ['category', 'amount', "date_added"]
-    # new = pd.concat([df, df_rec])
-    # print(new)
-    # for i in range(len(new)):
-    #     print(i)
-    #     print(str(new.loc[i, 'date_added']))
-    # print(new["date_added"])
+    new = pd.concat([df, df_rec])
 
     # Pie Chart
     df_temp = pd.DataFrame(list(categories))
     df_temp.columns = ['category', 'category_name']
-    df2 = pd.merge(df, df_temp, on=['category'])
+    df2 = pd.merge(new, df_temp, on=['category'])
+    # print(df2)
+    for i in range(len(df2)):
+        df2.loc[i, 'date_added'] = date(int(str(df2.loc[i, 'date_added'])[:4]),
+                                        int(str(df2.loc[i, 'date_added'])[5:7]),
+                                        int(str(df2.loc[i, 'date_added'])[8:10]))
+
+    try:
+        df2_year = df2[(df2["date_added"] >= date(datetime.today().year, 1, 1))]
+        df2_year = df2_year[['amount', 'category_name']].groupby('category_name', as_index=False).sum().sort_values(
+            by=['amount'], ascending=False)
+
+        year_sum = df2_year['amount'].sum()
+        new = df2_year[:3]
+        if len(df2_year) >= 3:
+            new.loc[len(new)] = ["Inne", df2_year['amount'][3:].sum()]
+            df2_year = new
+
+        if df2_year.empty:
+            pie_chart_year = "Brak danych z tego roku"
+        else:
+            fig_pie_year = go.Figure(go.Pie(
+                name="",
+                hole= 0.5,
+                values=df2_year['amount'],
+                labels=df2_year['category_name'],
+                texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
+                textposition="inside",
+            ))
+            fig_pie_year.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_pie_year.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
+                                       legend=dict(
+                                           orientation="h",  # Set legend orientation to horizontal
+                                       )
+                                       )
+
+            pie_chart_year = fig_pie_year.to_html(full_html=False, include_plotlyjs=False)
+    except:
+        pie_chart_year = "None"
+
+    try:
+        df2_month = df2[(df2["date_added"] >= date(datetime.today().year, datetime.today().month, 1))]
+        df2_month = df2_month[['amount', 'category_name']].groupby('category_name', as_index=False).sum().sort_values(
+            by=['amount'], ascending=False)
+        month_sum = df2_month['amount'].sum()
+        new = df2_month[:3]
+        if len(df2_month) >= 3:
+            new.loc[len(new)] = ["Inne", df2_month['amount'][3:].sum()]
+            df2_month = new
+
+        if df2_month.empty:
+            pie_chart_month = "Brak danych z tego miesiąca"
+        else:
+            fig_pie_month = go.Figure(go.Pie(
+                name="",
+                hole=0.5,
+                values=df2_month['amount'],
+                labels=df2_month['category_name'],
+                texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
+                textposition="inside",
+            ))
+            fig_pie_month.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_pie_month.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
+                                        autosize=False,
+                                        width=300,
+                                        height=300,
+                                        legend=dict(orientation="h"))
+            pie_chart_month = fig_pie_month.to_html(full_html=False, include_plotlyjs=False)
+    except:
+        pie_chart_month = "None"
+
+    list_of_weeks = [8, 15, 22, 29, monthrange(datetime.today().year, datetime.today().month)[1]]
+    day = datetime.today().day
+    weekday = 0
+
+    for i in list_of_weeks:
+        if day <= i:
+            weekday = i
+            break
+    nk = df2[date(datetime.today().year, datetime.today().month, 1) <= df2["date_added"]]
+    nk = nk[nk["date_added"] <= date(datetime.today().year, datetime.today().month, weekday)]
 
 
     try:
+        df2_week = nk
+        df2_week = df2_week[['amount', 'category_name']].groupby('category_name', as_index=False).sum().sort_values(
+            by=['amount'], ascending=False)
+        week_sum = df2_week['amount'].sum()
+        new = df2_week[:3]
+        if len(df2_week) >= 3:
+            new.loc[len(new)] = ["Inne", df2_week['amount'][3:].sum()]
+            df2_week = new
 
-        for i in range(len(df2)):
-            df2.loc[i, 'date_added'] = date(int(str(df2.loc[i, 'date_added'])[:4]),
-                                            int(str(df2.loc[i, 'date_added'])[5:7]),
-                                            int(str(df2.loc[i, 'date_added'])[8:10]))
-
-        print(df2[(df2["date_added"] > date(2023,11,1))])
-
-        fig_pie = px.pie(df2, values='amount', names='category_name', height=300)
-
-        pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
-
-        labels = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"]
-
-
+        if df2_week.empty:
+            pie_chart_week = "Brak danych z tego tygodnia"
+        else:
+            fig_pie_week = go.Figure(go.Pie(
+                name="",
+                hole=0.5,
+                values=df2_week['amount'],
+                labels=df2_week['category_name'],
+                texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
+                textposition="inside",
+            ))
+            fig_pie_week.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_pie_week.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
+                                        autosize=False,
+                                        width=300,
+                                        height=300,
+                                        legend=dict(orientation="h"))
+            pie_chart_week = fig_pie_week.to_html(full_html=False, include_plotlyjs=False)
     except:
-        pie_chart = "None"
-        labels = "None"
+        pie_chart_week = "None"
 
-    context = {"pie_chart": pie_chart, 'labels': labels, 'new_messages_number': new_messages_number}
+
+    try:
+        df2_day = df2[(df2["date_added"] == date(datetime.today().year, datetime.today().month, datetime.today().day))]
+        df2_day = df2_day[['amount', 'category_name']].groupby('category_name', as_index=False).sum().sort_values(
+            by=['amount'], ascending=False)
+
+        day_sum = df2_day['amount'].sum()
+        new = df2_day[:3]
+        if len(df2_day) >= 3:
+            new.loc[len(new)] = ["Inne", df2_day['amount'][3:].sum()]
+            df2_day = new
+
+        if df2_day.empty:
+            pie_chart_day = "Brak danych z tego dnia"
+        else:
+            fig_pie_day = go.Figure(go.Pie(
+                name="",
+                hole=0.5,
+                values=df2_day['amount'],
+                labels=df2_day['category_name'],
+                texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
+                textposition="inside",
+            ))
+            fig_pie_day.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_pie_day.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
+                                        autosize=False,
+                                        width=300,
+                                        height=300,
+                                        legend=dict(orientation="h"))
+            pie_chart_day = fig_pie_day.to_html(full_html=False, include_plotlyjs=False)
+    except:
+        pie_chart_day = "None"
+
+    context = {"pie_chart_year": pie_chart_year, 'pie_chart_month': pie_chart_month,
+               'new_messages_number': new_messages_number,'pie_chart_day': pie_chart_day,
+               'pie_chart_week': pie_chart_week, 'year_sum':year_sum, 'month_sum':month_sum,
+               'deadlines': deadlines, 'pages': pages, 'week_sum':week_sum, 'day_sum':day_sum,}
     return render(request, 'shopping_lists/main_panel.html', context)
 
 
@@ -211,17 +388,17 @@ def share_list(request, list_id):
     groups = CommonGroups.objects.filter(members__username=request.user.username)
 
     if request.method == "POST":
-        if request.POST.get("chosen_users_or_whole_group") == "chosen_users":
+        if request.POST["chosen_users_or_whole_group"] == "chosen_users":
             for user_id in request.POST.getlist("users_chosen"):
                 lista.realizators.add(User.objects.get(id=int(user_id)))
-        elif request.POST.get("chosen_users_or_whole_group") == "whole_group":
-            grp = groups.get(id=int(request.POST.get("group")))
+        elif request.POST["chosen_users_or_whole_group"] == "whole_group":
+            grp = groups.get(id=int(request.POST["group"]))
             for member in grp.members.values_list():
                 lista.realizators.add(User.objects.get(id=int(member[0])))
 
         if request.POST['copy_or_display_only'] == "copy":
             lista.display_only = False
-        elif request.POSR['copy_or_display_only'] == 'display_only':
+        elif request.POST['copy_or_display_only'] == 'display_only':
             lista.display_only = True
 
         for person in lista.realizators.all():
@@ -232,6 +409,8 @@ def share_list(request, list_id):
 
         lista.is_shared = True
         lista.save()
+        messages.success(request,"Lista została przekazana")
+        return redirect("single_list", list_id=lista.id)
 
     context = {'list': lista, 'users': users, 'groups':groups, 'user': request.user}
     return render(request, 'shopping_lists/share_list.html', context)

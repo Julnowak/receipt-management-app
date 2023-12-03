@@ -10,8 +10,9 @@ class ShoppingListForm(forms.ModelForm):
         widgets = {
                     'text': forms.TextInput(attrs={
                         'class': "form-control",
-                        'style': 'max-width: 300px; margin: auto',
+                        'style': 'max-width: 300px; margin: auto; border-color:black',
                     })}
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -21,6 +22,6 @@ class ProductForm(forms.ModelForm):
         widgets = {
             'product': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'max-width: 300px; margin: auto',
+                'style': 'max-width: 300px; margin: auto; border-color:black',
             })}
 

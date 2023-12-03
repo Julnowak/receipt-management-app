@@ -16,13 +16,13 @@ class CommonGroupsForm(forms.ModelForm):
         widgets = {
             'group_name': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'width: 300px; margin: auto',
+                'style': 'width: 300px; margin: auto;border-color: black',
                 'placeholder': 'Grupa',
                 'label': "Nazwa grupy"
             }),
             'max_number_of_members': forms.NumberInput(attrs={
                 'class': "form-control",
-                'style': 'width: 300px; margin: auto',
+                'style': 'width: 300px; margin: auto; border-color: black',
                 'max': '50',
                 'min': '1',
                 'label': "Maksymalna liczba członków"
@@ -30,7 +30,7 @@ class CommonGroupsForm(forms.ModelForm):
 
             'password': forms.TextInput(attrs={
                 'class': "form-control",
-                'style': 'width: 300px; margin: auto',
+                'style': 'width: 300px; margin: auto;border-color: black',
                 'label': "Hasło"
             })
         }
