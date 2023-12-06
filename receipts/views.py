@@ -26,17 +26,17 @@ CharField.register_lookup(Lower)
 
 @login_required
 def your_receipts(request):
-    if len(Receipt.objects.filter(owner=request.user)) > 5:
+    if len(Receipt.objects.filter(owner=request.user, is_deleted=False)) > 5:
         flag = True
     else:
         flag = False
 
-    if len(Expense.objects.filter(owner=request.user)) > 5:
+    if len(Expense.objects.filter(owner=request.user, is_deleted=False)) > 5:
         flag_e = True
     else:
         flag_e = False
 
-    if len(Guarantee.objects.filter(owner=request.user)) > 5:
+    if len(Guarantee.objects.filter(owner=request.user, is_deleted=False)) > 5:
         flag_g = True
     else:
         flag_g = False
@@ -134,10 +134,25 @@ def guarantees(request):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
-    left = None
+    left = []
+    flags = []
     for guarantee in guarantees:
-        left = guarantee.end_date - datetime.date.today()
-    context = {'guarantees': guarantees, 'time_left': left,'pages': pages}
+        result = guarantee.end_date - datetime.date.today()
+        if int(result.days) < 0:
+            g = guarantees.get(id=guarantee.id)
+            g.is_deleted = True
+            g.save()
+        else:
+            left.append(result)
+
+            if int(result.days) < 3:
+                flags.append(True)
+            else:
+                flags.append(False)
+
+    info = zip(guarantees, left, flags)
+    info = sorted(list(info), key=lambda x: x[1], reverse=False)
+    context = {'guarantees': guarantees, 'time_left': left,'pages': pages, 'info': info}
     return render(request, 'receipts/guarantees.html', context)
 
 
@@ -212,12 +227,95 @@ def receipts_page(request):
     return render(request, 'receipts/receipts_page.html', context)
 
 
+def month_map(name):
+    month = {
+        'stycznia': 1,
+        'lutego': 2,
+        'marca': 3,
+        'kwiecietnia': 4,
+        'maja': 5,
+        'czerwca': 6,
+        'lipca': 7,
+        'sierpnia': 8,
+        'września': 9,
+        'października': 10,
+        'listopada': 11,
+        'grudzieńa': 12
+    }
+
+    return month[name]
+
+
 @login_required
 def expenses_page(request):
     expenses = Expense.objects.filter(owner=request.user, is_deleted=False).order_by('-date_added')
+    only_starred = request.GET.get('only_starred', False)
+    from_date = request.GET.get('from_date', '')
+    to_date = request.GET.get('to_date', '')
+    name = request.GET.get('name', '')
+    from_number = request.GET.get('from_number', '')
+    to_number = request.GET.get('to_number', '')
+
+    # POTRZEBA DOSTOSOWANIA PAGINATORA
+    if request.POST:
+        if 'only_starred_lists' in request.POST:
+            only_starred = request.POST['only_starred_lists']
+            if only_starred == 'on':
+                only_starred = 'True'
+            else:
+                only_starred = 'False'
+
+        else:
+            only_starred = 'False'
+
+        if 'from_date' in request.POST:
+            if request.POST['from_date']:
+                from_date = request.POST['from_date']
+                from_date = datetime.date(int(from_date[:4]),int(from_date[5:7]),int(from_date[8:10]))
+
+        if 'to_date' in request.POST:
+            if request.POST['to_date']:
+                to_date = request.POST['to_date']
+                to_date = datetime.date(int(to_date[:4]), int(to_date[5:7]), int(to_date[8:10]))
+
+        if 'name' in request.POST:
+            name = request.POST['name']
+
+        if 'from_number' in request.POST:
+            from_number = request.POST['from_number']
+
+        if 'to_number' in request.POST:
+            to_number = request.POST['to_number']
+
+    if only_starred == 'True':
+        expenses = expenses.filter(is_starred=True)
+
+    if from_date and to_date:
+        try:
+            lst = from_date.split()
+            from_date = datetime.date(int(lst[2]),int(month_map(lst[1])),int(lst[0]))
+        except:
+            pass
+        if from_date == to_date:
+            expenses = expenses.filter(date_added__range=[from_date, (to_date + datetime.timedelta(days=1))])
+        else:
+            expenses = expenses.filter(date_added__range=[from_date, to_date])
+    elif from_date:
+        try:
+            lst = from_date.split()
+            from_date = datetime.date(int(lst[2]), int(month_map(lst[1])), int(lst[0]))
+        except:
+            pass
+        expenses = expenses.filter(date_added__range=[from_date,datetime.date.today()])
+
+    if name:
+        expenses = expenses.filter(expense_name__contains=name)
+
+    if from_number and to_number:
+        expenses = expenses.filter(amount__range=[from_number, to_number])
 
     page_number = request.GET.get('page', 1)
-    p = Paginator(expenses, 4)
+    p = Paginator(expenses, 6)
 
     try:
         pages = p.page(page_number)
@@ -226,7 +324,11 @@ def expenses_page(request):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
-    context = {'expenses': expenses, 'pages': pages}
+    print(request.POST)
+    print(request.GET)
+
+    context = {'expenses': expenses, 'pages': pages, 'only_starred': only_starred,'to_date': to_date,
+               'from_date':from_date, }
     return render(request, 'receipts/expenses_page.html', context)
 
 
@@ -587,6 +689,24 @@ def receipt_data_read(request, receipt_id):
     receipt = Receipt.objects.get(id=receipt_id,is_deleted=False)
     context = {'receipt': receipt}
     return render(request, 'receipts/receipt_data_read.html', context)
+
+
+@login_required
+def receipt_settings(request):
+    context = {'user': request.user}
+    return render(request, 'receipts/receipt_settings.html', context)
+
+
+@login_required
+def expense_settings(request):
+    context = {'user': request.user}
+    return render(request, 'receipts/expense_settings.html', context)
+
+
+@login_required
+def guarantee_settings(request):
+    context = {'user': request.user}
+    return render(request, 'receipts/guarantee_settings.html', context)
 
 
 ####### Przekierowania #####

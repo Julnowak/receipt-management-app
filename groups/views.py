@@ -98,8 +98,8 @@ def group_site(request, group_id):
             fig_pie.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51','lightgray']))
             fig_pie.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
                                   autosize=False,
-                                  height=500,
-                                  width=400,
+                                  height=400,
+                                  width=350,
                                   legend=dict(orientation="h"))
             pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
     except:
@@ -128,7 +128,7 @@ def group_site(request, group_id):
                        texttemplate=" %{y:.2} zł", )
             ])
             # marker_color = ["#d4af37", '#c0c0c0', '#cd7f32'],
-            fig_bars.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=500,width=400,)
+            fig_bars.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=400,width=350,)
 
             fig_bars.update_layout(barmode='group')
             bars_chart = fig_bars.to_html(full_html=False, include_plotlyjs=False)
@@ -197,7 +197,6 @@ def search(request, group_id):
         name = request.POST.get('textfield', None)
         try:
             user = User.objects.get(username=name)
-            #do something with user
 
             if group.number_of_members >= group.max_number_of_members:
                 text = "Osiągnięto limit członków grupy"

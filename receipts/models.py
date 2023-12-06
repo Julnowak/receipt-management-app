@@ -59,6 +59,7 @@ class Expense(models.Model):
     group = models.ForeignKey(CommonGroups, on_delete=models.CASCADE, blank=True, null=True)
     number = models.PositiveIntegerField(blank=True, null=True)
     time_stamp = models.CharField(max_length=12, choices=TIME_STAMP_CHOICES,default="MIESIĘCY", blank=True, null=True)
+    shop = models.ForeignKey(Shop, blank=True, null=True, on_delete=models.SET_NULL)
     is_starred = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
 

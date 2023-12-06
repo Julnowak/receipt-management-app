@@ -4,7 +4,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
-    <div style="height:60px">
+    <div>
         {% if messages %}
             {% for message in messages %}
                 {% if message.tags == 'success' %}
@@ -42,47 +42,60 @@
 
 
 
-    <div>
-        <form action="{% url 'receipts:costs_by_hand' %}" method="post" style="margin: 20px">
-            {% csrf_token %}
-            <p>
-                {{ form.expense_name.label }}
-                {{ form.expense_name }}
-            </p>
-            <p id="id_checkbox_recurrent" onclick="is_checked_recurrent()">
-                {{ form.is_recurrent }}
+
+    <form action="{% url 'receipts:costs_by_hand' %}" method="post" style="margin: 20px auto">
+        {% csrf_token %}
+        <div style="margin: 20px auto">
+            {{ form.expense_name.label }}
+            {{ form.expense_name }}
+        </div>
+
+        <div id="id_checkbox_recurrent" onclick="is_checked_recurrent()"  style="margin: 20px auto">
+            {{ form.is_recurrent }}
+            <span style="vertical-align: middle;">
                 {{ form.is_recurrent.label }}
-            </p>
-            <p id="recurrent_field" style="display: none">
+            </span>
+        </div>
+
+        <div style="margin: 30px auto">
+            <div id="recurrent_field" style="display: none; margin: 20px auto">
                 {{ form.number.label}}
                 {{ form.number}}
-            </p>
-            <p id="recurrent_field_2" style="display: none">
+            </div>
+
+            <div id="recurrent_field_2" style="display: none; margin: 20px auto">
                 {{ form.time_stamp}}
-            </p>
-            <p>
-                {{ form.amount.label }}
-                {{ form.amount }}
-            </p>
-            <p>
-                {{ form.category.label}}
-                {{ form.category}}
-            </p>
-            <p>
-                <label>
-                    <input id="id_checkbox" onclick="is_checked()" type="checkbox">
-                    Czy należy do grupy?
-                </label>
-            </p>
+            </div>
+        </div>
 
-            <p id="group_field" style="display: none">
-                {{ form.group.label }}
-                {{ form.group }}
-            </p>
+        <div style="margin: 20px auto">
+            {{ form.amount.label }}
+            {{ form.amount }}
+        </div>
 
-            <button name="post_btn" type="submit" class="btn btn-dark">Dodaj</button>
-        </form>
-    </div>
+        <div style="margin: 20px auto">
+            {{ form.category.label}}
+            {{ form.category}}
+        </div>
+
+        <div style="margin: 20px auto">
+            {{ form.shop.label }}
+            {{ form.shop }}
+        </div>
+
+        <div id="my_check_div" style="margin: 30px auto">
+            <input style="accent-color:black; vertical-align: middle; width: 20px;height: 20px; margin: 10px" type="checkbox" onclick="is_checked()" name="check" id="id_checkbox">
+            <label for="my_check" style="vertical-align: middle;">Czy należy do grupy?</label>
+        </div>
+
+        <div id="group_field" style="display: none;margin: 20px auto">
+            {{ form.group.label }}
+            {{ form.group }}
+        </div>
+
+        <button style="width: 150px; margin: 20px" name="post_btn" type="submit" class="btn btn-dark">Dodaj</button>
+    </form>
+
 
     <script>
         function is_checked(){

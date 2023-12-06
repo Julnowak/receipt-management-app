@@ -8,7 +8,7 @@ class BaseCategories(models.Model):
     category_name = models.CharField(max_length=200)
     color = models.CharField(max_length=7, default="#233423")
     date_added = models.DateField(auto_now_add=True)
-    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='category_owner', blank=True, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='category_owner', blank=True, null=True)
     public = models.BooleanField(default=False)
     icon = models.CharField(max_length=2000, default="", blank=True)
 

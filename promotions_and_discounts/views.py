@@ -1,13 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Shop
 import requests
 from bs4 import BeautifulSoup
 import re
-from selenium import webdriver
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-import itertools
 from django.contrib.auth.decorators import login_required
-
+from selenium import webdriver
 
 @login_required
 def shop_selection(request):
@@ -20,9 +18,11 @@ def shop_selection(request):
 def shop_site(request, shop_id):
     shop = Shop.objects.get(id=shop_id)
     page_number = request.GET.get('page', 1)
-
+    PriceFrom = request.GET.get('PriceFrom', '')
+    PriceTo = request.GET.get('PriceTo', '')
+    addon = ''
     # lidl
-    url = shop.link
+    # url = shop.link
     # options = webdriver.ChromeOptions()
     # options.add_argument('headless')
     # driver = webdriver.Chrome(options=options)
@@ -37,68 +37,47 @@ def shop_site(request, shop_id):
     list_of_new_prices = []
     if shop.shop_name == "Lidl":
         pass
-        # max_web_pages = str(html.find_all("a", {"class", "s-pagination__link"}))
-        # list_of_pages = re.findall('=\d+', max_web_pages)
-        # print(list_of_pages)
-        # for i in range(1):
-        #     if i == 0:
-        #         url = shop.link
-        #     else:
-        #         url = shop.link + f"?offset{list_of_pages[i-1]}"
-        #     driver = webdriver.Chrome(options=options)
-        #     driver.implicitly_wait(5)
-        #     driver.get(url)
-        #     html = BeautifulSoup(driver.page_source, 'html.parser')
-        #     print(html)
-
-            # product_name = html.find_all("h2", {"class", "grid-box__headline grid-box__text--dense"})
-            # print(product_name)
-            # discounts = html.find_all("div", {"class", "m-price__label"})
-            # old_price = html.find_all("div", {"class", "m-price__top"})
-            # # print(old_price)
-            # new_price = html.find_all("div", {"class", "m-price__bottom"})
-            #
-            # products_reg = re.sub(r"(\s*<.*?>\s*)", '=', str(product_name))
-            # list_of_products_labels.append(re.findall("=([A-z]+.*?)=", products_reg))
-            #
-            # disc = re.sub(r"(<.*?>)", '', str(discounts))
-            # list_of_discounts.append(re.findall("(-\d\d%)", disc))
-            #
-            # olpri = re.sub(r"(\d+,\d{2}zł)", '', str(old_price))
-            # list_of_old_prices.append(re.findall("(\d+,\d+\szł)", str(old_price)))
-            # print(list_of_old_prices)
-            # newpri = re.sub(r"(<.*?>)", '', str(new_price))
-            # list_of_new_prices.append(re.findall("(\d+,\d+)", newpri))
 
     elif shop.shop_name == "Rossman":
-
-        url = shop.link
+        try:
+            if request.POST['range_price_min'] and request.POST['range_price_max']:
+                addon = f'&PriceFrom={int(request.POST["range_price_min"])}&PriceTo={int(request.POST["range_price_max"])}'
+                PriceFrom = int(request.POST["range_price_min"])
+                PriceTo = int(request.POST["range_price_max"])
+            else:
+                PriceFrom = request.GET.get('PriceFrom', '')
+                PriceTo = request.GET.get('PriceTo', '')
+        except:
+            PriceFrom = request.GET.get('PriceFrom', '')
+            PriceTo = request.GET.get('PriceTo', '')
+        if addon=='' and PriceFrom == '' and PriceTo == '':
+            addon = ''
+        elif addon =='':
+            addon = f'&PriceFrom={PriceFrom}&PriceTo={PriceTo}'
+        url = shop.link[:38] + str(page_number) + shop.link[39:] + addon
         data = requests.get(url)
         html = BeautifulSoup(data.text, 'html.parser')
         max_web_pages = html.find_all("a", {"class", "pages__last"})
+        data = requests.get(url)
+        html = BeautifulSoup(data.text, 'html.parser')
 
-        for i in range(1):
-            url = shop.link[:38] + str(page_number) + shop.link[39:]
-            data = requests.get(url)
-            html = BeautifulSoup(data.text, 'html.parser')
+        n = html.find_all("a", {"class", "tile-product__name"})
+        products_reg = re.sub(r"(\s*<.*?>\s*)", '=', str(n))
+        prices_old = html.find_all("span", {"class", "tile-product__old-price"})
+        prices_new = html.find_all("span", {"class", "tile-product__promo-price"})
+        original_list = re.findall("(?<=\\=)[^=,]+", products_reg)
+        chunked_lists = [original_list[i:i + 4] for i in range(0, len(original_list), 4)]
+        list_of_products_labels += [' '.join(map(str, chunk)) for chunk in chunked_lists][:-1]
+        prices_old_reg = re.sub(r"(\s*<.*?>\s*)", '', str(prices_old))
+        prices_new_reg = re.sub(r"(\s*<.*?>\s*)", '', str(prices_new))
 
-            n = html.find_all("a", {"class", "tile-product__name"})
-            products_reg = re.sub(r"(\s*<.*?>\s*)", '=', str(n))
-            prices_old = html.find_all("span", {"class", "tile-product__old-price"})
-            prices_new = html.find_all("span", {"class", "tile-product__promo-price"})
-            original_list = re.findall("(?<=\\=)[^=,]+", products_reg)
-            chunked_lists = [original_list[i:i + 4] for i in range(0, len(original_list), 4)]
-            list_of_products_labels += [' '.join(map(str, chunk)) for chunk in chunked_lists][:-1]
-            prices_old_reg = re.sub(r"(\s*<.*?>\s*)", '', str(prices_old))
-            prices_new_reg = re.sub(r"(\s*<.*?>\s*)", '', str(prices_new))
-
-            old_prices = re.findall(r"\d+,\d{2} zł", str(prices_old_reg))
-            new_prices = re.findall(r"\d+,\d{2} zł", str(prices_new_reg))
-            ol = re.findall(f'\d+,\d+', ' '.join(old_prices))
-            list_of_old_prices += ol
-            ne = re.findall(f'\d+,\d+', ' '.join(new_prices))
-            list_of_new_prices += ne
-            list_of_discounts += [100 - round(float(ne[x].replace(',', '.'))/float(ol[x].replace(',', '.')) * 100) for x in range(len(ol))]
+        old_prices = re.findall(r"\d+,\d{2} zł", str(prices_old_reg))
+        new_prices = re.findall(r"\d+,\d{2} zł", str(prices_new_reg))
+        ol = re.findall(f'\d+,\d+', ' '.join(old_prices))
+        list_of_old_prices += ol
+        ne = re.findall(f'\d+,\d+', ' '.join(new_prices))
+        list_of_new_prices += ne
+        list_of_discounts += [100 - round(float(ne[x].replace(',', '.'))/float(ol[x].replace(',', '.')) * 100) for x in range(len(ol))]
     elif shop.shop_name == "House":
         pass
 
@@ -158,6 +137,15 @@ def shop_site(request, shop_id):
     list_of_pages = re.findall('\d+', str(max_web_pages))
 
     context = {'shop': shop, 'some_promos': some_promos,'page_obj': page_obj,
-                'max': int(list_of_pages[0]), 'curr': page_number, 'next': str(int(page_number)+1),
-               'previous': str(int(page_number)-1)}
+                'max': int(list_of_pages[0]), 'curr': int(page_number), 'next': str(int(page_number)+1),
+               'previous': str(int(page_number)-1),'PriceFrom' : PriceFrom, 'PriceTo' : PriceTo}
     return render(request, "promotions_and_discounts/shop_site.html", context)
+
+
+@login_required
+def shop_settings(request,shop_id):
+    shop = Shop.objects.get(promos_available=True, id=shop_id)
+    if request.POST:
+        return redirect('promotions_and_discounts:shop_site',shop_id=shop.id)
+    context = {'shop': shop}
+    return render(request, "promotions_and_discounts/shop_settings.html", context)

@@ -11,8 +11,8 @@
             border: 1px solid black;
             margin: 20px auto;
             padding: 20px;
-            min-width: 430px;
-            max-width: 500px;
+            min-width: 350px;
+            max-width: 400px;
             border-radius: 10px;
         }
 
@@ -43,11 +43,9 @@
             transition: 0.5s, opacity 1s;
         }
 
-
     </style>
 
-
-    <div style="height:60px">
+    <div>
         {% if messages %}
             {% for message in messages %}
                 {% if message.tags == 'success' %}
@@ -303,8 +301,8 @@
 
 
 
-    <div class="white_block">
     <div>
+    <div class="white_block" style="min-width: 350px;width: 350px; max-width: 400px">
         <div style="display: grid; grid-template: auto/ 90% 10%">
             <h3 style="margin: 10px ">
                 Członkowie

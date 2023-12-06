@@ -1,3 +1,4 @@
+import datetime
 import decimal
 
 from django import forms
@@ -112,10 +113,11 @@ class HandReceiptForm(forms.ModelForm):
 class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expense
-        fields = ['expense_name', 'is_recurrent','amount','category', 'group', 'number', 'time_stamp']
+        fields = ['expense_name','shop', 'is_recurrent','amount','category', 'group', 'number', 'time_stamp']
         labels = {'expense_name' : "Nazwa", 'is_recurrent':'Czy powtarzalny okresowo?',
                   'amount': "Wysokość", 'category':'Kategoria', 'group':'Grupa',
                   'number': "Powtarzalny co:", 'time_stamp': "Okres czasu",
+                  'shop': 'Sklep'
                   }
         widgets = {
             'amount': forms.NumberInput(attrs={
@@ -127,9 +129,13 @@ class ExpenseForm(forms.ModelForm):
                 'class': "form-select",
                 'style': 'max-width: 300px; margin: auto; border-color: black; border-color: black',}),
 
+            'shop': forms.Select(attrs={
+                'class': "form-select",
+                'style': 'max-width: 300px; margin: auto; border-color: black; border-color: black', }),
+
             'is_recurrent': forms.CheckboxInput(attrs={
                 'class': "checkbox",
-                'style': "width: 30px; border-color: black",
+                'style': "accent-color:black; vertical-align: middle; width: 20px;height: 20px; margin: 10px",
                 'id': "is_rec"
             }),
 
@@ -193,10 +199,22 @@ class GuaranteeForm(forms.ModelForm):
                                                     },
                                                attrs={
                 'class': "form-control",
-                'style': 'max-width: 200px; border-color: black'
+                'style': 'max-width: 300px; border-color: black'
             }),
             'regards': forms.Textarea(attrs={
                 'class': "form-control",
-                'style': 'max-width: 350px; border-color: black'
+                'style': 'max-width: 300px; border-color: black'
             })
         }
+
+    def clean(self):
+        super(GuaranteeForm, self).clean()
+
+        end_date = self.cleaned_data.get('end_date')
+
+        if end_date < datetime.date.today():
+            self._errors['end_date'] = self.error_class([
+                'Nie można podać wcześniejszej daty!'
+            ])
+
+        return self.cleaned_data

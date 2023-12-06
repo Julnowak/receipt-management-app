@@ -5,49 +5,102 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-    <h1 style="margin-top: 20px">Statystyki</h1>
+    <style>
+        .basic_white{
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+        }
 
-    <div style="margin: 10px; padding: 10px; display: inline-block; vertical-align: middle">
-        <h3 style="font-weight:1000;">Ogólne</h3>
-        <div>
-            <div>
-                Wydatki, paragony
+        .chosen_one_box{
+            background-color: white;
+            border: 1px solid lightgrey;
+            padding: 10px;
+            margin: 5px 5px 0 5px;
+            transition: 0.5s, opacity 1s;
+            border-radius: 20px;
+            cursor: pointer;
+            width: 60px;
+            display: inline-block;
+        }
 
+        .chosen_one_box:hover{
+            filter: brightness(85%);
+            transition: 0.5s, opacity 1s;
+        }
 
-            </div>
-<div>
-            <div id="year_box" class="chosen_one_box">
-                Roczne
-            </div>
-            <div id="month_box" class="chosen_one_box">M</div>
-            <div id="week_box" class="chosen_one_box">T</div>
-            <div id="day_box" class="chosen_one_box"> D</div>
+    </style>
+
+    <div>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                     <div id="messages" class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% else %}
+                     <div id="messages" class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <script>
+            var mess = document.getElementById("messages")
+
+            setTimeout(function(){
+                mess.style.display="none";
+            },2000)
+        </script>
+    </div>
+
+    <a href="{% url 'category_charts' %}">
+        <div style="position: absolute; top: 100px;color: black; right: 20px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
+            </svg>
         </div>
+    </a>
+
+    <h1 style="margin-top: 20px">Statystyki</h1>
+    <h3 style="text-align: center">Ogólne</h3>
+
+    <div style="margin: 10px auto; padding: 10px; display: inline-block; vertical-align: middle">
+        <div>
+
+            <div style="text-align:center;">
+                <div id="year_box" style="display: inline-block" class="chosen_one_box">
+                    Wszystkie
+                </div>
+                <div id="month_box" style="display: inline-block" class="chosen_one_box">R</div>
+                <div id="week_box" style="display: inline-block" class="chosen_one_box">M</div>
+            </div>
 
         <div class="basic_white" id="expenses_title">
-            <div id="year" style="align-items: center; margin: auto; height:300px">
+            <div id="year" style="align-items: center; margin: auto; height:500px">
                 {% autoescape off %}
                     {{ exp_rec_pie }}
                 {% endautoescape %}
             </div>
 
-            <div id="month" style="display: none;align-items: center; margin: auto; height: 300px">
+            <div id="month" style="display: none;align-items: center; margin: auto; height:500px">
                 {% autoescape off %}
-                    {{ pie_chart_month }}
+                    {{ pie_years }}
                 {% endautoescape %}
             </div>
 
-            <div id="week" style="display: none;align-items: center; margin: auto; height:300px">
-
+            <div id="week" style="display: none;align-items: center; margin: auto; height:500px">
+                {% autoescape off %}
+                    {{ pie_months }}
+                {% endautoescape %}
             </div>
 
-            <div id="day" style="display: none;align-items: center; margin: auto; height:300px">
-
-            </div>
         </div>
-        <h3 id="text" style="margin: 10px">
-            Łącznie: {{ year_sum|floatformat:2 }} zł
-        </h3>
+        <h4 id="text" style="margin: 10px; text-align: center">
+            Łącznie: {{ suma|floatformat:2 }} zł
+        </h4>
 
     </div>
 
@@ -55,22 +108,19 @@
         var year_box = document.getElementById("year_box")
         var month_box = document.getElementById("month_box")
         var week_box = document.getElementById("week_box")
-        var day_box = document.getElementById("day_box")
         var y = document.getElementById("year")
         var m = document.getElementById("month")
         var w = document.getElementById("week")
-        var d = document.getElementById("day")
         var text = document.getElementById("text")
 
         var boxes = [
             year_box,
             month_box,
             week_box,
-            day_box,
              ];
 
-        var names = ["Roczne", "Miesięczne", "Tygodniowe", "Dzienne"];
-        var short_names = ["R", "M", "T", "D"];
+        var names = ["Wszystkie", "Roczne", "Miesięczne"];
+        var short_names = ["W", "R", "M"];
 
         year_box.style.transition = "0";
         year_box.style.backgroundColor = "lightgrey";
@@ -88,28 +138,24 @@
                   y.style.display = 'grid';
                   m.style.display = 'none';
                   w.style.display = 'none';
-                  d.style.display = 'none';
                   {#text.innerHTML = `Łącznie: {{ year_sum|floatformat:2 }} zł`#}
               }
               else if (box === month_box){
                   m.style.display = 'grid';
                   y.style.display = 'none';
                   w.style.display = 'none';
-                  d.style.display = 'none';
                   {#text.innerHTML = `Łącznie: {{ month_sum|floatformat:2 }} zł`#}
               }
               else if (box === week_box){
                   m.style.display = 'none';
                   y.style.display = 'none';
                   w.style.display = 'grid';
-                  d.style.display = 'none';
                   {#text.innerHTML = `Łącznie: {{ week_sum|floatformat:2 }} zł`#}
               }
               else if (box === day_box){
                   m.style.display = 'none';
                   y.style.display = 'none';
                   w.style.display = 'none';
-                  d.style.display = 'grid';
                   {#text.innerHTML = `Łącznie: {{ day_sum|floatformat:2 }} zł`#}
               }
               boxes.forEach((item) => {
@@ -134,44 +180,31 @@
           }
     </script>
 
-{#            <div>#}
-{#                Kategorie#}
-{#                {% autoescape off %}#}
-{#                    {{ pie_chart }}#}
-{#                {% endautoescape %}#}
-{#            </div>#}
 
-            <div>
+            <div style="margin: 30px auto">
+                <h3>Dane liczbowe</h3>
 
-                Posiadasz <b>{{ rec_num }}</b> paragonów.
+                <div>
+                    Posiadasz <b>{{ rec_num_actual }}</b> paragonów.
+                    <br>
+                    Od początku dodałeś już <b>{{ rec_num }}</b> paragonów.
+                </div>
                 <br>
-                Posiadasz <b>{{ expen_num }}</b> wydatków.
+                <div>
+                    Posiadasz <b>{{ exps_num_actual }}</b> opłat.
+                    <br>
+                    Od początku dodałeś już <b>{{ exps_num }}</b> opłat.
+                </div>
                 <br>
-                Posidasz <b>{{ guar_num }}</b> gwarancji.
+                <div>
+                    Posiadasz <b>{{ guar_num_actual }}</b> gwarancji.
+                <br>
+                    Od początku dodałeś już <b>{{ guar_num }}</b> gwarancji.
+                </div>
+
             </div>
 
-            <div>
-                Wydano łącznie <b>{{ suma }}</b> zł.
-            </div>
-
-            <div class="basic_white" style="border: 1px solid black; margin: 20px auto;min-width: 400px; max-width: 600px">
-                <h4> Porównaj się z innymi! </h4>
-            </div>
-
-
-            <br>
-            <div style="text-align: center">
-                <a href="#" class="btn btn-dark" >
-                    <svg style="margin-right: 10px; display: inline-block; vertical-align: middle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person-square" viewBox="0 0 16 16">
-                      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                      <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1v-1c0-1-1-4-6-4s-6 3-6 4v1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12z"/>
-                    </svg>
-                    <div style="display: inline; vertical-align: middle">
-                        Zobacz profil
-                    </div>
-                </a>
-            </div>
-        </div>
     </div>
+
 
 {% endblock content %}

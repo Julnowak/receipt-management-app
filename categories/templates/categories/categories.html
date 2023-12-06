@@ -134,21 +134,25 @@
 
     <h2>Własne</h2>
     <div style="display: grid; grid-template: 33% 33% 33%/ auto auto; height: 300px; justify-content: center; margin: 10px">
-        {% for cat in cat_private %}
-            <a style="text-decoration: none; color: black" href="{% url 'categories:subcategories' cat.id %} " >
 
-            <div class="color_block" style="background-color: {{ cat.color }};">
+        {% for cat in pages_private %}
+
+            <a style="text-decoration: none; color: black;padding: 5px " href="{% url 'categories:subcategories' cat.id %} " >
+
+            <div class="color_block" style="background-color: {{ cat.color }};padding: 30px">
                 <span style="margin-right: 10px">{{ cat.icon|safe }}</span>
 
                 <span style="margin: 0 5px;">{{ cat }}</span>
             </div>
 
             </a>
+
         {% empty %}
            <div class="color_block_noclick" style="width:300px;background-color: lightgrey;padding: 10px">
                 <span style="margin: 0 auto;">Brak własnych kategorii.</span>
             </div>
         {% endfor %}
+
     </div>
 
     <div style="text-align: center; margin: 10px auto">

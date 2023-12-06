@@ -8,6 +8,8 @@ class Shop(models.Model):
     image = models.ImageField(blank=True, null=True)
     link = models.CharField(max_length=2000,blank=True, null=True)
     promos_available = models.BooleanField(default=False)
+    nip = models.CharField(max_length=20, blank=True, null=True)
+    map_names = models.CharField(max_length=200, blank=True, null=True)
     category = models.ManyToManyField(BaseCategories)
 
     def __str__(self):

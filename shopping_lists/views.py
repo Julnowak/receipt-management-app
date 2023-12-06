@@ -1,8 +1,10 @@
-from django.shortcuts import render, redirect, reverse
 from .models import ShoppingList, ListProduct
 from receipts.models import Expense, Receipt,Guarantee
 from .forms import ShoppingListForm, ProductForm
-from django.http import Http404
+from django.shortcuts import render, redirect, reverse
+from datetime import datetime,date
+from calendar import monthrange
+import plotly.graph_objects as go
 from django.contrib.auth.decorators import login_required
 from my_messages.models import Message, User
 from categories.models import BaseCategories
@@ -159,12 +161,6 @@ def edit_product(request, product_id):
     context = {'current_product': current_product, 'form': form, 'list':current_list}
     return render(request, 'shopping_lists/edit_product.html', context)
 
-
-import plotly.express as px
-from django.shortcuts import render
-from datetime import datetime,date
-from calendar import monthrange
-import plotly.graph_objects as go
 
 @login_required
 def main_panel(request):
@@ -415,6 +411,7 @@ def share_list(request, list_id):
     context = {'list': lista, 'users': users, 'groups':groups, 'user': request.user}
     return render(request, 'shopping_lists/share_list.html', context)
 
+
 @login_required
 def update_is_bought(request, list_id):
     if request.method == 'POST':
@@ -472,3 +469,19 @@ def new_list(request):
          form = ShoppingListForm()
     context = {"form": form}
     return render(request, 'shopping_lists/new_shopping_list.html', context)
+
+
+@login_required
+def details(request, list_id):
+    sh_list = ShoppingList.objects.get(id=list_id)
+
+    context = {'sh_list': sh_list}
+    return render(request, 'shopping_lists/details.html', context)
+
+
+@login_required
+def details_redirected(request, list_id):
+    sh_list = ShoppingList.objects.get(id=list_id)
+
+    context = {'sh_list': sh_list}
+    return render(request, 'shopping_lists/details_redirected.html', context)

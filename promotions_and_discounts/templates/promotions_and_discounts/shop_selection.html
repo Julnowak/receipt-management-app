@@ -7,26 +7,37 @@
 
     <h1 style="text-align: center;margin-top: 20px">Promocje</h1>
     <h3 style="text-align: center">Dostępne sklepy:</h3>
+    {% for shop in shops %}
+    <div style=" display: grid; grid-template: auto/ 20% 80%;margin: 20px auto; padding: 10px; min-width: 400px; max-width: 600px">
 
-    <div style="margin: 20px auto; padding: 10px; min-width: 300px; max-width: 600px">
-        {% for shop in shops %}
-            <a class="shops" href="{% url 'promotions_and_discounts:shop_site' shop.id %}" style="text-decoration: none; color: black;">
-                <div  style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
-                    <span style="display: inline-grid;vertical-align: middle">{{ shop }}</span>
+        <div style=" border-radius: 10px; padding: 10px">
+            <div style="border: 2px solid black; height: 100%; border-radius: 10px">
+                <div style="text-align: center; line-height: 52px; font-size: 30px">
+                    <b>R</b>
                 </div>
-            </a>
+            </div>
+        </div>
+
+        <a class="shops" href="{% url 'promotions_and_discounts:shop_site' shop.id %}" style="text-decoration: none; color: black;">
+            <div  style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid #000000;" >
+                <span style="display: inline-grid;vertical-align: middle">{{ shop }}</span>
+            </div>
+        </a>
+
+    </div>
+
         {% empty %}
-            <div style="text-decoration: none; color: black;">
-                <div style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
+            <div style="text-decoration: none; color: black; text-align: center">
+                <div style="max-width:400px;display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid #000000;" >
                     <span style="display: inline-grid;vertical-align: middle">Nie ma jeszcze dostępnych sklepów</span>
                 </div>
             </div>
         {% endfor %}
-    </div>
 
     <span style="color: gray; text-align: center">Więcej ofert sklepów już wkrótce!</span>
 
-    <div id="spinner" style="left: 50%;top: 50%;transform: translate(-50%, -50%);display: none; position: absolute; text-align: center; margin: 20px; z-index: 3">
+
+    <div id="spinner" style="left: 50%;top: 50%;transform: translate(-50%, -50%);display: none; position: absolute; text-align: center; z-index: 3">
         <div class="spinner-border" style="margin:30px; width: 3rem; height: 3rem; color: #ffffff" role="status">
             <span class="sr-only"></span>
         </div>

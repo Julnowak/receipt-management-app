@@ -16,7 +16,7 @@
     <h1 style="text-align: center; margin-top: 20px">Nowy paragon</h1>
 
 
-    <form style="margin: 20px;padding: 10px" method="post" action="{% url 'receipts:receipt_by_hand' %}">
+    <form style="margin: 20px auto;padding: 10px" method="post" action="{% url 'receipts:receipt_by_hand' %}">
         {% csrf_token %}
         {{ form.as_p }}
         <div style="text-align: center; ">

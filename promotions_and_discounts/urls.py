@@ -7,4 +7,5 @@ app_name = 'promotions_and_discounts'
 urlpatterns = [
     path('', views.shop_selection, name='shop_selection'),
     path('<int:shop_id>', views.shop_site, name='shop_site'),
+    path('<int:shop_id>/shop_settings', views.shop_settings, name='shop_settings'),
 ]

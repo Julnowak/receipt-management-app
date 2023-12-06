@@ -13,9 +13,17 @@
         </div>
     </a>
 
+    <a href="{% url 'receipts:expense_settings' %}">
+        <div style="position: absolute; top: 100px;color: black; right: 20px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+            </svg>
+        </div>
+    </a>
+
     <h1 style="text-align: center; margin-top: 20px">Wydatki</h1>
-    <div style="margin: 20px;">
-        {% for expense in expenses %}
+    <div style="margin: 20px auto; min-width: 350px; height: 400px">
+        {% for expense in pages %}
             {% if expense.is_starred %}
                 <a href="{% url 'receipts:expense_site' expense.id %}" style="text-decoration: none; color: black;">
                     <div style="display: grid;grid-template: auto/ 90% 10%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
@@ -35,6 +43,41 @@
         {% endfor %}
     </div>
 
+    <div style="text-align: center; margin: 30px auto 10px auto;">
+        {% if pages.has_other_pages %}
+          <ul class="pagination" style="display: inline-block;">
+            {% if pages.has_previous %}
+              <li style="display: inline-block;"><a style="text-decoration: none; color: black" href="?page={{ pages.previous_page_number }}&only_starred={{ only_starred }}&from_date={{ from_date }}&to_date{{ to_date }}&name{{ name }}&from_number{{ from_number }}&to_number={{ to_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li class="disabled" style="display: inline-block;"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+
+              <li class="active" style="margin:0 auto;display: inline-block"><span>{{ pages.number }}/{{ pages.paginator.num_pages }} <span class="sr-only"></span></span></li>
+
+            {% if pages.has_next %}
+              <li style="display: inline;"><a style="text-decoration: none; color: black" href="?page={{ pages.next_page_number }}&only_starred={{ only_starred }}&from_date={{ from_date }}&to_date{{ to_date }}&name{{ name }}&from_number{{ from_number }}&to_number={{ to_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li style="display: inline;" class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+          </ul>
+        {% endif %}
+    </div>
 
     <div style="text-align:center; position: sticky; flex: 6; margin-top: auto; margin-bottom: 40px; display: flex; flex-direction: column-reverse;">
         <div id="icons_container_id" class="icons_container">

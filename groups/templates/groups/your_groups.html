@@ -40,7 +40,7 @@
         Twoje grupy
     </h1>
 
-    <div style="max-width: 600px; min-width: 400px; margin: 10px auto">
+    <div style="max-width: 500px; min-width: 350px; height: 600px; margin: 10px auto">
         {% for group in pages %}
             <a href="{% url 'groups:group_site' group.id %}" style="text-decoration: none; color: black">
                 <div style="vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;">
@@ -70,7 +70,7 @@
         }
     </script>
 
-    <div style=" text-align: center; position:absolute; bottom:150px;width:100%;height:60px; z-index: 1">
+    <div style=" text-align: center; bottom:150px;width:100%;height:60px; z-index: 1">
         <a href="{% url 'groups:add_group' %}" style=" text-decoration: none; color: black;">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
               <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
@@ -85,7 +85,7 @@
 
 
 
-    <div style="text-align:center; position: sticky; flex: 1; margin-top: auto; display: flex; flex-direction: column-reverse;">
+    <div style="text-align:center; position: sticky; flex: 1; margin-top: 30px; display: flex; flex-direction: column-reverse;">
         <div style="display: inline-block">
        {% if pages.has_other_pages %}
             {% if pages.has_previous %}
