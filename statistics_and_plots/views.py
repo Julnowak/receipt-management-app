@@ -12,6 +12,43 @@ import plotly.graph_objects as go
 from django.contrib.auth.decorators import login_required
 
 
+def calculate_recurrent_expense(df):
+    multiplier = 1
+
+    # Ogólne
+    year = []
+    month = []
+    day = []
+    for i, row in df.iterrows():
+        yk = str(row['date_added'])
+        year += [int(yk[:4])]
+        month += [int(yk[5:7])]
+        day += [int(yk[8:10])]
+        if row['is_recurrent']:
+
+            newr = datetime.date(int(yk[:4]), int(yk[5:7]), int(yk[8:10]))
+            if row['time_stamp'] == 'DNI':
+                days_from = int((datetime.date.today() - newr).days)
+                multiplier = days_from // int(row['number'])
+            else:
+                calc = 1
+                years_from = int(datetime.date.today().year - newr.year)
+                months_from = int(datetime.date.today().month - newr.month)
+                if row['time_stamp'] == 'LAT':
+                    calc = years_from // int(row['number'])
+                elif row['time_stamp'] == 'MIESIĘCY':
+                    calc = (years_from * 12 + months_from) // int(row['number'])
+
+                if calc != 0:
+                    multiplier = calc
+            multiplier += 1
+            df.at[i, 'amount'] = decimal.Decimal(float(df.loc[i]['amount']) * multiplier)
+
+    df['Year'] = year
+    df['Month'] = month
+    df['Day'] = day
+    return df
+
 @login_required
 def statistics(request):
     exps = Expense.objects.filter(owner=request.user)
@@ -221,40 +258,7 @@ def groups_charts(request):
     df_temp.columns = ['group', 'group_name','number_of_members']
     df_new = pd.merge(df_new, df_temp, on=['group'])
 
-    multiplier = 1
-
-    # Ogólne
-    year = []
-    month = []
-    day = []
-    for i, row in df_new.iterrows():
-        yk = str(row['date_added'])
-        year += [int(yk[:4])]
-        month += [int(yk[5:7])]
-        day += [int(yk[8:10])]
-        if row['is_recurrent']:
-
-            newr = datetime.date(int(yk[:4]), int(yk[5:7]), int(yk[8:10]))
-            if row['time_stamp'] == 'DNI':
-                days_from = int((datetime.date.today() - newr).days)
-                multiplier = days_from // int(row['number'])
-            else:
-                calc = 1
-                years_from = int(datetime.date.today().year - newr.year)
-                months_from = int(datetime.date.today().month - newr.month)
-                if row['time_stamp'] == 'LAT':
-                    calc = years_from // int(row['number'])
-                elif row['time_stamp'] == 'MIESIĘCY':
-                    calc = (years_from * 12 + months_from) // int(row['number'])
-
-                if calc != 0:
-                    multiplier = calc
-            multiplier +=1
-            df_new.at[i, 'amount'] = decimal.Decimal(float(df_new.loc[i]['amount']) * multiplier)
-
-    df_new['Year'] = year
-    df_new['Month'] = month
-    df_new['Day'] = day
+    df_new = calculate_recurrent_expense(df_new)
 
     df_recs = pd.DataFrame(list(recs))
     df_recs.columns = ["receipt_name", "date_added", "amount",'group']

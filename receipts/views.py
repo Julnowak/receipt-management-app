@@ -123,9 +123,60 @@ def costs_by_hand(request):
 @login_required
 def guarantees(request):
     guarantees = Guarantee.objects.filter(owner=request.user, is_deleted=False)
+    from_date = request.GET.get('from_date', '')
+    to_date = request.GET.get('to_date', '')
+    name = request.GET.get('name', '')
+    from_number = request.GET.get('from_number', '')
+    to_number = request.GET.get('to_number', '')
+
+    # POTRZEBA DOSTOSOWANIA PAGINATORA
+    if request.POST:
+
+        if 'from_date' in request.POST:
+            if request.POST['from_date']:
+                from_date = request.POST['from_date']
+                from_date = datetime.date(int(from_date[:4]),int(from_date[5:7]),int(from_date[8:10]))
+
+        if 'to_date' in request.POST:
+            if request.POST['to_date']:
+                to_date = request.POST['to_date']
+                to_date = datetime.date(int(to_date[:4]), int(to_date[5:7]), int(to_date[8:10]))
+
+        if 'name' in request.POST:
+            name = request.POST['name']
+
+        if 'from_number' in request.POST:
+            from_number = request.POST['from_number']
+
+        if 'to_number' in request.POST:
+            to_number = request.POST['to_number']
+
+    if from_date and to_date:
+        try:
+            lst = from_date.split()
+            from_date = datetime.date(int(lst[2]),int(month_map(lst[1])),int(lst[0]))
+        except:
+            pass
+        if from_date == to_date:
+            guarantees = guarantees.filter(date_added__range=[from_date, (to_date + datetime.timedelta(days=1))])
+        else:
+            guarantees = guarantees.filter(date_added__range=[from_date, to_date])
+    elif from_date:
+        try:
+            lst = from_date.split()
+            from_date = datetime.date(int(lst[2]), int(month_map(lst[1])), int(lst[0]))
+        except:
+            pass
+        guarantees = guarantees.filter(date_added__range=[from_date,datetime.date.today()])
+
+    if name:
+        guarantees = guarantees.filter(guarantee_name__contains=name)
+
+    if from_number and to_number:
+        guarantees = guarantees.filter(amount__range=[from_number, to_number])
 
     page_number = request.GET.get('page', 1)
-    p = Paginator(guarantees, 4)
+    p = Paginator(guarantees, 6)
 
     try:
         pages = p.page(page_number)
@@ -152,7 +203,10 @@ def guarantees(request):
 
     info = zip(guarantees, left, flags)
     info = sorted(list(info), key=lambda x: x[1], reverse=False)
-    context = {'guarantees': guarantees, 'time_left': left,'pages': pages, 'info': info}
+
+    context = {'to_date': to_date,
+               'from_date':from_date,'from_number':from_number,'to_number': to_number, 'name': name,
+               'guarantees': guarantees, 'time_left': left,'pages': pages, 'info': info}
     return render(request, 'receipts/guarantees.html', context)
 
 
@@ -212,9 +266,73 @@ def new_guarantee(request):
 @login_required
 def receipts_page(request):
     receipts = Receipt.objects.filter(owner=request.user, is_deleted=False).order_by('-date_added')
+    only_starred = request.GET.get('only_starred', False)
+    from_date = request.GET.get('from_date', '')
+    to_date = request.GET.get('to_date', '')
+    name = request.GET.get('name', '')
+    from_number = request.GET.get('from_number', '')
+    to_number = request.GET.get('to_number', '')
+
+    # POTRZEBA DOSTOSOWANIA PAGINATORA
+    if request.POST:
+        if 'only_starred_lists' in request.POST:
+            only_starred = request.POST['only_starred_lists']
+            if only_starred == 'on':
+                only_starred = 'True'
+            else:
+                only_starred = 'False'
+
+        else:
+            only_starred = 'False'
+
+        if 'from_date' in request.POST:
+            if request.POST['from_date']:
+                from_date = request.POST['from_date']
+                from_date = datetime.date(int(from_date[:4]),int(from_date[5:7]),int(from_date[8:10]))
+
+        if 'to_date' in request.POST:
+            if request.POST['to_date']:
+                to_date = request.POST['to_date']
+                to_date = datetime.date(int(to_date[:4]), int(to_date[5:7]), int(to_date[8:10]))
+
+        if 'name' in request.POST:
+            name = request.POST['name']
+
+        if 'from_number' in request.POST:
+            from_number = request.POST['from_number']
+
+        if 'to_number' in request.POST:
+            to_number = request.POST['to_number']
+
+    if only_starred == 'True':
+        receipts = receipts.filter(is_starred=True)
+
+    if from_date and to_date:
+        try:
+            lst = from_date.split()
+            from_date = datetime.date(int(lst[2]),int(month_map(lst[1])),int(lst[0]))
+        except:
+            pass
+        if from_date == to_date:
+            receipts = receipts.filter(date_added__range=[from_date, (to_date + datetime.timedelta(days=1))])
+        else:
+            receipts = receipts.filter(date_added__range=[from_date, to_date])
+    elif from_date:
+        try:
+            lst = from_date.split()
+            from_date = datetime.date(int(lst[2]), int(month_map(lst[1])), int(lst[0]))
+        except:
+            pass
+        receipts = receipts.filter(date_added__range=[from_date,datetime.date.today()])
+
+    if name:
+        receipts = receipts.filter(receipt_name__contains=name)
+
+    if from_number and to_number:
+        receipts = receipts.filter(amount__range=[from_number, to_number])
 
     page_number = request.GET.get('page', 1)
-    p = Paginator(receipts, 8)
+    p = Paginator(receipts, 6)
 
     try:
         pages = p.page(page_number)
@@ -223,7 +341,8 @@ def receipts_page(request):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
-    context = {'receipts': receipts, 'pages': pages, 'user': request.user}
+    context = {'receipts': receipts, 'pages': pages, 'only_starred': only_starred,'to_date': to_date,
+               'from_date':from_date,'from_number':from_number,'to_number': to_number, 'name': name }
     return render(request, 'receipts/receipts_page.html', context)
 
 
@@ -256,7 +375,6 @@ def expenses_page(request):
     from_number = request.GET.get('from_number', '')
     to_number = request.GET.get('to_number', '')
 
-    # POTRZEBA DOSTOSOWANIA PAGINATORA
     if request.POST:
         if 'only_starred_lists' in request.POST:
             only_starred = request.POST['only_starred_lists']
@@ -323,9 +441,6 @@ def expenses_page(request):
         pages = p.page(1)
     except EmptyPage:
         pages = p.page(p.num_pages)
-
-    print(request.POST)
-    print(request.GET)
 
     context = {'expenses': expenses, 'pages': pages, 'only_starred': only_starred,'to_date': to_date,
                'from_date':from_date, }
