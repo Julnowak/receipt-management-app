@@ -36,13 +36,12 @@
         <h1 style="text-align: center; margin: 20px">{{ receipt.receipt_name }}</h1>
     </div>
 
-    <div style="text-align: center; margin: 20px">
+    <div style="text-align: center; margin: 20px auto; min-width: 300px; max-width: 400px">
         <img src="{{ receipt.receipt_img.url }}" alt="paragon" style="width: 50%; height: auto">
     </div>
 
-    <div>
-
-        <div style="margin:10px; padding: 10px; max-width: 500px; text-align: justify ">
+    <div style="margin: 10px auto">
+        <div style="margin:10px; padding: 10px; min-width: 300px; max-width: 500px; text-align: justify ">
             <h5>Dane ogólne</h5>
             Właściciel: <b>{{ receipt.owner }}</b><br>
             Data wydania: <b>{{ receipt.date_of_receipt_bought }}</b><br>

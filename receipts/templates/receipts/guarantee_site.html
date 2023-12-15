@@ -25,13 +25,9 @@
     </div>
 
     <div style="margin:10px; padding: 10px; max-width: 500px; text-align: justify ">
-        <h5>Powiązania</h5>
+        <h5>Powiązania:</h5>
         <ul>
-            {% for r in guarantee.receipt.all %}
-            <li> {{ r }}</li>
-            {% empty %}
-            <li>Brak</li>
-            {% endfor %}
+            <li>Paragon {{ guarantee.receipt }}</li>
         </ul>
     </div>
 

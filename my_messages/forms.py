@@ -65,9 +65,11 @@ class NewMessageForm(forms.ModelForm):
     def clean(self):
         super(NewMessageForm, self).clean()
         receiver = self.cleaned_data.get('receiver')
+        print(receiver)
         title = self.cleaned_data.get('title')
         text = self.cleaned_data.get('text')
-        if receiver is None:
+
+        if not User.objects.filter(username=receiver):
             self._errors['receiver'] = self.error_class([
                 'Nie ma takiego użytkownika.'
             ])

@@ -17,7 +17,6 @@ def random_passwd_generator():
 
 class CommonGroups(models.Model):
     group_name = models.CharField(max_length=200, unique=True)
-    slug = models.SlugField(default="")
     date_created = models.DateField(auto_now_add=True)
     number_of_members = models.PositiveIntegerField(validators=[MaxValueValidator(50), MinValueValidator(1)], default=1)
     max_number_of_members = models.PositiveIntegerField(validators=[MaxValueValidator(50), MinValueValidator(1)], default=5)

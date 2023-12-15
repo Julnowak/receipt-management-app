@@ -34,8 +34,31 @@ def your_lists(request):
     your_shopping_lists = ShoppingList.objects.filter(realizators__username=request.user.username).order_by('-date_added')
     form = ShoppingListForm()
 
+    num_of_prods = []
+    bought_num_of_prods = []
+    for sh_list in your_shopping_lists:
+        prods = ListProduct.objects.filter(shopping_list=sh_list)
+        nop = 0
+        bnop = 0
+        flaga = True
+        if prods:
+            for prod in prods:
+                nop += 1
+                if not prod.is_bought:
+                    flaga = False
+                else:
+                    bnop += 1
+        else:
+            flaga = False
+        sh_list.is_completed = flaga
+        sh_list.save()
+        num_of_prods += [nop]
+        bought_num_of_prods += [bnop]
+
+    merged_sh_list = list(zip(your_shopping_lists,num_of_prods,bought_num_of_prods))
+
     page_number = request.GET.get('page', 1)
-    p = Paginator(your_shopping_lists, 4)
+    p = Paginator(merged_sh_list, 4)
 
     try:
         pages = p.page(page_number)
@@ -44,17 +67,6 @@ def your_lists(request):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
-    for sh_list in your_shopping_lists:
-        prods = ListProduct.objects.filter(shopping_list=sh_list)
-        flaga = True
-        if prods:
-            for prod in prods:
-                if not prod.is_bought:
-                    flaga = False
-        else:
-            flaga = False
-        sh_list.is_completed = flaga
-        sh_list.save()
 
     context = {'your_lists': your_shopping_lists, 'form': form, 'pages': pages, 'user': request.user}
     return render(request, 'shopping_lists/your_lists.html', context)
@@ -94,13 +106,36 @@ def single_list(request, list_id):
     if request.user not in sh_list.realizators.all():
         return Http404
 
+    nop = 0
+    bnop = 0
+
+    products = sh_list.listproduct_set.all().order_by('-date_added')
+
+    flaga = True
+    if products:
+        for prod in products:
+            nop += 1
+            if not prod.is_bought:
+                flaga = False
+            else:
+                bnop += 1
+    else:
+        flaga = False
+    sh_list.is_completed = flaga
+    sh_list.save()
+
+    page_number = request.GET.get('page', 1)
+    p = Paginator(products, 5)
+
     try:
-        products = ListProduct.objects.filter(shopping_list=sh_list).order_by('-date_added')
-    except:
-        products = None
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
 
     context = {'current_list': sh_list, 'products': products,'list_shared':list_shared,
-               'user':request.user}
+               'user':request.user, 'num_of_prods': nop, 'bought_num_of_prods': bnop, 'pages': pages}
     return render(request, 'shopping_lists/shopping_list_page.html', context)
 
 
@@ -197,23 +232,24 @@ def main_panel(request):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
-    df = pd.DataFrame(list(expenses))
-    df_rec = pd.DataFrame(list(receipts))
-    df.columns = ['category', 'amount', "date_added"]
-    df_rec.columns = ['category', 'amount', "date_added"]
-    new = pd.concat([df, df_rec])
-
-    # Pie Chart
-    df_temp = pd.DataFrame(list(categories))
-    df_temp.columns = ['category', 'category_name']
-    df2 = pd.merge(new, df_temp, on=['category'])
-    # print(df2)
-    for i in range(len(df2)):
-        df2.loc[i, 'date_added'] = date(int(str(df2.loc[i, 'date_added'])[:4]),
-                                        int(str(df2.loc[i, 'date_added'])[5:7]),
-                                        int(str(df2.loc[i, 'date_added'])[8:10]))
 
     try:
+        df = pd.DataFrame(list(expenses))
+        df_rec = pd.DataFrame(list(receipts))
+        df.columns = ['category', 'amount', "date_added"]
+        df_rec.columns = ['category', 'amount', "date_added"]
+        new = pd.concat([df, df_rec])
+
+        # Pie Chart
+        df_temp = pd.DataFrame(list(categories))
+        df_temp.columns = ['category', 'category_name']
+        df2 = pd.merge(new, df_temp, on=['category'])
+        # print(df2)
+        for i in range(len(df2)):
+            df2.loc[i, 'date_added'] = date(int(str(df2.loc[i, 'date_added'])[:4]),
+                                            int(str(df2.loc[i, 'date_added'])[5:7]),
+                                            int(str(df2.loc[i, 'date_added'])[8:10]))
+
         df2_year = df2[(df2["date_added"] >= date(datetime.today().year, 1, 1))]
         df2_year = df2_year[['amount', 'category_name']].groupby('category_name', as_index=False).sum().sort_values(
             by=['amount'], ascending=False)
@@ -277,19 +313,18 @@ def main_panel(request):
     except:
         pie_chart_month = "None"
 
-    list_of_weeks = [8, 15, 22, 29, monthrange(datetime.today().year, datetime.today().month)[1]]
-    day = datetime.today().day
-    weekday = 0
-
-    for i in list_of_weeks:
-        if day <= i:
-            weekday = i
-            break
-    nk = df2[date(datetime.today().year, datetime.today().month, 1) <= df2["date_added"]]
-    nk = nk[nk["date_added"] <= date(datetime.today().year, datetime.today().month, weekday)]
-
-
     try:
+        list_of_weeks = [8, 15, 22, 29, monthrange(datetime.today().year, datetime.today().month)[1]]
+        day = datetime.today().day
+        weekday = 0
+
+        for i in list_of_weeks:
+            if day <= i:
+                weekday = i
+                break
+        nk = df2[date(datetime.today().year, datetime.today().month, 1) <= df2["date_added"]]
+        nk = nk[nk["date_added"] <= date(datetime.today().year, datetime.today().month, weekday)]
+
         df2_week = nk
         df2_week = df2_week[['amount', 'category_name']].groupby('category_name', as_index=False).sum().sort_values(
             by=['amount'], ascending=False)

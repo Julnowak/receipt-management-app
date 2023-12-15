@@ -136,13 +136,13 @@ def member_accepted(request, message_id):
             messages.success(request, 'Wiadomość została wysłana.')
             message.answered = True
             message.save()
-            return redirect('groups:groups')
+            return redirect('my_messages:message_inside', message_id=message.id)
         else:
             messages.error(request, 'Nie można dodać członka!')
-            return redirect('my_messages:your_messages')
+            return redirect('my_messages:message_inside', message_id=message.id)
     else:
         messages.error(request, 'Użytkownik zablokował otrzymywanie wiadomości od grup.')
-        return redirect('my_messages:your_messages')
+        return redirect('my_messages:message_inside', message_id=message.id)
 
 
 @login_required
@@ -170,14 +170,14 @@ def membership_accepted(request, message_id):
             message.answered = True
             message.save()
 
-            return redirect('groups:groups')
+            return redirect('my_messages:message_inside', message_id=message.id)
         else:
             messages.error(request, 'Nie można dołączyć z powodu braku miejsca w grupie! '
                                     'Skontaktuj się z właścicielem grupy w celu wyjaśnienia sytuacji.')
-            return redirect('my_messages:your_messages')
+            return redirect('my_messages:message_inside', message_id=message.id)
     else:
         messages.error(request, 'Użytkownik zablokował otrzymywanie wiadomości od grup.')
-        return redirect('my_messages:your_messages')
+        return redirect('my_messages:message_inside', message_id=message.id)
 
 
 @login_required
@@ -275,8 +275,8 @@ def answer_message(request, message_id):
             return Http404
 
         if request.method == 'POST':
-            form = NewMessageForm(data=request.POST,
-                                  initial={"receiver": message.sender, "title": "Re: " + message.title[:297]})
+            form = NewMessageForm(data=request.POST.copy(),
+                                  initial={"receiver": User.objects.get(id=message.sender.id), "title": "Re: " + message.title[:297]})
             prof = ProfileInfo.objects.get(user=message.sender)
             if request.user in prof.blocked_users.all():
                 messages.error(request, "Wystąpił błąd podczas wysyłania wiadomości.")
@@ -285,6 +285,7 @@ def answer_message(request, message_id):
             if form.is_valid():
                 new_mes = form.save(commit=False)
                 new_mes.sender = request.user
+                new_mes.receiver = User.objects.get(id=message.sender.id)
                 new_mes.save()
                 messages.success(request, "Wiadomość została wysłana.")
                 return redirect('my_messages:your_messages')

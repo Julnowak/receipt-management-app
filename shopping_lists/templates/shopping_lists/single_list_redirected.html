@@ -55,7 +55,7 @@
                 </svg>
             </div>
         </a>
-        {% if current_list.owner != user  %}
+                {% if current_list.owner != user  %}
             {% if not current_list.display_only%}
                 <a href="{% url 'share_list' current_list.id %}" style="position: relative">
                     <div style=" margin-top: 15px; color: black; text-align: right; margin-right: 15px">
@@ -77,6 +77,7 @@
     </div>
 
     <h1 style="margin-top: 20px">{{ current_list }}</h1>
+    <h4 style="color: grey; text-align: center">{{ bought_num_of_prods }}/{{ num_of_prods }}</h4>
     <p>
         {% if current_list.is_shared %}
             {% if user != current_list.owner %}
@@ -114,7 +115,7 @@
     </p>
 
     <div style="margin: 10px auto;">
-        {% for product in products %}
+        {% for product in pages %}
             {% if product.is_bought %}
                 <div id="change_variable_{{ product.id }}" class="green_btns" style="margin: 10px auto;display: grid;background-color: palegreen; grid-template: auto/80% 20%; z-index:1;border-radius:10px; border:1px solid black;min-width: 400px; max-width: 600px;">
                     <div style="margin: 20px;">
@@ -237,6 +238,42 @@
                 </div>
             </div>
         {% endfor %}
+
+    <div style="text-align: center; margin: 20px auto;">
+        {% if pages.has_other_pages %}
+          <ul class="pagination" style="display: block">
+            {% if pages.has_previous %}
+              <li style="display: inline"><a style="text-decoration: none; color: black" href="?page={{ pages.previous_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li style="display: inline" class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+
+              <li class="active" style="margin:0 10px; display: inline"><span>{{ pages.number }}/{{ pages.paginator.num_pages }} <span class="sr-only"></span></span></li>
+
+            {% if pages.has_next %}
+              <li style="display: inline"><a style="text-decoration: none; color: black" href="?page={{ pages.next_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </a></li>
+            {% else %}
+              <li style="display: inline" class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </span></li>
+            {% endif %}
+          </ul>
+        {% endif %}
+        </div>
     </div>
         <div style="text-align:center; position: sticky; flex: 6; margin-top: auto; margin-bottom: 40px; display: flex; flex-direction: column-reverse;">
         {% if current_list.owner != user  %}
@@ -393,8 +430,6 @@
                 for (let db of edit_btns) { db.style.pointerEvents = "auto" }
             }
     })
-
-
 
     </script>
 
