@@ -13,4 +13,5 @@ urlpatterns = [
     path('change_image/', views.change_image, name="change_image"),
     path('change_description/', views.change_description, name="change_description"),
     path('change_name/', views.change_name, name="change_name"),
+    path('current_char_number/', views.current_char_number, name="current_char_number"),
 ]

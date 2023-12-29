@@ -22,18 +22,36 @@
 
     <h1 style="text-align: center; margin-top: 20px">Gwarancje</h1>
 
-    <div class="list-group" style="margin: 20px auto;max-width: 400px; min-width: 350px">
+    <div class="list-group" style="margin: 10px auto;max-width: 600px; min-width: 300px">
             {% for guarantee, left, flag in info %}
                     <a class="text" href="{% url 'receipts:guarantee_site_from_mainpage' guarantee.id %}" style="text-decoration: none; color: black">
                     {%  if flag %}
-                        <div style="display: grid;grid-template: auto/ 80% 20%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid #d05980; background-color: palevioletred" >
+                        <div style="display: grid;grid-template: auto/ 80% 20%; vertical-align:middle;min-height: 55px; padding: 10px; margin: 10px; border-radius: 10px;border: 1px solid #d05980; background-color: palevioletred" >
                             <span style="display: inline-grid;vertical-align: middle">{{ guarantee.guarantee_name }}</span>
-                            <span style="display: inline-grid;vertical-align: middle">{{ left.days }} dni</span>
+                            <div>
+                                <span class="days_left" style="display: inline-grid;vertical-align: middle">{{ left.days }} dni</span>
+                                <div class="x_button" style="margin: auto; display: none;">
+                                    <a  href="{% url 'receipts:delete_guarantee' guarantee.id %}" style="text-decoration: none; color: red" >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     {%  else %}
-                        <div style="display: grid;grid-template: auto/ 80% 20%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid black;" >
+                        <div style="display: grid;grid-template: auto/ 80% 20%; vertical-align:middle; min-height: 55px; padding: 10px; margin: 10px; border-radius: 10px;border: 1px solid black;" >
                             <span style="display: inline-grid;vertical-align: middle">{{ guarantee.guarantee_name }}</span>
-                            <span style="display: inline-grid;vertical-align: middle">{{ left.days }} dni</span>
+                            <div>
+                                <span class="days_left" style="display: inline-grid;vertical-align: middle">{{ left.days }} dni</span>
+                                <div class="x_button" style="margin: auto;display: none;">
+                                    <a  href="{% url 'receipts:delete_guarantee' guarantee.id %}" style="text-decoration: none; color: red" >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     {% endif %}
                     </a>
@@ -82,15 +100,14 @@
     <div style="text-align:center; position: sticky; flex: 6; margin-top: auto; margin-bottom: 40px; display: flex; flex-direction: column-reverse;">
         <div id="icons_container_id" class="icons_container">
 
-            <a href="{% url 'receipts:new_guarantee' %}" style="text-decoration: none; color: black">
-                <div id="add_btn" class="add_btn" style="display: inline; horiz-align: center; color: black">
+            <a id="add_btn" class="add_btn" href="{% url 'receipts:new_guarantee' %}" style="text-decoration: none; color: black">
+                <div style="display: inline; horiz-align: center;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
                           <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5z"/>
                           <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/>
                         </svg>
                 </div>
             </a>
-
 
             <div id="delete_btn" class="del_btn" style="display: inline; horiz-align: center; margin-left: 20px">
                 <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-minus-fill" viewBox="0 0 16 16">
@@ -106,6 +123,7 @@
     <script>
     var del_btn = document.getElementById("delete_btn")
     var del_btns = document.getElementsByClassName("x_button")
+    var days_left = document.getElementsByClassName("days_left")
     var flag_del = true;
 
     var add_btn = document.getElementById("add_btn")
@@ -136,6 +154,10 @@
             {
                 del_btns[i].style.display = "inline-block";
             }
+            for (let i = 0; i < days_left.length; i++)
+            {
+                days_left[i].style.display = "none";
+            }
             flag_del = false;
             add_btn.style.pointerEvents= 'none'
             add_btn.style.color = 'gray';
@@ -148,6 +170,10 @@
             for (let i = 0; i < del_btns.length; i++)
             {
                 del_btns[i].style.display = "none";
+            }
+            for (let i = 0; i < days_left.length; i++)
+            {
+                days_left[i].style.display = "inline-block";
             }
             flag_del = true;
             add_btn.style.pointerEvents = 'auto'

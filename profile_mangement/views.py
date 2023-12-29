@@ -6,7 +6,14 @@ import datetime
 from django.http import Http404
 from django.contrib import messages
 from django.core import validators
+from django.http import JsonResponse
 # Create your views here.
+
+
+def current_char_number(request):
+    ans = str(len(request.GET.get('text')))+ '/1000'
+    data = {'message': ans}
+    return JsonResponse(data)
 
 
 @login_required
@@ -29,7 +36,9 @@ def profile_management_site(request):
         img = picture.icon_code[:47] + '128" ' + picture.icon_code[51:59] + '128" ' + 'style="display:inline; vertical-align: middle;"' + picture.icon_code[62:]
     else:
         img = None
-    context = {'img':img, 'user': request.user, "my_profile": my_profile, "age": age, 'have_birthday': have_birthday}
+
+    context = {'img':img, 'user': request.user, "my_profile": my_profile, "age": age, 'have_birthday': have_birthday,
+               }
     return render(request, "profile_management/profile_management_site.html", context)
 
 
@@ -107,14 +116,14 @@ def change_visibility(request):
 @login_required
 def change_description(request):
     my_profile = ProfileInfo.objects.get(user=request.user)
-
+    length = len(my_profile.text)
     if request.method == "POST":
         my_profile.text = request.POST['description']
         my_profile.save()
         messages.success(request, 'Opis został zmieniony.')
         return redirect('profile_management_site')
 
-    context = {'my_profile': my_profile}
+    context = {'my_profile': my_profile, 'length': length}
     return render(request,"profile_management/change_description.html", context)
 
 
@@ -147,6 +156,8 @@ def change_image(request):
             my_profile.profile_image = picture
         except:
             my_profile.profile_image = None
+            my_profile.profile_image_background_color = '#ffffff'
+            my_profile.profile_image_color = '#000000'
         my_profile.save()
         messages.success(request, 'Obraz został zmieniony.')
         return redirect("profile_management_site")

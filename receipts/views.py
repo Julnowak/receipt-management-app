@@ -544,7 +544,7 @@ def delete_receipt(request, receipt_id):
     rec = Receipt.objects.get(id=receipt_id)
     rec.is_deleted = True
     rec.save()
-    return redirect("receipts:your_receipts")
+    return redirect("receipts:receipts_page")
 
 
 @login_required
@@ -552,7 +552,15 @@ def delete_expense(request, expense_id):
     exp = Expense.objects.get(id=expense_id)
     exp.is_deleted = True
     exp.save()
-    return redirect("receipts:your_receipts")
+    return redirect("receipts:expenses_page")
+
+
+@login_required
+def delete_guarantee(request, guarantee_id):
+    guar = Guarantee.objects.get(id=guarantee_id)
+    guar.is_deleted = True
+    guar.save()
+    return redirect("receipts:guarantees")
 
 
 @login_required

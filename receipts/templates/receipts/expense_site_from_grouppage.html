@@ -35,7 +35,6 @@
     <h1 style="text-align: center; margin-top: 20px">{{ expense.expense_name }}</h1>
 
     <div style="margin: 10px; padding: 10px">
-    <div style="margin: 10px; padding: 10px">
 
     <div style="margin:10px; padding: 10px; max-width: 500px; text-align: justify ">
         <h5>Dane ogólne</h5>
@@ -53,12 +52,10 @@
     </div>
 
     <div style="margin:10px; padding: 10px; max-width: 500px; text-align: justify ">
-        <h5>Kategorie wydatku</h5>
-{#        <ul>#}
-{#            {% for cat in expense.category %}#}
-{#                <li>{{ expense.category }}</li>#}
-{#            {% endfor %}#}
-{#        </ul>#}
+        <h5 style="margin: 0 10px 20px 0">Kategoria wydatku</h5>
+        <span style=" margin: 10px; padding: 5px 10px; background-color: {{ expense.category.color }}; max-width: 20px; max-height: 20px; border-radius: 10px">
+            &nbsp;
+        </span>
         {{ expense.category }}
     </div>
 
@@ -76,9 +73,9 @@
     </div>
 
         {% if expense.owner == user %}
-            <div id="icons_container_id" style="margin: 10px auto">
+            <div id="icons_container_id" style="margin: 10px auto;">
                 <a href="{% url 'receipts:edit_expense' expense.id %}" style="text-decoration: none; color: black;margin-right: 25px">
-                    <div style="display: inline;">
+                    <div style="display: inline">
                         <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                           <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
                           <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>

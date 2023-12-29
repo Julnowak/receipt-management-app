@@ -18,6 +18,12 @@ class ShoppingList(models.Model):
     display_only = models.BooleanField(default=False)
 
     def __str__(self):
+        if len(self.text) > 30:
+            return self.text[:30] + "..."
+        else:
+            return self.text
+
+    def full_name(self):
         return self.text
 
 
@@ -35,5 +41,3 @@ class ListProduct(models.Model):
 
     def __str__(self):
         return self.product
-
-

@@ -23,4 +23,5 @@ urlpatterns = [
     path('removed/<int:product_id>/', views.removed, name='removed'),
     path('removed_list/<int:list_id>/', views.list_removed, name='list_removed'),
     path('<int:list_id>/update_is_bought/', views.update_is_bought, name='update_is_bought'),
+    path('<int:list_id>/current_number/', views.current_number, name='current_number'),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

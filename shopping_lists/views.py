@@ -1,3 +1,5 @@
+import re
+
 from .models import ShoppingList, ListProduct
 from receipts.models import Expense, Receipt,Guarantee
 from .forms import ShoppingListForm, ProductForm
@@ -122,8 +124,9 @@ def single_list(request, list_id):
     else:
         flaga = False
     sh_list.is_completed = flaga
+    if sh_list.realizators.count() == 1 and sh_list.realizators.first() == request.user:
+        sh_list.is_shared = False
     sh_list.save()
-
     page_number = request.GET.get('page', 1)
     p = Paginator(products, 5)
 
@@ -408,7 +411,6 @@ def removed(request, product_id):
 def list_removed(request, list_id):
     current_list = ShoppingList.objects.get(id=list_id)
     current_list.delete()
-
     return HttpResponseRedirect(reverse('your_lists'))
 
 
@@ -420,8 +422,14 @@ def share_list(request, list_id):
 
     if request.method == "POST":
         if request.POST["chosen_users_or_whole_group"] == "chosen_users":
-            for user_id in request.POST.getlist("users_chosen"):
-                lista.realizators.add(User.objects.get(id=int(user_id)))
+            users_chosen = request.POST.getlist("users_chosen")
+            if list(users_chosen):
+                for user_id in users_chosen:
+                    lista.realizators.add(User.objects.get(id=int(user_id)))
+            else:
+                messages.error(request, "Nie wybrano użytkownika")
+                return redirect('share_list', list_id=list_id)
+
         elif request.POST["chosen_users_or_whole_group"] == "whole_group":
             grp = groups.get(id=int(request.POST["group"]))
             for member in grp.members.values_list():
@@ -431,9 +439,6 @@ def share_list(request, list_id):
             lista.display_only = False
         elif request.POST['copy_or_display_only'] == 'display_only':
             lista.display_only = True
-
-        for person in lista.realizators.all():
-            pass
 
         if request.POST.get("are_regards_added"):
             lista.regards = request.POST.get("regards")
@@ -464,9 +469,9 @@ def update_is_bought(request, list_id):
 
             return JsonResponse({'message': f'{prod.is_bought}'})
         else:
-            return JsonResponse({'message': 'Model not found'})
+            return JsonResponse({'message': 'Wystąpił błąd'})
     else:
-        return JsonResponse({'message': 'Invalid request method'})
+        return JsonResponse({'message': 'Wystąpił błąd'})
 
 
 @login_required
@@ -478,26 +483,43 @@ def new_list(request):
             new_l.owner = request.user
             new_l.save()
             new_l.realizators.add(request.user)
-            print("faf")
             if 'is_from_web_checkbox' in request.POST:
                 url = request.POST['page_url']
-                data = requests.get(url)
-                html = BeautifulSoup(data.text, 'html.parser')
-
-                if "www.kwestiasmaku.com" in url:
-                    ingredients = html.find("div", {"class": "field field-name-field-skladniki field-type-text-long field-label-hidden"})
-                    starter = 7
-                elif "aniagotuje.pl" in url:
-                    ingredients = html.find("ul", {"class": "recipe-ing-list"})
-                    starter = 32
-                else:
-                    context = {"form": form}
-                    return render(request, 'shopping_lists/new_shopping_list.html', context)
-                unordered_list = (ingredients.find_all("li"))
-                for ing in list(unordered_list):
-                    new_prod = ListProduct.objects.create(product=str(ing)[starter:len(ing)-6])
-                    new_prod.shopping_list = new_l
-                    new_prod.save()
+                if url != '':
+                    if "www.kwestiasmaku.com" in url:
+                        data = requests.get(url)
+                        html = BeautifulSoup(data.text, 'html.parser')
+                        ingredients = html.find("div", {"class": "field field-name-field-skladniki field-type-text-long field-label-hidden"})
+                        starter = 7
+                        cuter = 6
+                    elif "aniagotuje.pl" in url:
+                        data = requests.get(url)
+                        html = BeautifulSoup(data.text, 'html.parser')
+                        ingredients = html.find("ul", {"class": "recipe-ing-list"})
+                        cuter = 13
+                        starter = 38
+                    else:
+                        messages.error(request,'Wprowadzony link jest błędny.')
+                        ShoppingList.objects.get(id=new_l.id).delete()
+                        form = ShoppingListForm(data=request.POST)
+                        context = {"form": form}
+                        return render(request, 'shopping_lists/new_shopping_list.html', context)
+                    unordered_list = (ingredients.find_all("li"))
+                    for ing in list(unordered_list):
+                        new_ing = str(ing)[starter:len(ing)-cuter]
+                        if ":" in new_ing:
+                            new_ing = new_ing[new_ing.find(':')+2:]
+                            ing_after = new_ing.split(';')
+                            for ia in ing_after:
+                                new_ia = ia.split(',')
+                                for nia in new_ia:
+                                    new_prod = ListProduct.objects.create(product=nia)
+                                    new_prod.shopping_list = new_l
+                                    new_prod.save()
+                        else:
+                            new_prod = ListProduct.objects.create(product=new_ing)
+                            new_prod.shopping_list = new_l
+                            new_prod.save()
             new_l.save()
             return redirect("your_lists")
     else:
@@ -509,8 +531,18 @@ def new_list(request):
 @login_required
 def details(request, list_id):
     sh_list = ShoppingList.objects.get(id=list_id)
+    realizers = sh_list.realizators.exclude(id=request.user.id)
+    page_number = request.GET.get('page', 1)
+    p = Paginator(realizers, 4)
 
-    context = {'sh_list': sh_list}
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
+    context = {'sh_list': sh_list, 'pages': pages}
     return render(request, 'shopping_lists/details.html', context)
 
 
@@ -520,3 +552,15 @@ def details_redirected(request, list_id):
 
     context = {'sh_list': sh_list}
     return render(request, 'shopping_lists/details_redirected.html', context)
+
+
+def current_number(request, list_id):
+    sh_list = ShoppingList.objects.get(id=list_id)
+    count = 0
+    for prod in sh_list.listproduct_set.all():
+        if prod.is_bought:
+            count += 1
+    ans = str(count) + "/" + str(sh_list.listproduct_set.count())
+    data = {'message': ans}
+    return JsonResponse(data)
+

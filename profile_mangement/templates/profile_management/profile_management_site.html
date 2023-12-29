@@ -46,7 +46,6 @@
     </div>
 
 
-
     <form  method="post" class="form_control" id="username_form" action="{% url 'change_name' %}" style="display: none">
     {% csrf_token %}
         <div style=" text-align: center; margin: 20px auto">
@@ -304,7 +303,8 @@
     <div style="margin: 10px auto; text-align: justify; min-width: 360px; max-width: 360px; display: inline-block; vertical-align: middle">
         <h3>Usuń konto</h3>
         Możesz w każdej chwili usunąć konto. W bazie nie pozostaną żadne Twoje dane - wszystko zostanie
-        usunięte bezpowrotnie! Bądź ostrożny, aby przypadkiem nie usunąć swoich danych.
+        <b>usunięte bezpowrotnie!</b>
+        Bądź ostrożny, aby przypadkiem nie usunąć swoich danych.
 
         <div style="text-align: center; margin: 10px; padding: 10px">
                 <a href="{% url 'account_deletion' %}" class="btn btn-danger">

@@ -13,14 +13,37 @@
     </a>
 
     <h1 style="text-align: center; margin-top: 20px">Opis</h1>
-    <form method="post" style="text-align: center" action="{% url 'change_description' %}">
+    <form id="form" method="post" style="text-align: center" action="{% url 'change_description' %}">
         {% csrf_token %}
         <div style="margin: 20px">
             <h5>Edytujesz swój opis:</h5>
-            <textarea class="form-control" rows="14" cols="2"  name="description" style="height: 100%; margin: auto; word-wrap: break-word">{{ my_profile.text }}</textarea>
+            <textarea class="form-control" maxlength="1000" rows="14" cols="2" id="desc" name="description" style=" margin: auto; word-wrap: break-word">{{ my_profile.text }}</textarea>
         </div>
         <div>
-            <button style="width: 60%; margin: 20px" class="btn btn-dark">Zapisz</button>
+
         </div>
     </form>
+    <h6 id="limit" style="color: grey; text-align: center">
+        {{ length }}/ 1000
+    </h6>
+    <button form="form" style="text-align: center; width: 60%; margin: auto" class="btn btn-dark">Zapisz</button>
+
+    <script>
+        let limit = document.getElementById("limit")
+        let desc = document.getElementById("desc")
+        let text = $("#desc").val();
+        $(document).ready(function() {
+        $('#desc').change(function() {
+            text = $("#desc").val();
+            $.ajax({
+                type: "GET",
+                data: { "text": text, },
+                url: '{% url "current_char_number" %}',
+                success: function(data) {
+                    $('#limit').text(data.message);
+                }
+            });
+        });
+        });
+    </script>
 {% endblock content %}
