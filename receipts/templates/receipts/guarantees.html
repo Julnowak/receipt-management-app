@@ -20,11 +20,11 @@
         </div>
     </a>
 
-    <h1 style="text-align: center; margin-top: 20px">Gwarancje</h1>
+    <h1 style=" max-width: 240px; text-align: center; margin: 20px auto">Terminy gwarancji i zwrotów</h1>
 
     <div class="list-group" style="margin: 10px auto;max-width: 600px; min-width: 300px">
             {% for guarantee, left, flag in info %}
-                    <a class="text" href="{% url 'receipts:guarantee_site_from_mainpage' guarantee.id %}" style="text-decoration: none; color: black">
+                    <a class="text" href="{% url 'receipts:guarantee_site' guarantee.id %}" style="text-decoration: none; color: black">
                     {%  if flag %}
                         <div style="display: grid;grid-template: auto/ 80% 20%; vertical-align:middle;min-height: 55px; padding: 10px; margin: 10px; border-radius: 10px;border: 1px solid #d05980; background-color: palevioletred" >
                             <span style="display: inline-grid;vertical-align: middle">{{ guarantee.guarantee_name }}</span>

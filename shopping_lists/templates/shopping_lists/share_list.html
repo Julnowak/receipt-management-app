@@ -40,6 +40,22 @@
 
     <form method="post" action="{% url 'share_list' list.id %}" style="padding: 10px; margin: 20px">
         {% csrf_token %}
+        {% if list.is_shared %}
+            <div>
+                <h5 style="text-align: center">Komu przekazać listę?</h5>
+            </div>
+            <div style="margin: 20px 0 20px 0">
+                <div style="margin: 10px auto; text-align: center; display: block" id="chosen_in">
+                    <label>
+                        <select name="users_chosen" multiple class="form-select" style="border-color: black; width: 200px;min-height: fit-content; max-height:100px; text-align: center">
+                                {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user }}</option>
+                                {% endfor %}
+                        </select>
+                    </label>
+                </div>
+            </div>
+        {% else %}
         <div style="margin: 10px">
             <div>
                 <h5>Komu przekazać listę?</h5>
@@ -52,7 +68,7 @@
 
                 <div style="margin: 10px auto; text-align: center; display: block" id="chosen_in">
                     <label>
-                        <select name="users_chosen" multiple class="form-select" style="width: 200px;min-height: fit-content; max-height:100px; text-align: center">
+                        <select name="users_chosen" multiple class="form-select" style="border-color: black;width: 200px;min-height: fit-content; max-height:100px; text-align: center">
                                 {% for user in users %}
                                     <option value="{{ user.id }}">{{ user }}</option>
                                 {% endfor %}
@@ -115,7 +131,7 @@
                     <textarea name="regards" class="form-control" rows="5" cols="50"></textarea>
                 </label>
         </div>
-
+        {% endif %}
         <div style="text-align: center; margin: 20px">
             <button id="share_id" class="btn btn-dark" style="min-width: 150px; margin: 10px" type="submit">Przekaż</button>
         </div>

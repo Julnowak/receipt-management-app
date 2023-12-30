@@ -1,8 +1,6 @@
-import re
-
 from .models import ShoppingList, ListProduct
 from receipts.models import Expense, Receipt,Guarantee
-from .forms import ShoppingListForm, ProductForm
+from .forms import ShoppingListForm, ProductForm, DetailsForm
 from django.shortcuts import render, redirect, reverse
 from datetime import datetime,date
 from calendar import monthrange
@@ -69,7 +67,6 @@ def your_lists(request):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
-
     context = {'your_lists': your_shopping_lists, 'form': form, 'pages': pages, 'user': request.user}
     return render(request, 'shopping_lists/your_lists.html', context)
 
@@ -98,7 +95,6 @@ def edit_list(request, list_id):
 
 @login_required
 def single_list(request, list_id):
-    """ Your shopping lists page"""
     sh_list = ShoppingList.objects.get(id=list_id)
 
     list_shared = False
@@ -128,7 +124,7 @@ def single_list(request, list_id):
         sh_list.is_shared = False
     sh_list.save()
     page_number = request.GET.get('page', 1)
-    p = Paginator(products, 5)
+    p = Paginator(products, 4)
 
     try:
         pages = p.page(page_number)
@@ -138,15 +134,17 @@ def single_list(request, list_id):
         pages = p.page(p.num_pages)
 
     context = {'current_list': sh_list, 'products': products,'list_shared':list_shared,
-               'user':request.user, 'num_of_prods': nop, 'bought_num_of_prods': bnop, 'pages': pages}
+               'user':request.user, 'num_of_prods': nop, 'bought_num_of_prods': bnop, 'pages': pages,
+               'flag': None}
     return render(request, 'shopping_lists/shopping_list_page.html', context)
 
 
+## TO DO
 @login_required
 def single_list_redirected(request, list_id, group_id):
     """ Your shopping lists page"""
-    sh_list = ShoppingList.objects.get(id=list_id)
     group = CommonGroups.objects.get(id=group_id)
+    sh_list = ShoppingList.objects.get(id=list_id)
 
     list_shared = False
     if sh_list.owner != request.user:
@@ -155,14 +153,39 @@ def single_list_redirected(request, list_id, group_id):
     if request.user not in sh_list.realizators.all():
         return Http404
 
-    try:
-        products = ListProduct.objects.filter(shopping_list=sh_list).order_by('-date_added')
-    except:
-        products = None
+    nop = 0
+    bnop = 0
 
-    context = {'current_list': sh_list, 'products': products,'list_shared':list_shared,
-               'user':request.user, 'group': group}
-    return render(request, 'shopping_lists/single_list_redirected.html', context)
+    products = sh_list.listproduct_set.all().order_by('-date_added')
+
+    flaga = True
+    if products:
+        for prod in products:
+            nop += 1
+            if not prod.is_bought:
+                flaga = False
+            else:
+                bnop += 1
+    else:
+        flaga = False
+    sh_list.is_completed = flaga
+    if sh_list.realizators.count() == 1 and sh_list.realizators.first() == request.user:
+        sh_list.is_shared = False
+    sh_list.save()
+    page_number = request.GET.get('page', 1)
+    p = Paginator(products, 4)
+
+    try:
+        pages = p.page(page_number)
+    except PageNotAnInteger:
+        pages = p.page(1)
+    except EmptyPage:
+        pages = p.page(p.num_pages)
+
+    context = {'current_list': sh_list, 'products': products, 'list_shared': list_shared,
+               'user': request.user, 'num_of_prods': nop, 'bought_num_of_prods': bnop, 'pages': pages,
+               'flag': 'group', 'group': group}
+    return render(request, 'shopping_lists/shopping_list_page.html', context)
 
 
 @login_required
@@ -417,36 +440,46 @@ def list_removed(request, list_id):
 @login_required
 def share_list(request, list_id):
     lista = ShoppingList.objects.get(id=list_id)
-    users = User.objects.exclude(id=request.user.id)
+    users = User.objects.exclude(username__in=lista.realizators.all().values_list('username'))
     groups = CommonGroups.objects.filter(members__username=request.user.username)
 
     if request.method == "POST":
-        if request.POST["chosen_users_or_whole_group"] == "chosen_users":
+        if lista.is_shared:
             users_chosen = request.POST.getlist("users_chosen")
             if list(users_chosen):
                 for user_id in users_chosen:
                     lista.realizators.add(User.objects.get(id=int(user_id)))
+                return redirect('single_list', list_id=lista.id)
             else:
                 messages.error(request, "Nie wybrano użytkownika")
                 return redirect('share_list', list_id=list_id)
+        else:
+            if request.POST["chosen_users_or_whole_group"] == "chosen_users":
+                users_chosen = request.POST.getlist("users_chosen")
+                if list(users_chosen):
+                    for user_id in users_chosen:
+                        lista.realizators.add(User.objects.get(id=int(user_id)))
+                else:
+                    messages.error(request, "Nie wybrano użytkownika")
+                    return redirect('share_list', list_id=list_id)
 
-        elif request.POST["chosen_users_or_whole_group"] == "whole_group":
-            grp = groups.get(id=int(request.POST["group"]))
-            for member in grp.members.values_list():
-                lista.realizators.add(User.objects.get(id=int(member[0])))
+            elif request.POST["chosen_users_or_whole_group"] == "whole_group":
+                grp = groups.get(id=int(request.POST["group"]))
+                for member in grp.members.values_list():
+                    lista.realizators.add(User.objects.get(id=int(member[0])))
 
-        if request.POST['copy_or_display_only'] == "copy":
-            lista.display_only = False
-        elif request.POST['copy_or_display_only'] == 'display_only':
-            lista.display_only = True
+            if request.POST['copy_or_display_only'] == "copy":
+                lista.display_only = False
+            elif request.POST['copy_or_display_only'] == 'display_only':
+                lista.display_only = True
 
-        if request.POST.get("are_regards_added"):
-            lista.regards = request.POST.get("regards")
+            if request.POST.get("are_regards_added"):
+                lista.regards = request.POST.get("regards")
 
-        lista.is_shared = True
-        lista.save()
-        messages.success(request,"Lista została przekazana")
-        return redirect("single_list", list_id=lista.id)
+            lista.is_shared = True
+            lista.save()
+            messages.success(request,"Lista została przekazana")
+            return redirect("single_list", list_id=lista.id)
 
     context = {'list': lista, 'users': users, 'groups':groups, 'user': request.user}
     return render(request, 'shopping_lists/share_list.html', context)
@@ -531,7 +564,7 @@ def new_list(request):
 @login_required
 def details(request, list_id):
     sh_list = ShoppingList.objects.get(id=list_id)
-    realizers = sh_list.realizators.exclude(id=request.user.id)
+    realizers = sh_list.realizators.exclude(id=request.user.id).order_by("username")
     page_number = request.GET.get('page', 1)
     p = Paginator(realizers, 4)
 
@@ -547,11 +580,19 @@ def details(request, list_id):
 
 
 @login_required
-def details_redirected(request, list_id):
+def details_edit(request, list_id):
     sh_list = ShoppingList.objects.get(id=list_id)
 
-    context = {'sh_list': sh_list}
-    return render(request, 'shopping_lists/details_redirected.html', context)
+    if request.method == "POST":
+        form = DetailsForm( data=request.POST, instance=sh_list)
+        print(request.method)
+        if form.is_valid():
+            form.save()
+            return redirect('details', list_id=sh_list.id)
+    else:
+        form = DetailsForm(instance=sh_list)
+    context = {'sh_list': sh_list, 'form' : form}
+    return render(request, 'shopping_lists/details_edit.html', context)
 
 
 def current_number(request, list_id):
@@ -563,4 +604,15 @@ def current_number(request, list_id):
     ans = str(count) + "/" + str(sh_list.listproduct_set.count())
     data = {'message': ans}
     return JsonResponse(data)
+
+
+@login_required
+def delete_realizator(request, list_id, realizator_id):
+    sh_list = ShoppingList.objects.get(id=list_id)
+    rez = User.objects.get(id=realizator_id)
+    sh_list.realizators.remove(rez)
+    sh_list.save()
+    if sh_list.realizators.count() == 1:
+        return redirect("single_list", list_id=sh_list.id)
+    return redirect("details", list_id=sh_list.id)
 

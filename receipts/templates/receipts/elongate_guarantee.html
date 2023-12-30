@@ -13,36 +13,26 @@
         </div>
     </a>
 
-    <h1 style="text-align: center; margin-top: 20px">Edytuj termin</h1>
+    <h1 style="text-align: center; margin-top: 20px">Przedłuż</h1>
 
 
-    <div style="margin: 10px auto; padding: 10px;">
-        <form id="form" method="post" action="{% url 'receipts:edit_guarantee' guarantee.id %}">
+    <div style="margin: 20px auto; padding: 10px;">
+        <form style="margin: auto" id="form" method="post" action="{% url 'receipts:elongate_guarantee' guarantee.id %}">
         {% csrf_token %}
-            <div style="margin: 20px">
-                {{ form.guarantee_name.label }}
-                {{ form.guarantee_name }}
-            </div>
-
-
-            <div style="margin: 20px;">
-                {{ form.end_date.label }}
-                {{ form.end_date}}
-            </div>
-
-            <div style="margin: 20px;">
-                {{ form.regards.label }}
-                {{ form.regards }}
-            </div>
-
-            {{ form.errors }}
-            </form>
+            <label>
+                <input value="10" name="number" type="number" style="text-align: center; border-color: black; margin: 20px 0" min="1" class="form-control" >
+            </label>
+            <label>
+                <select name="type_of_number" style="border-color: black; text-align: center; margin: 20px 0" class="form-select">
+                    <option>dni</option>
+                    <option>miesięcy</option>
+                    <option>lat</option>
+                </select>
+            </label>
+        </form>
     </div>
         <div style="margin: 20px auto;">
             <button form="form" style="margin: 20px auto; width: 150px;" class="btn btn-dark" type="submit">Zatwierdź</button>
         </div>
-
-
-
 
 {% endblock content %}

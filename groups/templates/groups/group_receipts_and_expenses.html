@@ -37,7 +37,7 @@
         </a>
 
 
-        <h1 style="margin-top: 20px;text-align: center">Paragony</h1>
+        <h2 style="margin-top: 20px;text-align: center">Paragony</h2>
                     {% for receipt in p_rec %}
                 <div class="container" style="border: 1px solid black;border-radius: 10px;max-width: 400px; text-align: justify; display:grid; grid-template: auto/ 80% 20%; padding: 10px; margin: 20px auto; ">
                     <div style="margin: 20px auto; vertical-align: middle;">
@@ -116,32 +116,34 @@
         <h2 style="margin-top: 20px;text-align: center">Wydatki</h2>
 
           {% for expense in page_obj %}
-              <div class="container" style="border: 1px solid black;border-radius: 10px;max-width: 400px;text-align: justify; display:grid; grid-template: auto/ 80% 20%; padding: 10px; margin: 20px auto; ">
-                <div style="margin: 20px auto; vertical-align: middle;">
-                    <h5>
-                        {% if group.owner == user %}
-                        <a style="text-decoration: none; color: #292929" href="{% url 'receipts:expense_site_from_grouppage' expense.id group.id %}">{{expense.expense_name}}</a>
-                        {% else %}
-                            {{expense.expense_name}}
-                        {% endif %}
-                        &nbsp; &nbsp; &nbsp; &nbsp;{{expense.amount}} zł
-                    </h5>
-                    <div>
-                        <div>Data dodania: {{ expense.date_added|date:"H:i, d.m.Y"  }}</div>
-                        <div>Dodał: {{ expense.owner }}</div>
+              {% if not expense.is_deleted %}
+                  <div class="container" style="border: 1px solid black;border-radius: 10px;max-width: 400px;text-align: justify; display:grid; grid-template: auto/ 80% 20%; padding: 10px; margin: 20px auto; ">
+                    <div style="margin: 20px auto; vertical-align: middle;">
+                        <h5>
+                            {% if group.owner == user %}
+                            <a style="text-decoration: none; color: #292929" href="{% url 'receipts:expense_site_from_grouppage' expense.id group.id %}">{{expense.expense_name}}</a>
+                            {% else %}
+                                {{expense.expense_name}}
+                            {% endif %}
+                            &nbsp; &nbsp; &nbsp; &nbsp;{{expense.amount}} zł
+                        </h5>
+                        <div>
+                            <div>Data dodania: {{ expense.date_added|date:"H:i, d.m.Y"  }}</div>
+                            <div>Dodał: {{ expense.owner }}</div>
 
+                        </div>
                     </div>
-                </div>
-                {% if group.owner == user %}
-                    <div style="margin: auto;vertical-align: middle">
-                    <a href="{% url 'groups:del_from_group_expenses' group.id expense.id %}" style="text-decoration: none; color: red">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
-                        </svg>
-                    </a>
-                    </div>
-                {% endif %}
-              </div>
+                    {% if group.owner == user %}
+                        <div style="margin: auto;vertical-align: middle">
+                        <a href="{% url 'groups:del_from_group_expenses' group.id expense.id %}" style="text-decoration: none; color: red">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                            </svg>
+                        </a>
+                        </div>
+                    {% endif %}
+                  </div>
+              {% endif %}
              {% empty %}
                 <div style="padding: 10px;margin: 20px auto;max-width: 400px; text-align: center">
                     Jeszcze nie dodano żadnych wydatków.

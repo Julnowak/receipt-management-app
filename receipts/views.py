@@ -215,12 +215,10 @@ def receipt_site(request, receipt_id):
     receipt = get_object_or_404(Receipt, pk=receipt_id)
     categs = receipt.receipt_categories.all()
     prods = receipt.products.all()
-    # poten_prods = receipt.receipt_text_read_by_OCR[2]
-
     guars = receipt.guarantee_set.all()
 
     context = {'receipt': receipt, 'receipt_categoreis': categs, 'receipt_products': prods, 'user': request.user,
-                'guarantees': guars}
+                'guarantees': guars, 'flag': None}
     return render(request, 'receipts/receipt_site.html', context)
 
 
@@ -258,8 +256,23 @@ def new_guarantee(request):
             return redirect('receipts:your_receipts')
     else:
         form = GuaranteeForm()
-    context = {'form': form}
+    context = {'form': form, 'flag': None}
+    return render(request, 'receipts/new_guarantee.html', context)
 
+
+@login_required
+def new_guarantee_from_mainpage(request):
+    if request.method == 'POST':
+        form = GuaranteeForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            new_guar = form.save(commit=False)
+            new_guar.owner = request.user
+            new_guar.save()
+            return redirect('receipts:your_receipts')
+    else:
+        form = GuaranteeForm()
+    context = {'form': form, 'flag': 'mainpage'}
     return render(request, 'receipts/new_guarantee.html', context)
 
 
@@ -450,15 +463,16 @@ def expenses_page(request):
 @login_required
 def expense_site(request, expense_id):
     expense = Expense.objects.get(id=expense_id)
-    context = {'expense': expense, 'user': request.user}
+    context = {'expense': expense, 'user': request.user, 'flag': None}
     return render(request, 'receipts/expense_site.html', context)
 
 
 @login_required
 def guarantee_site(request, guarantee_id):
     guarantee = Guarantee.objects.get(id=guarantee_id)
+    flag = None
     context = {'guarantee': guarantee, 'days_left': (guarantee.end_date - datetime.date.today()).days,
-               'user': request.user}
+               'user': request.user, 'flag': flag}
     return render(request, 'receipts/guarantee_site.html', context)
 
 
@@ -713,50 +727,65 @@ def guarantee_settings(request):
 ####### Przekierowania #####
 @login_required
 def receipt_site_from_mainpage(request, receipt_id):
-    receipt = get_object_or_404(Receipt, pk=receipt_id,is_deleted=False)
+    receipt = get_object_or_404(Receipt, pk=receipt_id)
     categs = receipt.receipt_categories.all()
     prods = receipt.products.all()
-    # poten_prods = receipt.receipt_text_read_by_OCR[2]
-
     guars = receipt.guarantee_set.all()
 
     context = {'receipt': receipt, 'receipt_categoreis': categs, 'receipt_products': prods, 'user': request.user,
-                'guarantees': guars}
-    return render(request, 'receipts/receipt_site_from_mainpage.html', context)
+               'guarantees': guars, 'flag': 'mainpage'}
+    return render(request, 'receipts/receipt_site.html', context)
 
 
 @login_required
 def receipt_site_from_grouppage(request, receipt_id, group_id):
-    group = CommonGroups.objects.get(id=group_id,is_deleted=False)
+    group = CommonGroups.objects.get(id=group_id)
     receipt = get_object_or_404(Receipt, pk=receipt_id,is_deleted=False)
     categs = receipt.receipt_categories.all()
     prods = receipt.products.all()
-    # poten_prods = receipt.receipt_text_read_by_OCR[2]
-
     guars = receipt.guarantee_set.all()
 
     context = {'receipt': receipt, 'receipt_categoreis': categs, 'receipt_products': prods, 'user': request.user,
-               'guarantees': guars, 'group': group}
-    return render(request, 'receipts/receipt_site_from_grouppage.html', context)
+               'guarantees': guars, 'group': group, 'flag': 'group'}
+    return render(request, 'receipts/receipt_site.html', context)
 
 
 @login_required
 def expense_site_from_mainpage(request, expense_id):
     expense = Expense.objects.get(id=expense_id,is_deleted=False)
-    context = {'expense': expense, 'user': request.user}
-    return render(request, 'receipts/expense_site_from_mainpage.html', context)
+    context = {'expense': expense, 'user': request.user, 'flag': 'mainpageS'}
+    return render(request, 'receipts/expense_site.html', context)
 
 
 @login_required
 def expense_site_from_grouppage(request, expense_id, group_id):
-    group = CommonGroups.objects.get(id=group_id,is_deleted=False)
+    group = CommonGroups.objects.get(id=group_id)
     expense = Expense.objects.get(id=expense_id,is_deleted=False)
-    context = {'expense': expense, 'user': request.user, 'group': group}
-    return render(request, 'receipts/expense_site_from_mainpage.html', context)
+    context = {'expense': expense, 'user': request.user, 'group': group, 'flag': 'group'}
+    return render(request, 'receipts/expense_site.html', context)
 
 
 @login_required
 def guarantee_site_from_mainpage(request, guarantee_id):
-    guarantee = Guarantee.objects.get(id=guarantee_id,is_deleted=False)
-    context = {'guarantee': guarantee, 'days_left': (guarantee.end_date - datetime.date.today()).days,'user': request.user}
-    return render(request, 'receipts/guarantee_site_from_mainpage.html', context)
+    guarantee = Guarantee.objects.get(id=guarantee_id)
+    context = {'guarantee': guarantee, 'days_left': (guarantee.end_date - datetime.date.today()).days,
+               'user': request.user,'guarantee_id': guarantee_id, 'flag': 'mainpage'}
+    return render(request, 'receipts/guarantee_site.html', context )
+
+# Poprawić oblicznie
+@login_required
+def elongate_guarantee(request, guarantee_id):
+    guarantee = Guarantee.objects.get(id=guarantee_id)
+    if request.POST:
+        type_of_number = request.POST.get('type_of_number')
+        number = request.POST.get('number')
+        if type_of_number == 'dni':
+            guarantee.end_date += datetime.timedelta(days=int(number))
+        elif type_of_number == 'miesięcy':
+            guarantee.end_date += datetime.timedelta(days=31*int(number))
+        elif type_of_number == 'lat':
+            guarantee.end_date += datetime.timedelta(days = 365*int(number))
+        guarantee.save()
+        return redirect('receipts:guarantee_site', guarantee_id=guarantee_id)
+    context = {'guarantee': guarantee,'user': request.user,'guarantee_id': guarantee_id,}
+    return render(request, 'receipts/elongate_guarantee.html', context )
