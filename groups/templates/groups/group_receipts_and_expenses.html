@@ -37,10 +37,13 @@
         </a>
 
 
-        <h2 style="margin-top: 20px;text-align: center">Paragony</h2>
-                    {% for receipt in p_rec %}
-                <div class="container" style="border: 1px solid black;border-radius: 10px;max-width: 400px; text-align: justify; display:grid; grid-template: auto/ 80% 20%; padding: 10px; margin: 20px auto; ">
-                    <div style="margin: 20px auto; vertical-align: middle;">
+        <h2 style="margin-top: 20px;text-align: center">
+            Paragony
+        </h2>
+
+        {% for receipt in p_rec %}
+                <div class="container" style="border: 1px solid black;border-radius: 10px;max-width: 400px; text-align: justify; display:grid; grid-template: auto/ 80% 20%; padding: 10px; margin: 20px auto 10px auto; ">
+                    <div style="margin: 10px auto; vertical-align: middle;">
                             <h5>
                                 {% if group.owner == user %}
                                 <a style="text-decoration: none; color: #292929" href="{% url 'receipts:receipt_site_from_grouppage' receipt.id group.id %}">{{receipt.receipt_name}}</a>
@@ -70,11 +73,25 @@
                 </div>
             {% endfor %}
 
-
-        <div style="padding: 10px;margin: 20px auto;max-width: 400px; text-align: center">
+        <div style="padding: 10px;margin: 10px auto;max-width: 400px; text-align: center">
             <b>
                 Suma z paragonów: {{ suma_paragony }} zł
             </b>
+        </div>
+        <div style="text-align: center">
+            <a style="padding: 0 20px; text-decoration: none;color: #000000" href="{% url 'receipts:receipt_by_hand' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-patch-plus-fill" viewBox="0 0 16 16">
+                  <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zM8.5 6v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 1 0"/>
+                </svg>
+                OCR
+            </a>
+            <a style="padding: 0 20px; text-decoration: none;color: #000000"  href="{% url 'receipts:new_receipt' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5"/>
+                  <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/>
+                </svg>
+                BEZ OCR
+            </a>
         </div>
 
     <div style="text-align: center; margin: 10px auto">
@@ -113,11 +130,11 @@
         {% endif %}
         </div>
 
-        <h2 style="margin-top: 20px;text-align: center">Wydatki</h2>
+        <h2 style="margin-top: 20px;text-align: center">Opłaty</h2>
 
           {% for expense in page_obj %}
               {% if not expense.is_deleted %}
-                  <div class="container" style="border: 1px solid black;border-radius: 10px;max-width: 400px;text-align: justify; display:grid; grid-template: auto/ 80% 20%; padding: 10px; margin: 20px auto; ">
+                  <div class="container" style="border: 1px solid black;border-radius: 10px;max-width: 400px;text-align: justify; display:grid; grid-template: auto/ 80% 20%; padding: 10px; margin: 10px auto; ">
                     <div style="margin: 20px auto; vertical-align: middle;">
                         <h5>
                             {% if group.owner == user %}
@@ -146,18 +163,28 @@
               {% endif %}
              {% empty %}
                 <div style="padding: 10px;margin: 20px auto;max-width: 400px; text-align: center">
-                    Jeszcze nie dodano żadnych wydatków.
+                    Nie dodano jeszcze żadnych opłat.
                 </div>
              {% endfor %}
 
 
         <div style="padding: 10px;margin: 10px auto;max-width: 400px">
             <b>
-                Suma wydatków: {{ suma_wydatki }} zł
+                Suma opłat: {{ suma_wydatki }} zł
             </b>
         </div>
 
-        <div style="text-align: center; margin: 10px auto">
+        <div style="text-align: center">
+            <a style="padding: 0 20px; text-decoration: none;color: #000000"  href="{% url 'receipts:new_receipt' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5"/>
+                  <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/>
+                </svg>
+                Dodaj opłatę
+            </a>
+        </div>
+
+        <div style="text-align: center; margin: 30px auto 10px auto">
         {% if page_obj.has_other_pages %}
           <ul class="pagination">
             {% if page_obj.has_previous %}

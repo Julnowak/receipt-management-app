@@ -116,7 +116,45 @@ def costs_by_hand(request):
     else:
         form = ExpenseForm()
 
-    context = {'form': form}
+    context = {'form': form, 'group': None}
+    return render(request, 'receipts/costs_by_hand.html', context)
+
+@login_required
+def expense_site_from_groupsite(request, group_id):
+    group = CommonGroups.objects.get(id=group_id)
+    groups = CommonGroups.objects.filter(members__username=request.user.username)
+    if request.method == 'POST':
+        form = ExpenseForm(request.POST)
+        if form.is_valid():
+            cost = form.save(commit=False)
+            if form.data['group']:
+                g = groups.get(id=int(form.data['group']))
+                if g.can_receipts_be_added:
+                    suma = sum(list(i[0] for i in g.expense_set.values_list('amount'))) + sum(
+                        list(i[0] for i in g.receipt_set.values_list('amount')))
+                    if g.limit and float(suma) + float(form.data['amount']) <= g.limit:
+                        cost.owner = request.user
+                        form.save()
+                        messages.success(request, f"Dodano opłatę.")
+                        return redirect('receipts:your_receipts')
+                    elif not g.limit:
+                        cost.owner = request.user
+                        form.save()
+                        messages.success(request, f"Dodano opłatę.")
+                        return redirect('receipts:your_receipts')
+                    else:
+                        messages.error(request, f"Przekroczono limit grupy.")
+                else:
+                    messages.error(request, f"Dana grupa nie przyjmuje już opłat.")
+            else:
+                cost.owner = request.user
+                form.save()
+                messages.success(request, f"Dodano opłatę.")
+                return redirect('receipts:your_receipts')
+    else:
+        form = ExpenseForm()
+
+    context = {'form': form, 'group': group}
     return render(request, 'receipts/costs_by_hand.html', context)
 
 
@@ -753,7 +791,7 @@ def receipt_site_from_grouppage(request, receipt_id, group_id):
 @login_required
 def expense_site_from_mainpage(request, expense_id):
     expense = Expense.objects.get(id=expense_id,is_deleted=False)
-    context = {'expense': expense, 'user': request.user, 'flag': 'mainpageS'}
+    context = {'expense': expense, 'user': request.user, 'flag': 'mainpage'}
     return render(request, 'receipts/expense_site.html', context)
 
 
