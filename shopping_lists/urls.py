@@ -4,8 +4,6 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-
-    # Home page
     path('', views.homepage, name='homepage'),
     path('contact/', views.contact, name='contact'),
     path('your_lists/', views.your_lists, name='your_lists'),
@@ -13,7 +11,6 @@ urlpatterns = [
     path('details/<int:list_id>/', views.details, name='details'),
     path('details_edit/<int:list_id>/', views.details_edit, name='details_edit'),
     path('<int:group_id>/single_list_redirected/<int:list_id>/', views.single_list_redirected, name='single_list_redirected'),
-    path('del_shopping_lists/', views.del_shopping_lists, name='del_shopping_lists'),
     path('new_product/<int:list_id>/', views.new_product, name='new_product'),
     path('new_list/', views.new_list, name='new_list'),
     path('share_list/<int:list_id>/', views.share_list, name='share_list'),

@@ -41,7 +41,7 @@
 
     </div>
     <h6 style="text-align: center">Lista została przekazana użytkownikom:</h6>
-    <div style="text-align: center;">
+    <div style="text-align: center; margin: 20px auto">
         {% for person in pages  %}
             <div id="change_variable_{{ product.id }}" class="normal_btns" style="margin: 10px 20px;display: grid;grid-template: auto/80% 20%; z-index:1;border-radius:10px; border:1px solid black;min-width: 300px; max-width: 600px;">
                 <div style="margin: 20px; ">
@@ -95,9 +95,17 @@
     </div>
 
     <h6 style="text-align: center">Logi listy</h6>
+
     <div style="text-align: center">
-    TO DO
+        {% for log in pag_log %}
+            <div style="margin: auto">
+                {{ log }}
+            </div>
+        {% empty %}
+            Brak
+        {% endfor %}
     </div>
+
     <div style="margin: 20px; text-align: center">
         <h3 style="display: inline; margin-right: 10px">Typ dostępu:</h3>
         {% if sh_list.display_only %}

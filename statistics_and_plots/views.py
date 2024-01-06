@@ -49,51 +49,18 @@ def calculate_recurrent_expense(df):
     df['Day'] = day
     return df
 
+
 @login_required
 def statistics(request):
-    exps = Expense.objects.filter(owner=request.user)
+    expenses = Expense.objects.filter(owner=request.user)
     guarantees = Guarantee.objects.filter(owner=request.user)
     receipts = Receipt.objects.filter(owner=request.user)
-    expenses = exps.filter(is_deleted=False).values_list("expense_name", "date_added", "amount","is_recurrent","number","time_stamp")
+    exps = expenses.filter(is_deleted=False).values_list("expense_name", "date_added", "amount","is_recurrent","number","time_stamp")
     recs = receipts.filter(is_deleted=False).values_list("receipt_name", "date_added", "amount")
 
-    df_new = pd.DataFrame(list(expenses))
+    df_new = pd.DataFrame(list(exps))
     df_new.columns = ["expense_name", "date_added", "amount","is_recurrent","number","time_stamp"]
-    multiplier = 1
-
-    # Ogólne
-    year = []
-    month = []
-    day = []
-    for i, row in df_new.iterrows():
-        yk = str(row['date_added'])
-        year += [int(yk[:4])]
-        month += [int(yk[5:7])]
-        day += [int(yk[8:10])]
-        if row['is_recurrent']:
-
-            newr = datetime.date(int(yk[:4]), int(yk[5:7]), int(yk[8:10]))
-            if row['time_stamp'] == 'DNI':
-                days_from = int((datetime.date.today() - newr).days)
-                multiplier = days_from // int(row['number'])
-            else:
-                calc = 1
-                years_from = int(datetime.date.today().year - newr.year)
-                months_from = int(datetime.date.today().month - newr.month)
-                if row['time_stamp'] == 'LAT':
-                    calc = years_from//int(row['number'])
-                elif row['time_stamp'] == 'MIESIĘCY':
-                    calc = (years_from * 12 + months_from)//int(row['number'])
-
-                if calc != 0:
-                    multiplier = calc
-            df_new.at[i, 'amount'] = decimal.Decimal(float(df_new.loc[i]['amount']) * multiplier)
-
-    df_new['Year'] = year
-    df_new['Month'] = month
-    df_new['Day'] = day
-
-    print(df_new)
+    df_new = calculate_recurrent_expense(df_new)
 
     try:
         sum_exp = df_new['amount'].sum()
@@ -123,6 +90,9 @@ def statistics(request):
 
 
 ########################################################################
+    df_exp = pd.DataFrame(list(exps))
+    df_exp.columns = ["expense_name", "date_added", "amount","is_recurrent","number","time_stamp"]
+    df_exp = calculate_recurrent_expense(df_exp)
 
     df_rec = pd.DataFrame(list(recs))
     df_rec.columns = ["receipt_name", "date_added", "amount"]
@@ -139,8 +109,22 @@ def statistics(request):
     df_rec['Year'] = year_rec
     df_rec['Month'] = month_rec
     df_rec['Day'] = day_rec
-    df_rec_by_year = df_rec[['Year', 'amount']].groupby('Year', as_index=False).sum()
-    print(df_rec_by_year)
+
+    year_rec = []
+    month_rec = []
+    day_rec = []
+    for i, row in df_exp.iterrows():
+        yk = str(row['date_added'])
+        year_rec += [int(yk[:4])]
+        month_rec += [int(yk[5:7])]
+        day_rec += [int(yk[8:10])]
+
+    df_exp['Year'] = year_rec
+    df_exp['Month'] = month_rec
+    df_exp['Day'] = day_rec
+
+    new_df = pd.concat([df_exp, df_rec])
+    df_rec_by_year = new_df[['Year', 'amount']].groupby('Year', as_index=False).sum()
     try:
         if df_rec_by_year.empty:
             pie_years = "Brak danych z tego roku"
@@ -163,8 +147,7 @@ def statistics(request):
 
 ########################################################################
 
-    df_rec_by_month = df_rec[['Month', 'amount']].groupby('Month', as_index=False).sum()
-    print(df_rec_by_month)
+    df_rec_by_month = new_df[['Month', 'amount']].groupby('Month', as_index=False).sum()
     try:
         if df_rec_by_month.empty:
             pie_months = "Brak danych z tego roku"
@@ -186,7 +169,6 @@ def statistics(request):
         pie_months = "Nie dodano jeszcze żadnych wartości."
 
     ########################################################################
-
 
     context = {'guar_num': guarantees.count(),'guar_num_actual': guarantees.filter(is_deleted=False).count(), 'rec_num': receipts.filter().count(),
                'rec_num_actual': receipts.filter(is_deleted=False).count(),

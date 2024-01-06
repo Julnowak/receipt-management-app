@@ -16,6 +16,7 @@ class ShoppingList(models.Model):
     realizators = models.ManyToManyField(User, related_name="realizators", default=owner)
     group = models.ForeignKey(CommonGroups, on_delete=models.SET_NULL, blank=True, null=True)
     display_only = models.BooleanField(default=False)
+    logs = models.TextField(null=True, blank=True)
 
     def __str__(self):
         if len(self.text) > 30:

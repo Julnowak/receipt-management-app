@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.contrib import messages
+from django.shortcuts import get_object_or_404
 
 
 def homepage(request):
@@ -72,20 +73,17 @@ def your_lists(request):
 
 
 @login_required
-def del_shopping_lists(request):
-    if request.method == 'POST':
-        fruits = request.POST.getlist('fruits')
-        return JsonResponse({'message': f'Successfully saved.{fruits}'})
-    return JsonResponse({'error': 'Something went wrong'})
-
-
-@login_required
 def edit_list(request, list_id):
-    current_list = ShoppingList.objects.get(id=list_id)
+    current_list = get_object_or_404(ShoppingList, id=list_id)
+    old = str(current_list.text)
     if request.method == 'POST':
         form = ShoppingListForm(instance=current_list, data=request.POST)
         if form.is_valid():
             form.save()
+            if current_list.is_shared:
+                current_list.logs = str(datetime.now().strftime("%Y-%m-%d %H:%M")) + " Użytkownik " + \
+                                    str(request.user.username) + " edytował nazwę listy " + old + " na " + current_list.text + ".;" + current_list.logs
+                current_list.save()
             return redirect("your_lists")
     else:
         form = ShoppingListForm(instance=current_list)
@@ -95,14 +93,13 @@ def edit_list(request, list_id):
 
 @login_required
 def single_list(request, list_id):
-    sh_list = ShoppingList.objects.get(id=list_id)
-
+    sh_list = get_object_or_404(ShoppingList, pk=list_id)
     list_shared = False
     if sh_list.owner != request.user:
         list_shared = True
 
     if request.user not in sh_list.realizators.all():
-        return Http404
+        raise Http404
 
     nop = 0
     bnop = 0
@@ -122,6 +119,7 @@ def single_list(request, list_id):
     sh_list.is_completed = flaga
     if sh_list.realizators.count() == 1 and sh_list.realizators.first() == request.user:
         sh_list.is_shared = False
+        sh_list.logs = ""
     sh_list.save()
     page_number = request.GET.get('page', 1)
     p = Paginator(products, 4)
@@ -143,15 +141,17 @@ def single_list(request, list_id):
 @login_required
 def single_list_redirected(request, list_id, group_id):
     """ Your shopping lists page"""
-    group = CommonGroups.objects.get(id=group_id)
-    sh_list = ShoppingList.objects.get(id=list_id)
+    try:
+        group = CommonGroups.objects.get(id=group_id)
+        sh_list = ShoppingList.objects.get(id=list_id)
+    except:
+        raise Http404
 
-    list_shared = False
-    if sh_list.owner != request.user:
-        list_shared = True
-
-    if request.user not in sh_list.realizators.all():
-        return Http404
+    if request.user in group.members.all() and sh_list.group == group:
+        if request.user not in sh_list.realizators.all():
+            sh_list.realizators.add(request.user)
+    else:
+        raise Http404
 
     nop = 0
     bnop = 0
@@ -171,6 +171,7 @@ def single_list_redirected(request, list_id, group_id):
     sh_list.is_completed = flaga
     if sh_list.realizators.count() == 1 and sh_list.realizators.first() == request.user:
         sh_list.is_shared = False
+        sh_list.logs = ""
     sh_list.save()
     page_number = request.GET.get('page', 1)
     p = Paginator(products, 4)
@@ -182,7 +183,7 @@ def single_list_redirected(request, list_id, group_id):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
-    context = {'current_list': sh_list, 'products': products, 'list_shared': list_shared,
+    context = {'current_list': sh_list, 'products': products, 'list_shared': sh_list.is_shared,
                'user': request.user, 'num_of_prods': nop, 'bought_num_of_prods': bnop, 'pages': pages,
                'flag': 'group', 'group': group}
     return render(request, 'shopping_lists/shopping_list_page.html', context)
@@ -198,6 +199,10 @@ def new_product(request, list_id):
             new_prod.shopping_list = current_list
             new_prod.by_who = request.user
             new_prod.save()
+            if current_list.is_shared:
+                current_list.logs = str(datetime.now().strftime("%Y-%m-%d %H:%M")) + " Użytkownik " + str(
+                    request.user.username) + " dodał produkt " + str(new_prod.product) + ".;" + current_list.logs
+                current_list.save()
             return redirect('single_list', list_id=list_id)
     else:
         form = ProductForm()
@@ -210,11 +215,15 @@ def new_product(request, list_id):
 def edit_product(request, product_id):
     current_product = ListProduct.objects.get(id=product_id)
     current_list = current_product.shopping_list
-
+    before = str(current_product.product)
     if request.method == 'POST':
         form = ProductForm(instance=current_product, data=request.POST)
         if form.is_valid():
             form.save()
+            if current_list.is_shared:
+                current_list.logs = str(datetime.now().strftime("%Y-%m-%d %H:%M")) + " Użytkownik " + str(
+                    request.user.username) + " edytował produkt " + before + " i obecnie posiada on nazwę " + str(current_product.product) + ".;" + current_list.logs
+                current_list.save()
             return redirect('single_list', list_id=current_list.id)
     else:
         form = ProductForm(instance=current_product)
@@ -424,16 +433,24 @@ def main_panel(request):
 @login_required
 def removed(request, product_id):
         current_product = ListProduct.objects.get(id=product_id)
-        sh_list = current_product.selected_list
+        current_list = current_product.shopping_list
+        if current_list.is_shared:
+            current_list.logs = str(datetime.now().strftime("%Y-%m-%d %H:%M")) + " Użytkownik " + str(
+                request.user.username) + " usunął produkt " + str(current_product) + ".;" + current_list.logs
+            current_list.save()
         current_product.delete()
 
-        return HttpResponseRedirect(reverse('single_list', kwargs={'list_id': sh_list.id}))
+        return HttpResponseRedirect(reverse('single_list', kwargs={'list_id': current_list.id}))
 
 
 @login_required
 def list_removed(request, list_id):
     current_list = ShoppingList.objects.get(id=list_id)
-    current_list.delete()
+    if request.user == current_list.owner:
+        current_list.delete()
+    else:
+        current_list.realizators.remove(request.user)
+        current_list.save()
     return HttpResponseRedirect(reverse('your_lists'))
 
 
@@ -448,7 +465,16 @@ def share_list(request, list_id):
             users_chosen = request.POST.getlist("users_chosen")
             if list(users_chosen):
                 for user_id in users_chosen:
-                    lista.realizators.add(User.objects.get(id=int(user_id)))
+                    user_receiver = User.objects.get(id=int(user_id))
+                    lista.realizators.add(user_receiver)
+                    new_message = Message.objects.create(sender=request.user,
+                                                         receiver=user_receiver,
+                                                         title="Przekazano Ci nową listę!",
+                                                         message_type="normal")
+                    new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
+                                       f"Użytkownik {request.user} przekazuje Ci listę zakupową {lista.text}. Jeśli doszło do pomyłki, skontaktuj się z nadawcą" \
+                                       f"w celu wyjaśnienia sprawy."
+                    new_message.save()
                 return redirect('single_list', list_id=lista.id)
             else:
                 messages.error(request, "Nie wybrano użytkownika")
@@ -458,7 +484,16 @@ def share_list(request, list_id):
                 users_chosen = request.POST.getlist("users_chosen")
                 if list(users_chosen):
                     for user_id in users_chosen:
-                        lista.realizators.add(User.objects.get(id=int(user_id)))
+                        user_receiver = User.objects.get(id=int(user_id))
+                        lista.realizators.add(user_receiver)
+                        new_message = Message.objects.create(sender=request.user,
+                                                             receiver=user_receiver,
+                                                             title="Przekazano Ci nową listę!",
+                                                             message_type="normal")
+                        new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
+                                           f"Użytkownik {request.user} przekazuje Ci listę zakupową {lista.text}. Jeśli doszło do pomyłki, skontaktuj się z nadawcą" \
+                                           f"w celu wyjaśnienia sprawy."
+                        new_message.save()
                 else:
                     messages.error(request, "Nie wybrano użytkownika")
                     return redirect('share_list', list_id=list_id)
@@ -466,8 +501,16 @@ def share_list(request, list_id):
             elif request.POST["chosen_users_or_whole_group"] == "whole_group":
                 grp = groups.get(id=int(request.POST["group"]))
                 for member in grp.members.values_list():
-                    lista.realizators.add(User.objects.get(id=int(member[0])))
-
+                    user_receiver = User.objects.get(id=int(member[0]))
+                    lista.realizators.add(user_receiver)
+                    new_message = Message.objects.create(sender=request.user,
+                                                         receiver=user_receiver,
+                                                         title="Przekazano Ci nową listę!",
+                                                         message_type="normal")
+                    new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
+                                       f"Użytkownik {request.user} przekazuje Ci listę zakupową {lista.text}. Jeśli doszło do pomyłki, skontaktuj się z nadawcą" \
+                                       f"w celu wyjaśnienia sprawy."
+                    new_message.save()
             if request.POST['copy_or_display_only'] == "copy":
                 lista.display_only = False
             elif request.POST['copy_or_display_only'] == 'display_only':
@@ -478,6 +521,7 @@ def share_list(request, list_id):
 
             lista.is_shared = True
             lista.save()
+
             messages.success(request,"Lista została przekazana")
             return redirect("single_list", list_id=lista.id)
 
@@ -496,9 +540,14 @@ def update_is_bought(request, list_id):
         if prod:
             if prod.is_bought:
                 prod.is_bought = False
+                if sh_list.is_shared:
+                    sh_list.logs = str(datetime.now().strftime("%Y-%m-%d %H:%M")) + " Użytkownik " + str(request.user.username) + " odznaczył produkt " + str(prod.product) + ".;" + sh_list.logs
             else:
                 prod.is_bought = True
+                if sh_list.is_shared:
+                    sh_list.logs = str(datetime.now().strftime("%Y-%m-%d %H:%M")) + " Użytkownik " + str(request.user.username) + " oznaczył produkt " + str(prod.product) + " jako kupiony.;" + sh_list.logs
             prod.save()
+            sh_list.save()
 
             return JsonResponse({'message': f'{prod.is_bought}'})
         else:
@@ -575,7 +624,22 @@ def details(request, list_id):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
-    context = {'sh_list': sh_list, 'pages': pages}
+    text_list = []
+    text = sh_list.logs
+    if text:
+        text_list = text.split(';')
+
+    pn = request.GET.get('page', 1)
+    p2 = Paginator(text_list, 5)
+
+    try:
+        pag_log = p2.page(pn)
+    except PageNotAnInteger:
+        pag_log = p2.page(1)
+    except EmptyPage:
+        pag_log = p2.page(p.num_pages)
+
+    context = {'sh_list': sh_list, 'pages': pages, 'pag_log': pag_log}
     return render(request, 'shopping_lists/details.html', context)
 
 
@@ -585,7 +649,6 @@ def details_edit(request, list_id):
 
     if request.method == "POST":
         form = DetailsForm( data=request.POST, instance=sh_list)
-        print(request.method)
         if form.is_valid():
             form.save()
             return redirect('details', list_id=sh_list.id)

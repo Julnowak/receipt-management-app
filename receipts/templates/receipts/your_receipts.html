@@ -37,13 +37,12 @@
 
     </style>
 
+    <div style="height: 100%">
+        <div>
+            <h1 style="text-align: center; margin-top: 20px">Paragony</h1>
+        </div>
 
     <div>
-        <h1 style="text-align: center; margin-top: 20px">Paragony</h1>
-    </div>
-
-    <div>
-
     <div style="margin: 20px auto; padding: 10px; max-width: 600px">
         {% for receipt in receipts %}
             {% if receipt.is_starred %}
@@ -84,7 +83,7 @@
             {% endif %}
         {% endif %}
 
-        <div style="margin:40px 20px 10px 20px; text-align: center">
+        <div style="margin:40px 20px 10px 20px; text-align: center;">
             <a href="{% url 'receipts:new_receipt' %}" style="text-decoration: none; color: black;text-align: center;">
                 <div id="add_btn" class="add_btn" style="display: inline; horiz-align: center;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus" viewBox="0 0 16 16">
@@ -219,12 +218,10 @@
         </div>
 
     </div>
-
     </div>
-
-    <a href="{% url 'categories:categories' %}" style="text-decoration: none; color: black">
-        <div style="min-width:100%;background-color: lightgrey;border-radius: 100%/140px 140px 0 0;
-                    margin: 0 auto;padding: 20px;text-align: center">
+    <a href="{% url 'categories:categories' %}" style="text-decoration: none; color: black; position:sticky; bottom: 0;">
+        <div style="background-color: lightgrey;border-radius: 100%/140px 140px 0 0;
+                    margin: 0 auto;padding: 20px; width: 100%; text-align: center;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-grid-3x3-gap" viewBox="0 0 16 16">
                   <path d="M4 2v2H2V2h2zm1 12v-2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V7a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm5 10v-2a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V7a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zm0-5V2a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1zM9 2v2H7V2h2zm5 0v2h-2V2h2zM4 7v2H2V7h2zm5 0v2H7V7h2zm5 0h-2v2h2V7zM4 12v2H2v-2h2zm5 0v2H7v-2h2zm5 0v2h-2v-2h2zM12 1a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zm-1 6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zm1 4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2z"/>
                 </svg>
