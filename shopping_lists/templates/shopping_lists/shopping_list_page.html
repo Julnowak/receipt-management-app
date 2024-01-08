@@ -23,7 +23,7 @@
 
     </style>
 
-    <div>
+    <div style="text-align: center">
         {% if messages %}
             {% for message in messages %}
                 {% if message.tags == 'success' %}
@@ -50,9 +50,9 @@
     <div style="display: grid; grid-template: auto/auto auto; z-index: 1">
 
         {% if flag == 'group' %}
-            <a href="{% url 'groups:group_site' group.id %}" style="position: relative">
+            <a href="{% url 'groups:group_site' group.id %}" style="position: absolute">
         {% else %}
-            <a href="{% url 'your_lists' %}" style="position: relative">
+            <a href="{% url 'your_lists' %}" style="position: absolute">
         {% endif %}
             <div style=" margin-top: 15px; color: black; margin-left: 15px">
                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
@@ -61,36 +61,26 @@
             </div>
         </a>
 
-        {% if current_list.owner != user  %}
-            {% if not current_list.display_only%}
-                <a href="{% url 'share_list' current_list.id %}" style="position: relative">
+        {% if current_list.owner == user  %}
+            <a href="{% url 'share_list' current_list.id %}" style="top: 85px; right: 15px; position: absolute">
                     <div style=" margin-top: 15px; color: black; text-align: right; margin-right: 15px">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-send-fill" viewBox="0 0 16 16">
                           <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/>
                         </svg>
                     </div>
-                </a>
-            {% endif %}
-        {% else %}
-            <a href="{% url 'share_list' current_list.id %}" style="position: relative">
-                    <div style=" margin-top: 15px; color: black; text-align: right; margin-right: 15px">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-send-fill" viewBox="0 0 16 16">
-                          <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/>
-                        </svg>
-                    </div>
-                </a>
+            </a>
         {% endif %}
     </div>
 
-    <div style="margin: 5px 20px">
-        <h1 style="margin-top: 20px; word-break: break-word">{{ current_list.full_name }}</h1>
+    <div style="margin: 20px 10px 0 10px">
+        <h1 style=" word-break: break-word; margin-top: 60px;">{{ current_list.full_name }}</h1>
         <h4 id="num_prods" style="color: grey; text-align: center">{{ bought_num_of_prods }}/{{ num_of_prods }}</h4>
     </div>
 
     <p>
         {% if current_list.is_shared %}
             {% if user != current_list.owner %}
-                <div style="margin: auto; display: inline-block;">
+                <div style="margin: auto; display: inline-block; text-align: center">
                     <span style="display: inline; vertical-align: middle">
                         <svg xmlns="http://www.w3.org/2000/svg" color="slategrey" width="24" height="24" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
                           <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -123,7 +113,7 @@
 
     </p>
 
-    <div style="margin: 10px auto;">
+    <div style="margin: 10px auto; max-width: 380px">
         {% for product in pages %}
             {% if product.is_bought %}
                 <div id="change_variable_{{ product.id }}" class="green_btns" style="margin: 10px 20px;display: grid;background-color: palegreen; grid-template: auto/80% 20%; z-index:1;border-radius:10px; border:1px solid black;min-width: 300px; max-width: 600px;">
@@ -171,6 +161,7 @@
                     </div>
                 </div>
             {% endif %}
+
             <script>
                 $(document).ready(function() {
                     $('#change_variable_{{ product.id }}').click(function(e) {
@@ -293,6 +284,14 @@
         {% endif %}
         </div>
     </div>
+
+    {% if current_list.regards %}
+    <span style="max-width: 380px; word-wrap: break-word; margin: auto; padding:0 20px 20px 20px; display: block;vertical-align: middle; color: black">
+        <h6 style="text-align: center">Uwagi</h6>
+        <span style="text-align: justify">{{ current_list.regards }}</span>
+    </span>
+    {% endif %}
+
         <div style="text-align:center; position: sticky; flex: 6; margin-top: auto; margin-bottom: 40px; display: flex; flex-direction: column-reverse;">
         {% if current_list.owner != user  %}
             {% if not current_list.display_only%}

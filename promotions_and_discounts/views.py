@@ -67,6 +67,7 @@ def shop_site(request, shop_id):
                 list_of_new_prices += new
                 list_of_discounts += [100 - round(float(new[x].replace(',', '.')) / float(old[x].replace(',', '.')) * 100) for x in range(len(old))]
         max_web_pages = html.find_all("a", {"class", "pages__last"})
+        print(max_web_pages)
 
     elif shop.shop_name == "House":
         pass

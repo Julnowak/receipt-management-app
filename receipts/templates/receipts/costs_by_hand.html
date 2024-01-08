@@ -28,7 +28,13 @@
         </script>
     </div>
 
-    <a href="{% url 'receipts:your_receipts' %}">
+    {% if flag == "mainpage" %}
+        <a href="{% url 'receipts:your_receipts' %}">
+    {% elif flag == "group" %}
+        <a href="{% url 'groups:group_receipts_and_expenses' group.id %}">
+    {% else %}
+        <a href="{% url 'receipts:expenses_page' %}">
+    {% endif %}
         <div style="position: fixed; margin-top: 15px;color: black; margin-left: 15px">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
@@ -37,13 +43,13 @@
     </a>
 
     <div>
-        <h1 style="text-align: center; margin-top: 20px">Koszty własne</h1>
+        <h1 style="text-align: center; margin-top: 20px">Nowa opłata</h1>
     </div>
 
 
 
 
-    <form action="{% url 'receipts:costs_by_hand' %}" method="post" style="margin: 20px auto">
+    <form id="form" action="{% url 'receipts:costs_by_hand' %}" method="post" style="margin: 20px auto">
         {% csrf_token %}
         <div style="margin: 20px auto">
             {{ form.expense_name.label }}
@@ -83,18 +89,26 @@
             {{ form.shop }}
         </div>
 
-        <div id="my_check_div" style="margin: 30px auto">
-            <input style="accent-color:black; vertical-align: middle; width: 20px;height: 20px; margin: 10px" type="checkbox" onclick="is_checked()" name="check" id="id_checkbox">
-            <label for="my_check" style="vertical-align: middle;">Czy należy do grupy?</label>
-        </div>
+        {% if flag != "group" %}
+            <div id="my_check_div" style="margin: 30px auto">
+                <input style="accent-color:black; vertical-align: middle; width: 20px;height: 20px; margin: 10px" type="checkbox" onclick="is_checked()" name="check" id="id_checkbox">
+                <label for="my_check" style="vertical-align: middle;">Czy należy do grupy?</label>
+            </div>
 
-        <div id="group_field" style="display: none;margin: 20px auto">
-            {{ form.group.label }}
-            {{ form.group }}
-        </div>
+            <div id="group_field" style="display: none;margin: 20px auto">
+                {{ form.group.label }}
+                {{ form.group }}
+            </div>
+        {% endif %}
 
-        <button style="width: 150px; margin: 20px" name="post_btn" type="submit" class="btn btn-dark">Dodaj</button>
+        {% if flag == "group" %}
+            <input type="hidden" name="flag" value="group">
+            <input type="hidden" name="group" value="{{ group.id }}">
+        {% elif flag == "mainpage" %}
+            <input type="hidden" name="flag" value="mainpage">
+        {% endif %}
     </form>
+        <button form="form" style="width: 150px; margin: 20px auto" name="post_btn" type="submit" class="btn btn-dark">Dodaj</button>
 
 
     <script>

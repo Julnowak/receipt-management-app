@@ -4,7 +4,7 @@ from categories.models import BaseCategories
 
 
 class Shop(models.Model):
-    shop_name = models.CharField(max_length=200)
+    shop_name = models.CharField(max_length=200, unique=True)
     image = models.ImageField(blank=True, null=True)
     link = models.CharField(max_length=2000,blank=True, null=True)
     promos_available = models.BooleanField(default=False)

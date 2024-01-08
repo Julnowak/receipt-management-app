@@ -29,6 +29,9 @@
                     <option>lat</option>
                 </select>
             </label>
+            {% if flag == "mainpage" %}
+                <input type="hidden" name="flag" value="mainpage">
+            {% endif %}
         </form>
     </div>
         <div style="margin: 20px auto;">

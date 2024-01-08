@@ -80,3 +80,18 @@ class CommonGroupsForm(forms.ModelForm):
 
         return self.cleaned_data
 
+
+class ChangeGroupCodeForm(forms.ModelForm):
+    class Meta:
+        model = CommonGroups
+        fields = ['password']
+        labels = {'group_name': 'Nazwa grupy',
+                  'max_number_of_members': 'Max. liczba członków',
+                  'password': 'Kod dostępu do grupy',
+                 }
+
+        widgets = {
+            'password': forms.TextInput(attrs={
+                'class': "form-control",
+                'style': 'width: 300px; margin: auto;border-color: black',
+            }),}

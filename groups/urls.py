@@ -25,4 +25,5 @@ urlpatterns = [
     path('<int:group_id>/del_from_group_receipts/<int:receipt_id>/', views.del_from_group_receipts, name='del_from_group_receipts'),
     path('<int:group_id>/del_list_from_group/<int:list_id>/', views.del_list_from_group, name='del_list_from_group'),
     path('<int:group_id>/profile_not_public/', views.profile_not_public, name='profile_not_public'),
+    path('<int:group_id>/change_groupcode/', views.change_groupcode, name='change_groupcode'),
 ]

@@ -84,6 +84,14 @@ def edit_list(request, list_id):
                 current_list.logs = str(datetime.now().strftime("%Y-%m-%d %H:%M")) + " Użytkownik " + \
                                     str(request.user.username) + " edytował nazwę listy " + old + " na " + current_list.text + ".;" + current_list.logs
                 current_list.save()
+                for real in current_list.realizators.exclude(request.user):
+                    new_message = Message.objects.create(sender=request.user,
+                                                         receiver=real,
+                                                         title="Zmieniono nazwę grupy",
+                                                         message_type="normal")
+                    new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
+                                       f"Użytkownik {request.user} zmienił nazwę listy {old} na {current_list.text}."
+                    new_message.save()
             return redirect("your_lists")
     else:
         form = ShoppingListForm(instance=current_list)
@@ -142,8 +150,8 @@ def single_list(request, list_id):
 def single_list_redirected(request, list_id, group_id):
     """ Your shopping lists page"""
     try:
-        group = CommonGroups.objects.get(id=group_id)
-        sh_list = ShoppingList.objects.get(id=list_id)
+        group = get_object_or_404(CommonGroups, id=group_id)
+        sh_list = get_object_or_404(ShoppingList, id=list_id)
     except:
         raise Http404
 
@@ -191,7 +199,7 @@ def single_list_redirected(request, list_id, group_id):
 
 @login_required
 def new_product(request, list_id):
-    current_list = ShoppingList.objects.get(id=list_id)
+    current_list = get_object_or_404(ShoppingList, id=list_id)
     if request.method == 'POST':
         form = ProductForm(data=request.POST)
         if form.is_valid():
@@ -213,7 +221,7 @@ def new_product(request, list_id):
 
 @login_required
 def edit_product(request, product_id):
-    current_product = ListProduct.objects.get(id=product_id)
+    current_product = get_object_or_404(ListProduct, id=product_id)
     current_list = current_product.shopping_list
     before = str(current_product.product)
     if request.method == 'POST':
@@ -432,7 +440,7 @@ def main_panel(request):
 
 @login_required
 def removed(request, product_id):
-        current_product = ListProduct.objects.get(id=product_id)
+        current_product = get_object_or_404(ListProduct, id=product_id)
         current_list = current_product.shopping_list
         if current_list.is_shared:
             current_list.logs = str(datetime.now().strftime("%Y-%m-%d %H:%M")) + " Użytkownik " + str(
@@ -445,18 +453,32 @@ def removed(request, product_id):
 
 @login_required
 def list_removed(request, list_id):
-    current_list = ShoppingList.objects.get(id=list_id)
+    current_list = get_object_or_404(ShoppingList, id=list_id)
     if request.user == current_list.owner:
         current_list.delete()
     else:
         current_list.realizators.remove(request.user)
+        current_list.logs = str(datetime.now().strftime("%Y-%m-%d %H:%M")) + " Użytkownik " + str(
+                request.user.username) + " usunął u siebie listę.;"
+        addition = ''
+        if current_list.is_shared and current_list.realizators.count() == 1:
+            newline = "\n"
+            addition = f"Dodatkowo, użytkownik ten był ostatnim, który należał do realizatorów. Otrzymujesz więc pełny wykaz logów listy:\n" + f"{current_list.regards.replace(';',newline)}"
+        new_message = Message.objects.create(sender=request.user,
+                                             receiver=current_list.owner,
+                                             title="Użytkownik usunął udostępnioną listę.",
+                                             message_type="normal")
+        new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
+                           f"Użytkownik {request.user} usunął u siebie udostępnioną mu listę {current_list.text}. " \
+                           f"Tym samym został on usunięty z listy realizatorów." + "\n" + addition
+        new_message.save()
         current_list.save()
     return HttpResponseRedirect(reverse('your_lists'))
 
 
 @login_required
 def share_list(request, list_id):
-    lista = ShoppingList.objects.get(id=list_id)
+    lista = get_object_or_404(ShoppingList, id=list_id)
     users = User.objects.exclude(username__in=lista.realizators.all().values_list('username'))
     groups = CommonGroups.objects.filter(members__username=request.user.username)
 
@@ -532,7 +554,7 @@ def share_list(request, list_id):
 @login_required
 def update_is_bought(request, list_id):
     if request.method == 'POST':
-        sh_list = ShoppingList.objects.get(id=list_id)
+        sh_list = get_object_or_404(ShoppingList, id=list_id)
 
         prods = ListProduct.objects.filter(shopping_list=sh_list).order_by('-date_added')
         prod = prods.get(id=request.POST.get("product_id"))
@@ -612,7 +634,7 @@ def new_list(request):
 
 @login_required
 def details(request, list_id):
-    sh_list = ShoppingList.objects.get(id=list_id)
+    sh_list = get_object_or_404(ShoppingList, id=list_id)
     realizers = sh_list.realizators.exclude(id=request.user.id).order_by("username")
     page_number = request.GET.get('page', 1)
     p = Paginator(realizers, 4)
@@ -645,7 +667,7 @@ def details(request, list_id):
 
 @login_required
 def details_edit(request, list_id):
-    sh_list = ShoppingList.objects.get(id=list_id)
+    sh_list = get_object_or_404(ShoppingList, id=list_id)
 
     if request.method == "POST":
         form = DetailsForm( data=request.POST, instance=sh_list)
@@ -671,8 +693,8 @@ def current_number(request, list_id):
 
 @login_required
 def delete_realizator(request, list_id, realizator_id):
-    sh_list = ShoppingList.objects.get(id=list_id)
-    rez = User.objects.get(id=realizator_id)
+    sh_list = get_object_or_404(ShoppingList, id=list_id)
+    rez = get_object_or_404(User, id=realizator_id)
     sh_list.realizators.remove(rez)
     sh_list.save()
     if sh_list.realizators.count() == 1:

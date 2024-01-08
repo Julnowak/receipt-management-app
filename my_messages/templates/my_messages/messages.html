@@ -93,7 +93,7 @@
         </div>
     </div>
 
-<div style="max-width: 600px; min-width:400px;  background-color: rgba(183,183,183,0.26); padding-top: 10px; margin: -10px auto 10px auto; border-radius: 10px; border-style: solid; border-width: 1px">
+<div style="max-width: 380px; min-width:360px;  background-color: rgba(183,183,183,0.26); padding-top: 10px; margin: -10px auto 10px auto; border-radius: 10px; border-style: solid; border-width: 1px">
     <form id="check_form" method="POST" style="display: inline; vertical-align: middle" action="{% url 'my_messages:delete_messages' %}">
         {% csrf_token %}
     <ul>
@@ -180,43 +180,39 @@
         </div>
     </div>
 
-    <div style="text-align:center; position: sticky; flex:0; margin-top: auto; display: flex; flex-direction: column-reverse;">
-        <div style="display: inline-block">
-       {% if pages.has_other_pages %}
+    <div style="text-align: center; margin: 20px auto;">
+        {% if pages.has_other_pages %}
+          <ul class="pagination" style="display: block">
             {% if pages.has_previous %}
-                <div style="display: inline;">
-                  <a style=" text-decoration:none; vertical-align: middle" href="?page={{ pages.previous_page_number }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="black" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
-                      <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
-                    </svg>
-                  </a>
-                </div>
+              <li style="display: inline"><a style="text-decoration: none; color: black" href="?page={{ pages.previous_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </a></li>
             {% else %}
-                <div style="display: inline;">
-                  <a style="text-decoration:none; vertical-align: middle">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="lightgray" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
-                      <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
-                    </svg>
-                  </a>
-                </div>
-
+              <li style="display: inline" class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+              </span></li>
             {% endif %}
 
-            <span style="display: inline; vertical-align: middle; color: slategrey; font-size: 200%; ">{{ pages.number }} z {{ pages.paginator.num_pages }} </span>
+              <li class="active" style="margin:0 10px; display: inline"><span>{{ pages.number }}/{{ pages.paginator.num_pages }} <span class="sr-only"></span></span></li>
 
             {% if pages.has_next %}
-                  <a style="display: inline; vertical-align: middle"  href="?page={{ pages.next_page_number }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="black" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
-                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
-                    </svg>
-                  </a>
+              <li style="display: inline"><a style="text-decoration: none; color: black" href="?page={{ pages.next_page_number }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </a></li>
             {% else %}
-                  <a style="display: inline; vertical-align: middle">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" color="lightgray" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
-                      <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
-                    </svg>
-                  </a>
+              <li style="display: inline" class="disabled"><span>
+                <svg xmlns="http://www.w3.org/2000/svg" color="lightgray" width="32" height="32" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                </svg>
+              </span></li>
             {% endif %}
+          </ul>
         {% endif %}
         </div>
     </div>

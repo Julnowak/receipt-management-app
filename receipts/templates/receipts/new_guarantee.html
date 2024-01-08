@@ -49,6 +49,10 @@
                 {{ form.regards.errors.as_text }}
              </span>
         </div>
+       {% if flag == "mainpage" %}
+           <input type="hidden" name="flag" value="mainpage">
+       {% endif %}
+
 
 
        <div style="text-align: center;; margin: 20px auto">

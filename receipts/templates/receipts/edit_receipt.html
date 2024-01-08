@@ -15,16 +15,41 @@
 
     <h1 style="text-align: center; margin-top: 20px">Edytuj paragon</h1>
 
-    <form style="padding: 10px; margin: 20px;" method="post" action="{% url 'receipts:edit_receipt' receipt.id %}">
+    <form style="padding: 10px; margin: 20px auto;" method="post" action="{% url 'receipts:edit_receipt' receipt.id %}">
     {% csrf_token %}
-        {{ form.as_p }}
+        <div style="margin: 10px">
+            {{ form.receipt_name.label }}
+            {{ form.receipt_name }}
+        </div>
+
+        <div style="margin: 10px">
+            {{ form.receipt_img.label }}
+            {{ form.receipt_img}}
+        </div>
+        <div style="margin: 10px">
+            {{ form.amount.label }}
+            {{ form.amount }}
+        </div>
+        <div style="margin: 10px">
+            {{ form.shop.label }}
+            {{ form.shop }}
+        </div>
+        <div style="margin: 10px">
+            {{ form.receipt_categories.label }}
+            {{ form.receipt_categories }}
+        </div>
+        <div style="margin: 10px">
+            {{ form.date_of_receipt_bought.label }}
+            {{ form.date_of_receipt_bought }}
+        </div>
+        <div style="margin: 10px">
+            {{ form.products.label }}
+            {{ form.products }}
+        </div>
+
         <div style="text-align: center">
             <button style="margin: 20px; min-width: 150px" class="btn btn-dark" type="submit">Zatwierdź</button>
         </div>
     </form>
-
-{#    <div style="text-align: center">#}
-{#        <button style="margin: 20px; min-width: 150px" class="btn btn-dark" type="submit">Zatwierdź</button>#}
-{#    </div>#}
 
 {% endblock content %}

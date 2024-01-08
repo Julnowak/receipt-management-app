@@ -1,3 +1,5 @@
+import itertools
+import pandas as pd
 from difflib import get_close_matches
 import cv2
 import numpy as np
@@ -6,19 +8,54 @@ from deskew import determine_skew
 import pytesseract
 from pytesseract import Output
 from datetime import date
-from promotions_and_discounts.models import Shop
-from receipts.models import Product
 import re
 from collections import Counter
 import datetime
+from promotions_and_discounts.models import Shop
+from categories.models import BaseCategories
 
 
-# get grayscale image
+sklepy = Shop.objects.all().values_list("shop_name", flat=True)
+sklepy = [s.lower() for s in sklepy]
+
+sklepy_map = dict()
+for mapped, shop_name in list(set(Shop.objects.values_list("map_names", "shop_name"))):
+    if mapped is not None:
+        words = mapped.split(',')
+        for w in words:
+            w = w.strip()
+            sklepy.append(w)
+            sklepy_map[w] = shop_name.lower()
+
+categories = BaseCategories.objects.values_list('category_name', flat=True)
+categories = [c.lower() for c in categories]
+
+my_set = list(set(Shop.objects.values_list("nip", flat=True)))
+my_set = [x for x in my_set if x is not None]
+NIP = [x for x in my_set if x is not None]
+
+nip_to_shop = dict()
+for n, name in Shop.objects.values_list("nip", "shop_name"):
+    if n is not None:
+        nip_to_shop[n] = name
+
+# from kaggle
+products_base = pd.read_csv('receipts/BASE.csv', sep=';', encoding='latin-1', on_bad_lines='skip')
+a = products_base['Pname'].dropna().drop_duplicates().str.replace('\d+', '', regex=True)
+a = list(a.str.lower().str.split()[1:])
+df = pd.DataFrame({'words': list(itertools.chain.from_iterable(a))})
+df = df.drop_duplicates()
+base_prods = df['words'].str.replace('\\+', '', regex=True).loc[df['words'].str.len() >= 3]
+
+category_shop_dict = dict()
+for cat, name in Shop.objects.values_list("category__category_name", "shop_name"):
+    if name is not None:
+        category_shop_dict[name.lower()] = cat
+
 def get_grayscale(image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 
-# noise removal
 def median_blur(image):
     return cv2.medianBlur(image, 7)
 
@@ -27,30 +64,25 @@ def remove_noise(image):
     return cv2.fastNlMeansDenoisingColored(image, None, 10, 10, 7, 21)
 
 
-# thresholding
 def thresholding(image):
     return cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
 
-# dilation
 def dilate(image, iter_num=1, ker=(7, 7)):
     kernel = np.ones(ker, np.uint8)
     return cv2.dilate(image, kernel, iterations=iter_num)
 
 
-# erosion
 def erode(image, iter_num=1):
     kernel = np.ones((5, 5), np.uint8)
     return cv2.erode(image, kernel, iterations=iter_num)
 
 
-# opening - erosion followed by dilation
 def opening(image, ker=(5, 5)):
     kernel = np.ones(ker, np.uint8)
     return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
 
 
-# canny edge detection
 def canny(image):
     return cv2.Canny(image, 100, 200)
 
@@ -60,8 +92,6 @@ poppler_path = r"C:\path\to\poppler-xx\bin"
 
 
 def rotation(img, angle):
-    # angle in degrees
-
     height, width = img.shape[0], img.shape[1]
     center = (width / 2, height / 2)
 
@@ -80,97 +110,71 @@ def rotation(img, angle):
     return rotated_mat
 
 
-def algo(img):
+def cropping(rotated_img, max_num):
+    height = int(rotated_img.shape[0])
+    crop_output = []
+    p = 0
+    i = int(height / max_num)
+    num = 0
+
+    while num != max_num:
+        if num == max_num-1:
+            cropped_image = rotated_img[p:, :]
+        else:
+            cropped_image = rotated_img[p:i, :]
+        p = i
+        i += int(height / max_num)
+        num += 1
+        crop_output += triple_OCR_text(cropped_image)
+    return crop_output
+
+
+def triple_OCR_text(img):
     text = []
-    custom_config = r'--oem 1 --psm 6 -l pol -c tessedit_char_blacklist=)!?(%'
-    contrast = 1  # Contrast control ( 0 to 127)
-    brightness = 0.1  # Brightness control (0-100)
+    custom_config = r'--oem 1 --psm 6 -l pol -c tessedit_char_blacklist=)!?(%'  # konfiguracja tesseract
 
+    try:
+        text.append(pytesseract.image_to_string(img, config=custom_config))
+    except:
+        pass
+
+    try:
+        text.append(pytesseract.image_to_string(erode(img), config=custom_config))
+    except:
+        pass
+
+    try:
+        text.append(pytesseract.image_to_string(dilate(img), config=custom_config))
+    except:
+        pass
+    return text
+
+
+def algo(img):
+    output = []
+    contrast = 1  # kontrast
+    brightness = 0.1  # jasność
     out = cv2.addWeighted(img, contrast, img, 0, brightness)
+    output += triple_OCR_text(out)
 
-    gray_image = out
-    text.append(pytesseract.image_to_string(gray_image, config=custom_config))
-    text.append(pytesseract.image_to_string(erode(gray_image), config=custom_config))
-    text.append(pytesseract.image_to_string(dilate(gray_image), config=custom_config))
-    angle = determine_skew(gray_image)
-    rotated = rotation(gray_image, angle)
+    angle = determine_skew(out)
+    rotated = rotation(out, angle)
     rotated = imutils.resize(rotated, height=2000)
 
-    img = rotated
-    height = int(img.shape[0])
-    d = pytesseract.image_to_data(img, output_type=Output.DICT, config=custom_config)
+    output += cropping(rotated,3)
+    output += cropping(rotated,2)
 
-    p = 0
-    i = int(height / 3)
-    num = 0
+    # gradientowe przekształcenie morfologiczne z kernelem w postaci elipsy
+    k_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    gradient = cv2.morphologyEx(img, cv2.MORPH_GRADIENT, k_ellipse)
 
-    while num != 3:
-        if num == 2:
-            cropped_image = img[p:, :]
-        else:
-            cropped_image = img[p:i, :]
-        p = i
-        i += int(height / 3)
-        num += 1
-        try:
-            text.append(pytesseract.image_to_string(cropped_image, config=custom_config))
-        except:
-            pass
+    # Binaryzacja
+    after_bin = cv2.threshold(gradient, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[0]
+    k_rect = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+    closed = cv2.morphologyEx(after_bin, cv2.MORPH_CLOSE, k_rect)
 
-        try:
-            text.append(pytesseract.image_to_string(erode(cropped_image), config=custom_config))
-        except:
-            pass
-
-        try:
-            text.append(pytesseract.image_to_string(dilate(cropped_image), config=custom_config))
-        except:
-            pass
-
-    p = 0
-    i = int(height / 2)
-    num = 0
-
-    while num != 2:
-        if num == 1:
-            cropped_image = img[p:, :]
-        else:
-            cropped_image = img[p:i, :]
-        p = i
-        i += int(height / 2)
-        num += 1
-        try:
-            text.append(pytesseract.image_to_string(cropped_image, config=custom_config))
-        except:
-            pass
-
-        try:
-            text.append(pytesseract.image_to_string(erode(cropped_image), config=custom_config))
-        except:
-            pass
-
-        try:
-            text.append(pytesseract.image_to_string(dilate(cropped_image), config=custom_config))
-        except:
-            pass
-
-    # find the gradient map
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    grad = cv2.morphologyEx(img, cv2.MORPH_GRADIENT, kernel)
-
-    # Binarize the gradient image
-    _, bw = cv2.threshold(grad, 0.0, 255.0, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-
-    # #connect horizontally oriented regions
-    # #kernal value (9,1) can be changed to improved the text detection
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
-    connected = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel)
-
-    text.append(pytesseract.image_to_string(connected, config=custom_config))
-    text.append(pytesseract.image_to_string(erode(connected), config=custom_config))
-    text.append(pytesseract.image_to_string(dilate(connected), config=custom_config))
-
-    return text
+    output += triple_OCR_text(closed)
+    return output
 
 
 def possible_date(date_poss):
@@ -258,7 +262,6 @@ def possible_date_reverse(date_poss):
                 flag_date_make = True
 
         if flag_date_make:
-            print('p')
             poss_d = []
             poss_m = []
             poss_y = []
@@ -349,16 +352,8 @@ def read_reverse(date_string):
     return y, m, d
 
 
-products = Product.objects.values_list('product_name')
-products_list = list(map(lambda x: x[0], products))
-
-shops = Shop.objects.values_list('shop_name', 'nip', 'map_names')
-sklepy = list(map(lambda x: x[0], shops.values_list('shop_name')))
-shop_nip = shops.values_list('shop_name','nip')
-
-
 def postprocessing(text):
-    estimated_sum = []
+    cats = []
     suma = ""
     potencjalne_produkty = []
     list_of_dates = []
@@ -373,13 +368,8 @@ def postprocessing(text):
             elem_list = elem.lower().split(" ")
             if get_close_matches("fiskalny", elem_list) or get_close_matches("paragon", elem_list):
                 flag_main = True
-                print("PSPSPSPPSPSPSPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP", flag_main)
-
             if get_close_matches("sprzedaż", elem_list) or get_close_matches("suma", elem_list):
                 flag_main = False
-                print("PSPSPSPPSPSPSPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP", flag_main)
-
-            print(elem)
             if flag_main:
                 cena = None
                 if re.findall(f"(\d+\s*,\s*\d+)", elem):
@@ -393,25 +383,20 @@ def postprocessing(text):
                             cena = re.findall(f"(\d+,\d+)", cena)[0].replace(",", ".")
                         elif "." in cena:
                             cena = re.findall(f"(\d+\\.\d+)", cena)[0]
-                        print("========")
-                        print(cena)
-                        suma_z_prod += float(cena)
-                        print("========")
                     except:
                         pass
-                # for i in base_prods:
-                #     if get_close_matches(i, elem_list, cutoff=0.9):
-                #         potencjalne_produkty.append(i)
+                for i in base_prods:
+                    if get_close_matches(i, elem_list, cutoff=0.9):
+                        potencjalne_produkty.append(i)
+                # potencjalne_produkty.append(elem)
 
             if not flag_main:
                 for e in elem_list:
                     # Cutoff pomiędzy 0.6 a 0.7
                     shp = get_close_matches(e.lower(), sklepy, cutoff=0.85)
                     if shp:
-                        print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
-                        print(shp)
                         for shpshp in shp:
-                            if len(e.lower()) <= 4:
+                            if len(e.lower()) <= 4 and e.lower() in sklepy:
                                 shop_list.append(shpshp)
                             else:
                                 shop_list.append(shpshp)
@@ -423,16 +408,26 @@ def postprocessing(text):
                             shop_list.append(e)
                             shop_list.append(e)
 
-            for ems in sklepy:
-                shp = re.findall(ems, elem.lower())
-                for shpshp in shp:
-                    shop_list.append(shpshp)
+                for ems in sklepy:
+                    if len(ems) <= 4:
+                        shp = re.findall(ems, elem.lower())
+                        if shp:
+                            for shpshp in shp:
+                                newi = get_close_matches(shpshp, sklepy, cutoff=0.85)
+                                for inewi in newi:
+                                    shop_list.append(inewi)
+                    else:
+                        shp = get_close_matches(ems, elem_list, cutoff=0.85)
+                        shp += re.findall(ems, elem.lower())
+                        shp += re.findall(ems, elem.lower())
+                        if shp:
+                            for shpshp in shp:
+                                newi = get_close_matches(shpshp, sklepy, cutoff=0.85)
+                                for inewi in newi:
+                                    shop_list.append(inewi)
 
             nip_match = re.findall(r'\d+[- ]*\d+[- ]*\d+', elem)
             for np in nip_match:
-                print("GGGGhddddddddddddddddddddddddddddddddddGGGGGGGGGGGGG")
-                print(nip_match)
-                print("GGGGGGjdffjjdfffffffffffffffffffffGGGGGGGGGG")
                 try:
                     shop_list += [nip_to_shop[np]] * 5
                 except:
@@ -446,12 +441,9 @@ def postprocessing(text):
                     elem = elem
                 else:
                     elem = elem.replace('/', '7')
-                print("========")
-                print("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG")
                 print(d_match)
                 print(d_match_mist)
-                print("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG")
-                print("========")
+
                 date_string_shortyear = re.findall(r'\d{2}[-/\. ]\d{2}[-/\. ]\d{2}', elem)
                 date_string_normal = re.findall(r'\d{2}[-/\.]\d{2}[-/\.]\d{4}', elem)
                 date_string_other = re.findall(r'\d{4}[-/\.]\d{2}[-/\.]\d{2}', elem)
@@ -488,13 +480,11 @@ def postprocessing(text):
                                     except:
                                         flag = True
 
-                        if date_string_shortyear:
-                            pass
                 except:
                     pass
 
             d_match_second = re.findall(r'\d+[-/]\d+[-/]\d+', elem)
-            # d_match_second_lines = re.findall(r'\d+[-/]*\d+[-/]*\d+', elem)
+
             if d_match_second:
                 print("GGGGGGGGGGGGGGGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGG")
                 print(d_match_second)
@@ -518,21 +508,23 @@ def postprocessing(text):
                     except:
                         pass
             # #match new dn.22r03.09
-            new_match_uncommon = re.findall(r'dn\.\d+[-/\.,r ]\d+[-/\., ]\d+', elem)
+            new_match_uncommon = re.findall(r'\d+[-/\.,r ]\d+[-/\., ]+\d+', elem)
             if new_match_uncommon:
                 for i in new_match_uncommon:
-                    y = '20' + i[3:5]
-                    m = i[6:8]
-                    d = i[9:11]
+                    i = i.replace(' ', '').replace('r', '').replace('.', '')
+                    y = '20' + i[:2]
+                    m = i[2:4]
+                    d = i[4:6]
                 try:
-                    list_of_dates += [datetime.date(int(y), int(m), int(d))]
+                    if 2000 <= int(y) <= datetime.date.today().year and int(m) <= 12 and int(d) <= 31:
+                        list_of_dates += [datetime.date(int(y), int(m), int(d))]
                 except:
                     pass
 
             if "suma" in elem.lower() or "kwota" in elem.lower() or get_close_matches("pln", elem_list) or \
                     "karta" in elem.lower() or get_close_matches("suma", elem_list) or "do zapłaty" in elem.lower() \
                     or "gotówka" in elem.lower() or "karta" in elem.lower() or get_close_matches("kwota", elem_list) \
-                    or "cena" in elem.lower():
+                    or "cena" in elem.lower() or "sprzedaż" in elem.lower():
 
                 if get_close_matches("reszta", elem_list):
                     print("YRYRYRYRYRYRYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY")
@@ -558,8 +550,8 @@ def postprocessing(text):
                             if "suma pln" in suma.lower() and not "ptu" in suma.lower():
                                 amo += [sm] * 3
 
-                            if "pln" in suma.lower() and not "ptu" in suma.lower() and not get_close_matches('reszta',
-                                                                                                             suma.lower()):
+                            if "pln" in suma.lower() and not "ptu" in suma.lower() \
+                                    and not get_close_matches('reszta', suma.lower()):
                                 amo += [sm] * 3
 
                             if "karta visa debit" in suma.lower() and "pln" in suma.lower():
@@ -575,63 +567,86 @@ def postprocessing(text):
                                     pass
                     except IndexError:
                         pass
-
+        print("############################################################")
+        print(amo)
         first_part = []
         second_part = []
         for imk in amo:
             first_part.append(str(imk)[:2])
             second_part.append(str(imk)[3:])
+        print(shop_list)
+        print(list_of_dates)
+        print("############################################################")
 
-    category = ''
+    for shop_i in shop_list:
+        if shop_i.lower() in sklepy_map.keys():
+            cats += [category_shop_dict[sklepy_map[shop_i.lower()]]]
+        elif shop_i in [ss.lower() for ss in sklepy]:
+            try:
+                cats += [category_shop_dict[shop_i.lower()]]
+            except:
+                pass
+
+    category = cats
     print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     print(Counter(amo).most_common())
     print(Counter(shop_list).most_common())
     print(Counter(list_of_dates).most_common())
+    print(potencjalne_produkty)
     return amo, list_of_dates, shop_list, category
+
+
+def triple_check(img_to_check):
+    custom_config = r'--oem 1 --psm 6 -l pol -c tessedit_char_blacklist=)!?(%'
+    text = []
+    text += [pytesseract.image_to_string(img_to_check, config=custom_config)]
+    text += [pytesseract.image_to_string(erode(img_to_check), config=custom_config)]
+    text += [pytesseract.image_to_string(dilate(img_to_check), config=custom_config)]
+    return text
 
 
 def make_OCR(img):
     angles = [0, 90, 180, 270]
+    custom_config = r'--oem 1 --psm 4 -l pol'
+
     main_price_list = []
     dat_dat_list = []
     shop_shop_list = []
+    category_list = []
+    text = []
+    cases = []
+    confs = dict()
     ret_shop_shop = ''
     ret_main_price = ''
     ret_dat_dat = ''
-    text = []
-    custom_config = r'--oem 1 --psm 4 -l pol'
-    cases = []
-    confs = dict()
-    gray = get_grayscale(erode(remove_noise(img), 1))
-    num = 0
 
+    gray = get_grayscale(erode(img, 1))
     n = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-    text.append(pytesseract.image_to_string(n, config=custom_config))
-    text.append(pytesseract.image_to_string(erode(n), config=custom_config))
+    text += triple_check(n)
+
     img_array = np.array(gray)
     # Przycięcie
     if np.mean(img_array[:, :]) < 200:
-        blurred_image = cv2.GaussianBlur(gray, (3, 3), 0)
-        edged_img = cv2.Canny(blurred_image, 80, 200)
-        pts = np.argwhere(edged_img > 0)
+        blurred_img = cv2.GaussianBlur(gray, (3, 3), 0)
+        edged_img = cv2.Canny(blurred_img, 80, 200)
+        points = np.argwhere(edged_img > 0)
 
         # Finding the min and max points
-        y1, x1 = pts.min(axis=0)
-        y2, x2 = pts.max(axis=0)
+        y0, x0 = points.min(axis=0)
+        y1, x1 = points.max(axis=0)
 
         # Crop ROI from the givn image
-        output_image = img[y1:y2, x1:x2]
-        org = output_image
+        org = img[y0:y1, x0:x1]
     else:
         org = img
 
     # Rotacja obrazu w głównych kątach - wybór prawidłowej orientacji
-    for angle in [0]:
+    for angle in angles:
         print('----OK----')
         corrected_img = get_grayscale(org)
         data_orig = np.array(corrected_img)
         data_rot = rotation(data_orig, angle)
-        _, after_img = cv2.threshold(data_rot, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        after_img = cv2.threshold(data_rot, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
         train_text = pytesseract.image_to_data(after_img, output_type=Output.DICT, config=custom_config)
         conf = sum(train_text['conf']) / len(train_text['conf'])
@@ -649,9 +664,7 @@ def make_OCR(img):
         # Obraz szary
         gray = get_grayscale(corrected)
 
-        text.append(pytesseract.image_to_string(gray, config=custom_config))
-        text.append(pytesseract.image_to_string(erode(gray), config=custom_config))
-        text.append(pytesseract.image_to_string(dilate(gray), config=custom_config))
+        text += triple_check(gray)
 
         # Remove shadows
         dilated_img = cv2.dilate(gray, np.ones((7, 7), np.uint8))
@@ -660,19 +673,14 @@ def make_OCR(img):
         norm_img = cv2.normalize(diff_img, None, alpha=0, beta=255,
                                  norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8UC1)
 
-        ada = cv2.adaptiveThreshold(norm_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, \
-                                    cv2.THRESH_BINARY, 11, 2)
-        ada = (opening(median_blur(ada)))
+        ada = cv2.adaptiveThreshold(norm_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        ada = opening(median_blur(ada))
 
-        text.append(pytesseract.image_to_string(ada, config=custom_config))
-        text.append(pytesseract.image_to_string(erode(ada), config=custom_config))
-        text.append(pytesseract.image_to_string(dilate(ada), config=custom_config))
+        text += triple_check(ada)
 
         work_img = cv2.threshold(norm_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
-        text.append(pytesseract.image_to_string(work_img, config=custom_config))
-        text.append(pytesseract.image_to_string(erode(work_img), config=custom_config))
-        text.append(pytesseract.image_to_string(dilate(work_img), config=custom_config))
+        text += triple_check(work_img)
         result = text + algo(work_img) + algo(ada)
 
         main_price, dat_dat, shop_shop, category = postprocessing(result)
@@ -681,25 +689,31 @@ def make_OCR(img):
         main_price_list += main_price
         dat_dat_list += dat_dat
         shop_shop_list += shop_shop
+        category_list += category
 
-        if main_price and dat_dat and shop_shop:
+        if main_price_list and dat_dat_list and shop_shop_list and category_list:
             break
-        num += 1
 
-    if not ret_shop_shop and not ret_main_price and not ret_dat_dat:
-        try:
-            ret_shop_shop = Counter(shop_shop_list).most_common(1)[0][0]
-        except:
-            ret_shop_shop = ''
+    # CHOICE
+    try:
+        ret_shop_shop = Counter(shop_shop_list).most_common(1)[0][0]
+        if ret_shop_shop.capitalize() not in Shop.objects.values_list("shop_name", flat=True):
+            ret_shop_shop = sklepy_map[ret_shop_shop]
+    except:
+        ret_shop_shop = ''
 
-        try:
-            ret_main_price = Counter(main_price_list).most_common(1)[0][0]
-        except:
-            ret_main_price = ''
+    try:
+        ret_main_price = Counter(main_price_list).most_common(1)[0][0]
+    except:
+        ret_main_price = ''
 
-        try:
-            ret_dat_dat = Counter(dat_dat_list).most_common(1)[0][0]
-        except:
-            ret_dat_dat = ''
+    try:
+        ret_dat_dat = Counter(dat_dat_list).most_common(1)[0][0]
+    except:
+        ret_dat_dat = ''
+    try:
+        ret_category = Counter(category_list).most_common(1)[0][0]
+    except:
+        ret_category = ''
 
-    return ret_main_price, ret_dat_dat, ret_shop_shop, category, cases
+    return ret_main_price, ret_dat_dat, ret_shop_shop, ret_category, cases

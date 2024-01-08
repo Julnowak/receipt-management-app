@@ -6,14 +6,14 @@ from .models import Receipt,Expense, Guarantee
 
 
 class ReceiptForm(forms.ModelForm):
-
     class Meta:
         model = Receipt
         fields = ['receipt_name', 'receipt_img','amount','receipt_info','group','products','date_of_receipt_bought',
                   'receipt_categories','shop']
         labels = {'receipt_name': 'Nazwa', 'receipt_img': 'Zdjęcie',
                   'amount': 'Wartość','receipt_info': 'Dodatkowe informacje',
-                  'group': 'Grupa','products': 'Produkty','shop': 'Sklep'}
+                  'group': 'Grupa','products': 'Produkty','shop': 'Sklep',
+                  'date_of_receipt_bought': 'Data zakupu', 'receipt_categories': 'Kategorie paragonu'}
         widgets = {
             'products': forms.SelectMultiple(attrs={
                 'class': "form-control",

@@ -66,11 +66,16 @@
 
         <div style="margin:10px; padding: 10px; max-width: 500px; text-align: justify ">
             <h5>Kategorie paragonu</h5>
-            <ul>
             {% for cat in receipt_categoreis %}
-                <li>{{ cat }}</li>
+            <div style="display: grid; grid-template: auto/ 20% 80%; margin: 0 auto;  align-items:center">
+                <div style="background-color: {{ cat.color }}; margin: 10px; border-radius: 10px">
+                    &nbsp;
+                </div>
+                <div style="vertical-align: middle;">
+                    {{ cat.category_name }}
+                </div>
+            </div>
             {% endfor %}
-            </ul>
         </div>
 
         <div style="margin:10px; padding: 10px; max-width: 500px; text-align: justify ">
@@ -78,7 +83,7 @@
             {% for g in guars %}
                 {{ g }}
             {% empty %}
-                Brak
+                Brak powiązanych terminów
             {% endfor %}
 
         </div>
@@ -87,10 +92,7 @@
             <h5>Produkty</h5>
         <ul>
             {% for prod in receipt_products %}
-
                     <li>{{ prod }}</li>
-
-
             {% empty %}
                 Brak danych oficjalnych
             {% endfor %}

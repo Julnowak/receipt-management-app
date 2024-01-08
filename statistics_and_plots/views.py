@@ -12,6 +12,24 @@ import plotly.graph_objects as go
 from django.contrib.auth.decorators import login_required
 
 
+def month_map(num):
+    months = {
+        1: 'Styczeń',
+        2: 'Luty',
+        3: 'Marzec',
+        4: 'Kwiecień',
+        5: 'Maj',
+        6: 'Czerwiec',
+        7: 'Lipiec',
+        8: 'Sierpień',
+        9: 'Wrzesień',
+        10: 'Październik',
+        11: 'Listopad',
+        12: 'Grudzień'
+    }
+    return months[num]
+
+
 def calculate_recurrent_expense(df):
     multiplier = 1
 
@@ -63,12 +81,13 @@ def statistics(request):
     df_new = calculate_recurrent_expense(df_new)
 
     try:
-        sum_exp = df_new['amount'].sum()
+        sum_exp_norec = df_new['amount'][df_new['is_recurrent'] == False].sum()
+        sum_exp_rec = df_new['amount'][df_new['is_recurrent'] == True].sum()
         sum_rec = pd.DataFrame(list(recs.values_list("amount"))).sum()[0]
-        df_exp_rec = pd.DataFrame({'Rodzaj': ['Wydatki', 'Paragony'],
-                                   'Suma': [sum_exp, sum_rec]})
+        df_exp_rec = pd.DataFrame({'Rodzaj': ['Opłaty jednorazowe', 'Opłaty powtarzalne', 'Paragony'],
+                                   'Suma': [sum_exp_norec, sum_exp_rec, sum_rec]})
 
-        suma = sum_exp + sum_rec
+        suma = sum_exp_norec + sum_exp_rec + sum_rec
         if df_exp_rec.empty:
             exp_rec_pie = "Brak danych z tego roku"
         else:
@@ -168,6 +187,12 @@ def statistics(request):
     except:
         pie_months = "Nie dodano jeszcze żadnych wartości."
 
+    month_list = []
+    for m in df_rec_by_month['Month']:
+        month_list.append(month_map(m))
+
+    df_rec_by_month['month_name'] = month_list
+    print(df_rec_by_month.sort_values(by=['amount'], ascending=False))
     ########################################################################
 
     context = {'guar_num': guarantees.count(),'guar_num_actual': guarantees.filter(is_deleted=False).count(), 'rec_num': receipts.filter().count(),
@@ -180,21 +205,27 @@ def statistics(request):
 
 @login_required
 def category_charts(request):
-    exps = Expense.objects.filter(owner=request.user)
-    expenses = exps.values_list("category", "amount")
-    e = pd.DataFrame(list(expenses.values_list("amount"))).sum()[0]
-    g = 0
-    r = 0
-
-    suma = e+g+r
+    exps = Expense.objects.filter(owner=request.user, is_deleted=False)
+    receipts = Receipt.objects.filter(owner=request.user, is_deleted=False)
+    e = pd.DataFrame(list(exps.values_list("category", "amount", "date_added", "is_recurrent","number", "time_stamp")))
+    e.columns = ["category", "amount", "date_added", "is_recurrent","number", "time_stamp"]
+    print(e)
+    e = calculate_recurrent_expense(e)
+    e_amount = e['amount'].sum()
+    r = pd.DataFrame(list(receipts.values_list("receipt_categories", "amount")))
+    r.columns = ['category', 'amount']
     categories = BaseCategories.objects.values_list("id", "category_name")
-
+    df = pd.DataFrame(list(exps.values_list('category', 'amount')))
+    df.columns = ['category', 'amount']
+    df_temp = pd.DataFrame(list(categories))
+    df_temp.columns = ['category', 'category_name']
+    r = pd.merge(r, df_temp, on=['category'])
+    r = r[['category', 'amount']].groupby("category", as_index=False).sum()
+    r = pd.merge(r, df_temp, on=['category'])
+    print(r)
+    suma = e_amount
     # Pie Chart
     try:
-        df = pd.DataFrame(list(expenses))
-        df.columns = ['category', 'amount']
-        df_temp = pd.DataFrame(list(categories))
-        df_temp.columns = ['category', 'category_name']
         df2 = pd.merge(df, df_temp, on=['category'])
         if df2.empty:
             pie_chart = "Brak danych"
@@ -214,7 +245,6 @@ def category_charts(request):
             pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
     except:
         pie_chart = "Nie dodano jeszcze żadnych wartości."
-
 
     suma = df2['amount'].sum()
 

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import CommonGroups, User
-from groups.forms import CommonGroupsForm
+from groups.forms import CommonGroupsForm, ChangeGroupCodeForm
 from django.contrib import messages
 from my_messages.models import Message
 from profile_mangement.models import ProfileInfo
@@ -444,6 +444,15 @@ def password_check(request, group_id):
     if request.method == "POST":
         pswd = request.POST['Hasło']
         if pswd == group.password:
+            new_message = Message.objects.create(sender=request.user,
+                                                 receiver=group.owner,
+                                                 title=f"Użytkownik dołączył do grupy {group.group_name}",
+                                                 message_type="normal")
+            new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
+                               f"Użytkownik {request.user} dołączył do Twojej grupy {group.group_name} za pomocą kodu." \
+                               f"Jeśli nie znasz tego użytkownika, zmień kod grupy, usuń użytkownika z listy członków i " \
+                               f"skontaktuj się z administratorem."
+            new_message.save()
             group.members.add(request.user)
             group.number_of_members += 1
             group.save()
@@ -567,3 +576,14 @@ def change_limit(request, group_id):
             messages.success(request, f"Zmieniono limit wydatków grupy.")
         group.save()
     return redirect("groups:manage_group", group_id=group.id)
+
+
+def change_groupcode(request, group_id):
+    group = get_object_or_404(CommonGroups, id=group_id)
+    if request.method == 'POST':
+        form = ChangeGroupCodeForm(instance=group, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("groups:manage_group", group_id=group.id)
+    context = {'group':group}
+    return render(request, "groups/change_groupcode.html", context)

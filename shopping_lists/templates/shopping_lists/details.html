@@ -96,9 +96,9 @@
 
     <h6 style="text-align: center">Logi listy</h6>
 
-    <div style="text-align: center">
+    <div style="text-align: left; margin: 20px">
         {% for log in pag_log %}
-            <div style="margin: auto">
+            <div style="margin: auto; padding: 5px">
                 {{ log }}
             </div>
         {% empty %}
@@ -124,8 +124,8 @@
         {% endif %}
     </div>
 
-    <div style="margin: 20px; text-align: center">
-        <h3>Uwagi</h3>
+    <h3 style="text-align: center">Uwagi</h3>
+    <div style="margin: auto 20px; text-align: justify; word-wrap: break-word">
         {% if sh_list.regards %}
             {{ sh_list.regards }}
         {% else %}

@@ -43,11 +43,11 @@
         </div>
 
     <div>
-    <div style="margin: 20px auto; padding: 10px; max-width: 600px">
+    <div style=" margin: 10px auto; padding: 10px; max-width: 380px;min-width: 380px;">
         {% for receipt in receipts %}
             {% if receipt.is_starred %}
                 <a href="{% url 'receipts:receipt_site_from_mainpage' receipt.id %}" style="text-decoration: none; color: black;">
-                    <div style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
+                    <div style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid black;" >
                         <span style="display: inline-grid;vertical-align: middle">{{ receipt }}</span>
                         <svg style="display: inline-grid;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" color="goldenrod" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
                           <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
@@ -56,7 +56,7 @@
                 </a>
             {% else %}
                 <a href="{% url 'receipts:receipt_site_from_mainpage' receipt.id %}" style="text-decoration: none; color: black">
-                    <div style="vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;">
+                    <div style="vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid black;">
                         <span style="vertical-align: middle">{{ receipt }}</span>
                     </div>
                 </a>
@@ -83,6 +83,9 @@
             {% endif %}
         {% endif %}
 
+    <div style="display: grid; grid-template: auto/auto auto;">
+
+    </div>
         <div style="margin:40px 20px 10px 20px; text-align: center;">
             <a href="{% url 'receipts:new_receipt' %}" style="text-decoration: none; color: black;text-align: center;">
                 <div id="add_btn" class="add_btn" style="display: inline; horiz-align: center;">
@@ -111,11 +114,11 @@
         <h2 style="text-align: center">Opłaty</h2>
     </div>
 
-    <div style="margin: 20px auto; padding: 10px; max-width: 600px">
+    <div style="margin: 20px auto; padding: 10px;  max-width: 380px;min-width: 380px">
         {% for expense in expenses %}
             {% if expense.is_starred %}
                 <a href="{% url 'receipts:expense_site_from_mainpage' expense.id %}" style="text-decoration: none; color: black;">
-                    <div style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
+                    <div style="display: grid;grid-template: auto/ 95% 5%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid #000000;" >
                         <span style="display: inline-grid;vertical-align: middle">{{ expense }}</span>
                         <svg style="display: inline-grid;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" color="goldenrod" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
                           <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
@@ -124,7 +127,7 @@
                 </a>
             {% else %}
                 <a href="{% url 'receipts:expense_site_from_mainpage' expense.id %}" style="text-decoration: none; color: black">
-                    <div style="vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;">
+                    <div style="vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid #000000;">
                         <span style="vertical-align: middle">{{ expense }}</span>
                     </div>
                 </a>
@@ -153,7 +156,7 @@
         {% endif %}
 
         <div id="icons_container_id" style="text-align: center;margin: 20px">
-            <a href="{% url 'receipts:costs_by_hand' %}" style="text-decoration: none; color: black;display: inline; horiz-align: center; margin-right: 20px">
+            <a href="{% url 'receipts:add_expense_from_mainpage' %}" style="text-decoration: none; color: black;display: inline; horiz-align: center; margin-right: 20px">
                 <div id="add_btn_by_hand" class="add_btn" style="display: inline; horiz-align: center;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-patch-plus-fill" viewBox="0 0 16 16">
                       <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zM8.5 6v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 1 0z"/>
@@ -170,16 +173,16 @@
         <h2 style="text-align: center">Terminy gwarancji i zwrotów</h2>
     </div>
 
-    <div style="margin: 20px auto; padding: 10px; max-width: 600px">
+    <div id="guar_cont" style="margin: 10px auto; padding: 10px; max-width: 380px;min-width: 380px">
             {% for guarantee, left, flag in info %}
                     <a class="text" href="{% url 'receipts:guarantee_site_from_mainpage' guarantee.id %}" style="text-decoration: none; color: black">
                     {%  if flag %}
-                        <div style="display: grid;grid-template: auto/ 85% 15%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid #d05980; background-color: palevioletred" >
+                        <div style="display: grid;grid-template: auto/ 80% 20%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid #d05980; background-color: palevioletred" >
                             <span style="display: inline-grid;vertical-align: middle">{{ guarantee.guarantee_name }}</span>
                             <span style="display: inline-grid;vertical-align: middle">{{ left.days }} dni</span>
                         </div>
                     {%  else %}
-                        <div style="display: grid;grid-template: auto/ 85% 15%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid black;" >
+                        <div style="display: grid;grid-template: auto/ 80% 20%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid black;" >
                             <span style="display: inline-grid;vertical-align: middle">{{ guarantee.guarantee_name }}</span>
                             <span style="display: inline-grid;vertical-align: middle">{{ left.days }} dni</span>
                         </div>

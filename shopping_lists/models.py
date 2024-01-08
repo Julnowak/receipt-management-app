@@ -7,16 +7,16 @@ from groups.models import CommonGroups
 class ShoppingList(models.Model):
     """One of the user's shopping lists"""
 
-    text = models.CharField(max_length=200)
+    text = models.CharField(max_length=150)
     date_added = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     is_shared = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
-    regards = models.TextField(max_length=1000, blank=True, null=True)
+    regards = models.TextField(max_length=250, blank=True, null=True)
     realizators = models.ManyToManyField(User, related_name="realizators", default=owner)
     group = models.ForeignKey(CommonGroups, on_delete=models.SET_NULL, blank=True, null=True)
     display_only = models.BooleanField(default=False)
-    logs = models.TextField(null=True, blank=True)
+    logs = models.TextField(default='')
 
     def __str__(self):
         if len(self.text) > 30:
