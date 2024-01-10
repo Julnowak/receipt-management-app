@@ -54,6 +54,8 @@
             {% if user == message.receiver %}
                 <a class="btn btn-dark" style="margin:10px; width: 120px" href="{% url 'my_messages:answer_message' message.id %}">Odpowiedz</a>
             {% endif %}
+            {% elif message.message_type == "info" %}
+
         {% endif %}
     </div>
 

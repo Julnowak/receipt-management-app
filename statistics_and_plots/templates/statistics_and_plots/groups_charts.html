@@ -96,20 +96,22 @@
 
             <div id="month" style="display: none;align-items: center; margin: auto; height: 300px">
                 {% autoescape off %}
-                    {{ pie_chart_month }}
+                    {{ pie_chart_year }}
                 {% endautoescape %}
             </div>
 
             <div id="week" style="display: none;align-items: center; margin: auto; height:300px">
-
+                {% autoescape off %}
+                    {{ pie_chart_month }}
+                {% endautoescape %}
             </div>
 
         </div>
-        <h3 id="text" style="margin: 10px">
-            Łącznie: {{ suma|floatformat:2 }} zł
-        </h3>
 
     </div>
+            <h3 id="text" style="margin: 10px auto">
+            Łącznie: {{ suma|floatformat:2 }} zł
+        </h3>
         <div class="basic_white" id="expenses_title">
             <div id="year" style="align-items: center; margin: auto; height:500px">
                 {% autoescape off %}

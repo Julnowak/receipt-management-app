@@ -13,11 +13,11 @@
         </div>
     </a>
 
- <h2> Zmiana kodu dostępu do grupy</h2>
+    <h2 style="margin: 80px 20px 20px 20px; text-align: center"> Zmiana kodu dostępu do grupy</h2>
     <form id="form" method="post" style="margin: auto">
     {% csrf_token %}
     {{ form.as_p }}
     </form>
-    <button form="form" style="width: 150px; margin: auto" class="btn btn-dark" ></button>
+    <button form="form" style="width: 150px; margin: auto" class="btn btn-dark" > Zapisz</button>
 
 {% endblock content %}

@@ -45,18 +45,24 @@
                     </div>
                 </a>
             {% else %}
-                <div style="display: grid;grid-template: auto/ 90% 10%; vertical-align:middle; padding: 10px;min-height: 55px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
-                    <span style="vertical-align: middle">{{ expense }}</span>
-                    <div class="x_button" style="margin: auto;display: none;">
-                        <a  href="{% url 'receipts:delete_expense' expense.id %}" style="text-decoration: none; color: red" >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
-                            <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
-                            </svg>
-                        </a>
+                <a href="{% url 'receipts:expense_site' expense.id %}" style="text-decoration: none; color: black;">
+                    <div style="display: grid;grid-template: auto/ 90% 10%; vertical-align:middle; padding: 10px;min-height: 55px; margin: 10px; border-radius: 10px;border: 1px solid darkgrey;" >
+                        <span style="display: inline-grid;vertical-align: middle">{{ expense }}</span>
+                        <div style="margin: auto;">
+                            <div class="x_button" style="margin: auto; display: none;">
+                                <a href="{% url 'receipts:delete_expense' expense.id %}" style="text-decoration: none; color: red" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </a>
 
             {% endif %}
+            {% empty %}
+            <div style="text-align: center; margin: auto">Brak opłat spełniających kryteria</div>
         {% endfor %}
     </div>
 

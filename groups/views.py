@@ -32,8 +32,7 @@ def groups(request):
 
 import pandas as pd
 from receipts.models import Receipt, Expense
-from categories.models import BaseCategories
-import plotly.express as px
+from statistics_and_plots.views import calculate_recurrent_expense
 import plotly.graph_objects as go
 
 
@@ -57,25 +56,33 @@ def group_site(request, group_id):
 
     user = request.user
 
-    exps = Expense.objects.filter(group=group).values_list('amount','owner')
-    receipts = Receipt.objects.filter(group=group).values_list('amount','owner')
+    exps = Expense.objects.filter(group=group, is_deleted=False).values_list('amount','owner')
+    receipts = Receipt.objects.filter(group=group, is_deleted=False).values_list('amount','owner')
 
-    df = pd.DataFrame({'owner': list(exps.values_list("owner")) + list(receipts.values_list("owner")),
-                       'amount': list(exps.values_list("amount")) + list(receipts.values_list("amount"))})
-    df['owner'] = df['owner'].apply(lambda x: x[0])
-    df['amount'] = df['amount'].apply(lambda x: x[0])
+    if exps and receipts:
+        df = pd.DataFrame({'owner': list(exps.values_list("owner")) + list(receipts.values_list("owner")),
+                           'amount': list(exps.values_list("amount")) + list(receipts.values_list("amount"))})
+    elif exps:
+        df = pd.DataFrame({'owner': list(exps.values_list("owner")) ,
+                           'amount': list(exps.values_list("amount"))})
+    elif receipts:
+        df = pd.DataFrame({list(receipts.values_list("owner")),
+                           list(receipts.values_list("amount"))})
 
-    users = User.objects.values_list("id", "username")
-    df_temp = pd.DataFrame({'owner': users.values_list("id"),
-                            'username': users.values_list("username")})
-    df_temp['owner'] = df_temp['owner'].apply(lambda x: x[0])
-    df_temp['username'] = df_temp['username'].apply(lambda x: x[0])
-    df2 = pd.merge(df, df_temp, on=['owner'])
-    df2 = df2.sort_values('amount')
-    df2 = df2[['username', 'amount']]
-
-    df_rank = df2.copy()
     try:
+        df['owner'] = df['owner'].apply(lambda x: x[0])
+        df['amount'] = df['amount'].apply(lambda x: x[0])
+
+        users = User.objects.values_list("id", "username")
+        df_temp = pd.DataFrame({'owner': users.values_list("id"),
+                                'username': users.values_list("username")})
+        df_temp['owner'] = df_temp['owner'].apply(lambda x: x[0])
+        df_temp['username'] = df_temp['username'].apply(lambda x: x[0])
+        df2 = pd.merge(df, df_temp, on=['owner'])
+        df2 = df2.sort_values('amount')
+        df2 = df2[['username', 'amount']]
+
+        df_rank = df2.copy()
         df2 = df2[['amount', 'username']].groupby('username', as_index=False).sum().sort_values(
                 by=['amount'], ascending=False)
         new = df2[:3]
@@ -103,7 +110,7 @@ def group_site(request, group_id):
                                   legend=dict(orientation="h"))
             pie_chart = fig_pie.to_html(full_html=False, include_plotlyjs=False)
     except:
-        pie_chart= "None"
+        pie_chart= "Brak wykresu."
 
     if user not in members:
         return redirect('groups:not_member_of_group', group_id=group_id)
@@ -134,15 +141,18 @@ def group_site(request, group_id):
             bars_chart = fig_bars.to_html(full_html=False, include_plotlyjs=False)
 
     except:
-        bars_chart = "None"
+        bars_chart = "Brak wykresu."
 
-    group_expenses = Expense.objects.filter(group=group_id)
-    group_receipts = Receipt.objects.filter(group=group_id)
+    group_expenses = Expense.objects.filter(group=group_id, is_deleted=False)
+    group_receipts = Receipt.objects.filter(group=group_id, is_deleted=False)
 
     suma_wydatki = 0
     suma_paragony = 0
-    for expense in group_expenses.values_list('amount'):
-        suma_wydatki += float(expense[0])
+    if exps:
+        df = pd.DataFrame(group_expenses.values_list("expense_name", 'amount', 'group', "date_added", "is_recurrent", "number", "time_stamp"))
+        df.columns = ["expense_name", 'amount', 'group', "date_added", "is_recurrent", "number", "time_stamp"]
+        df = calculate_recurrent_expense(df)
+        suma_wydatki += float(df['amount'].sum())
 
     for receipt in group_receipts.values_list('amount'):
         suma_paragony += float(receipt[0])
@@ -372,8 +382,8 @@ def search_group(request):
 def group_receipts_and_expenses(request, group_id):
     group = get_object_or_404(CommonGroups, id=group_id)
     number_of_members = group.number_of_members
-    group_expenses = Expense.objects.filter(group=group_id).order_by("-date_added")
-    group_receipts = Receipt.objects.filter(group=group_id).order_by("-date_added")
+    group_expenses = Expense.objects.filter(group=group_id, is_deleted=False).order_by("-date_added")
+    group_receipts = Receipt.objects.filter(group=group_id, is_deleted=False).order_by("-date_added")
 
     suma_wydatki = 0
     suma_paragony = 0
@@ -397,15 +407,15 @@ def group_receipts_and_expenses(request, group_id):
     except EmptyPage:
         p_rec = p.page(p.num_pages)
 
-    page_number = request.GET.get('page', 1)
-    p = Paginator(group_expenses, 3)
-
+    page_number = request.GET.get('page_obj', 1)
+    pnew = Paginator(group_expenses, 3)
+    print(group_expenses)
     try:
-        page_obj = p.page(page_number)
+        page_obj = pnew.page(page_number)
     except PageNotAnInteger:
-        page_obj = p.page(1)
+        page_obj = pnew.page(1)
     except EmptyPage:
-        page_obj = p.page(p.num_pages)
+        page_obj = pnew.page(pnew.num_pages)
 
     context = {'group': group, 'group_expenses': group_expenses, 'suma': suma, 'number_of_members': number_of_members,
                'group_receipts': group_receipts, 'suma_wydatki': str("{:.2f}".format(suma_wydatki)).replace(".", ','),
@@ -584,6 +594,9 @@ def change_groupcode(request, group_id):
         form = ChangeGroupCodeForm(instance=group, data=request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Kod dostępu został zmieniony.")
             return redirect("groups:manage_group", group_id=group.id)
-    context = {'group':group}
+    else:
+        form = ChangeGroupCodeForm(instance=group)
+    context = {'group': group, 'form': form}
     return render(request, "groups/change_groupcode.html", context)

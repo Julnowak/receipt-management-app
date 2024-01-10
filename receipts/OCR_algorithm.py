@@ -354,15 +354,12 @@ def read_reverse(date_string):
 
 def postprocessing(text):
     cats = []
-    suma = ""
     potencjalne_produkty = []
     list_of_dates = []
     amo = []
     shop_list = []
-    occurence_count = 0
 
     for t in text:
-        suma_z_prod = 0
         flag_main = False
         for elem in t.split("\n"):
             elem_list = elem.lower().split(" ")
@@ -388,7 +385,6 @@ def postprocessing(text):
                 for i in base_prods:
                     if get_close_matches(i, elem_list, cutoff=0.9):
                         potencjalne_produkty.append(i)
-                # potencjalne_produkty.append(elem)
 
             if not flag_main:
                 for e in elem_list:
@@ -441,10 +437,6 @@ def postprocessing(text):
                     elem = elem
                 else:
                     elem = elem.replace('/', '7')
-                print(d_match)
-                print(d_match_mist)
-
-                date_string_shortyear = re.findall(r'\d{2}[-/\. ]\d{2}[-/\. ]\d{2}', elem)
                 date_string_normal = re.findall(r'\d{2}[-/\.]\d{2}[-/\.]\d{4}', elem)
                 date_string_other = re.findall(r'\d{4}[-/\.]\d{2}[-/\.]\d{2}', elem)
                 try:
@@ -486,9 +478,6 @@ def postprocessing(text):
             d_match_second = re.findall(r'\d+[-/]\d+[-/]\d+', elem)
 
             if d_match_second:
-                print("GGGGGGGGGGGGGGGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGG")
-                print(d_match_second)
-                print("GGGGGGGGGGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGGGGG")
                 for v in d_match_second:
                     try:
                         list_of_dates += possible_date_reverse(v)
@@ -527,13 +516,10 @@ def postprocessing(text):
                     or "cena" in elem.lower() or "sprzedaż" in elem.lower():
 
                 if get_close_matches("reszta", elem_list):
-                    print("YRYRYRYRYRYRYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY")
+                    pass
                 else:
                     suma = elem
                     try:
-                        print("++++++++++++++++++++++++++++++++++")
-                        print(suma)
-                        print("++++++++++++++++++++++++++++++++++")
 
                         flag = False
                         if re.findall(f"(\d+\s*,\s*\d+)", elem):
@@ -546,7 +532,6 @@ def postprocessing(text):
 
                         if flag:
                             sm = ''.join(sm.split(' '))
-                            print(f"++++++++++++++{sm}+++++++++++++++")
                             if "suma pln" in suma.lower() and not "ptu" in suma.lower():
                                 amo += [sm] * 3
 
@@ -567,16 +552,11 @@ def postprocessing(text):
                                     pass
                     except IndexError:
                         pass
-        print("############################################################")
-        print(amo)
         first_part = []
         second_part = []
         for imk in amo:
             first_part.append(str(imk)[:2])
             second_part.append(str(imk)[3:])
-        print(shop_list)
-        print(list_of_dates)
-        print("############################################################")
 
     for shop_i in shop_list:
         if shop_i.lower() in sklepy_map.keys():
@@ -588,12 +568,7 @@ def postprocessing(text):
                 pass
 
     category = cats
-    print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    print(Counter(amo).most_common())
-    print(Counter(shop_list).most_common())
-    print(Counter(list_of_dates).most_common())
-    print(potencjalne_produkty)
-    return amo, list_of_dates, shop_list, category
+    return amo, list_of_dates, shop_list, category, potencjalne_produkty
 
 
 def triple_check(img_to_check):
@@ -616,9 +591,6 @@ def make_OCR(img):
     text = []
     cases = []
     confs = dict()
-    ret_shop_shop = ''
-    ret_main_price = ''
-    ret_dat_dat = ''
 
     gray = get_grayscale(erode(img, 1))
     n = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
@@ -631,11 +603,11 @@ def make_OCR(img):
         edged_img = cv2.Canny(blurred_img, 80, 200)
         points = np.argwhere(edged_img > 0)
 
-        # Finding the min and max points
+        # Szukanie punktów minimalnych i maksymalnych
         y0, x0 = points.min(axis=0)
         y1, x1 = points.max(axis=0)
 
-        # Crop ROI from the givn image
+        # Przycięcie
         org = img[y0:y1, x0:x1]
     else:
         org = img
@@ -666,7 +638,7 @@ def make_OCR(img):
 
         text += triple_check(gray)
 
-        # Remove shadows
+        # Usunięcie cienia
         dilated_img = cv2.dilate(gray, np.ones((7, 7), np.uint8))
         bg_img = cv2.medianBlur(dilated_img, 21)
         diff_img = 255 - cv2.absdiff(gray, bg_img)
@@ -683,7 +655,7 @@ def make_OCR(img):
         text += triple_check(work_img)
         result = text + algo(work_img) + algo(ada)
 
-        main_price, dat_dat, shop_shop, category = postprocessing(result)
+        main_price, dat_dat, shop_shop, category, potencjalne_produkty = postprocessing(result)
 
         cases += [(main_price, dat_dat, shop_shop)]
         main_price_list += main_price
@@ -716,4 +688,4 @@ def make_OCR(img):
     except:
         ret_category = ''
 
-    return ret_main_price, ret_dat_dat, ret_shop_shop, ret_category, cases
+    return ret_main_price, ret_dat_dat, ret_shop_shop, ret_category, cases, text, potencjalne_produkty

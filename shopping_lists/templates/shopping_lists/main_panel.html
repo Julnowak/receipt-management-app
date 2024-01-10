@@ -85,7 +85,7 @@
     <div class="basic_white" style="border: 1px solid black; margin: 20px auto;min-width: 360px; max-width: 380px;">
         <h4>Terminy</h4>
         {%  for left, deadline in pages %}
-            <a class="text" href="#" style="text-decoration: none; color: black; text-align: justify">
+            <a class="text" href="{% url 'receipts:guarantee_site_from_mainpage' deadline.id %}" style="text-decoration: none; color: black; text-align: justify">
                 <div style="display: grid;grid-template: auto/ 80% 20%; vertical-align:middle; padding: 15px; margin: 10px; border-radius: 10px;border: 1px solid grey;" >
                     <span style="display: inline-grid;vertical-align: middle; word-wrap: break-word">{{ deadline.guarantee_name }}</span>
                     <span style="color:red; display: inline-grid;vertical-align: middle">
@@ -175,6 +175,9 @@
                 {% endautoescape %}
             </div>
         </div>
+        <span id="info" style="text-align: center; margin: 20px">
+            {{ text_year|linebreaks }}
+        </span>
         <h3 id="text" style="margin: 10px">
             Łącznie: {{ year_sum|floatformat:2 }} zł
         </h3>
@@ -191,7 +194,7 @@
         var w = document.getElementById("week")
         var d = document.getElementById("day")
         var text = document.getElementById("text")
-
+        var info = document.getElementById("info")
         var boxes = [
             year_box,
             month_box,
@@ -220,6 +223,7 @@
                   w.style.display = 'none';
                   d.style.display = 'none';
                   text.innerHTML = `Łącznie: {{ year_sum|floatformat:2 }} zł`
+                  info.innerHTML = `{{ text_year|linebreaks }}`
               }
               else if (box === month_box){
                   m.style.display = 'grid';
@@ -227,6 +231,7 @@
                   w.style.display = 'none';
                   d.style.display = 'none';
                   text.innerHTML = `Łącznie: {{ month_sum|floatformat:2 }} zł`
+                  info.innerHTML = `{{ text_month|linebreaks }}`
               }
               else if (box === week_box){
                   m.style.display = 'none';
@@ -234,6 +239,7 @@
                   w.style.display = 'grid';
                   d.style.display = 'none';
                   text.innerHTML = `Łącznie: {{ week_sum|floatformat:2 }} zł`
+                  info.innerHTML = `{{ text_week|linebreaks }}`
               }
               else if (box === day_box){
                   m.style.display = 'none';
@@ -241,6 +247,7 @@
                   w.style.display = 'none';
                   d.style.display = 'grid';
                   text.innerHTML = `Łącznie: {{ day_sum|floatformat:2 }} zł`
+                  info.innerHTML = `{{ text_day|linebreaks }}`
               }
               boxes.forEach((item) => {
                   if (item === box){

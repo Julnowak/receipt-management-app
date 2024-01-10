@@ -10,14 +10,12 @@
         }
 
         .color_block{
-            width: 150px;
-            height: 90%;
+
             border-radius: 10px;
             margin: 10px;
             padding: 15px;
-            display: flex;
             transition: 0.5s;
-            align-items: center;
+            width: 300px;
             cursor: pointer;
         }
 
@@ -73,16 +71,16 @@
 
     <h1 style="margin-top: 20px">{{ category }}</h1>
 
-    <div style="display: grid;margin:auto;height: 400px; grid-template: 20% 20% 20% 20% 20%/auto auto;  justify-content: center">
+    <div style="margin: auto">
         {% for subcat in pages %}
             <a style="text-decoration: none; color: black" href="{% url 'categories:products_in_subcategory' subcat.id %} " >
 
                 <div class="color_block" style="background-color: {{ subcat.color }};">
-                    <span style="margin: 0 5px;">{{ subcat }}</span>
+                    <span style="margin: auto;">{{ subcat }}</span>
                 </div>
             </a>
         {% empty %}
-            <div class="color_block_noclick" style=" width:280px;background-color: lightgray;">
+            <div class="color_block_noclick" style=" width:280px;background-color: lightgray; margin: auto">
                 <span style="margin: auto">Brak podkategorii</span>
             </div>
         {% endfor %}

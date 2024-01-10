@@ -14,6 +14,8 @@
     </a>
 
     <h1 style="text-align: center; margin-top: 20px">Odczytane informacje</h1>
+    
+     <img src="{{ receipt.receipt_img.url }}" alt="Zdjęcie paragonu" style="height: auto; width: 50%; margin: auto">
 
     <form id="form" style="padding: 10px; margin: 20px auto;" method="post" action="{% url 'receipts:OCR_site' receipt.id %}">
     {% csrf_token %}
@@ -33,10 +35,12 @@
             {{ form.date_of_receipt_bought }}
         </div>
 
+        {% if flag == "group" %}
         <div style="margin: 20px auto; padding: 10px;">
             {{ form.group.label }}
             {{ form.group }}
         </div>
+        {% endif %}
 
 
         <div style="margin: 20px auto; padding: 10px;">
@@ -53,6 +57,18 @@
             {{ form.receipt_info.label }}
             {{ form.receipt_info }}
         </div>
+
+        <div style="margin: 20px auto; padding: 10px;">
+            {{ form.products.label }}
+            {{ form.products }}
+        </div>
+
+        {%  if flag == "mainpage" %}
+        <input type="hidden" name="flag" value="mainpage">
+        {%  elif flag == "group" %}
+            <input type="hidden" name="flag" value="group">
+            <input type="hidden" name="grp" value={{ group.id }}>
+        {%  endif %}
 
         <label for="customRange1" class="form-label">Czas gwarancji</label>
         <div>
@@ -94,8 +110,58 @@
     </form>
 
     <div style="margin: 20px; padding: 10px">
-        Odczytany tekst:
-        {{ text|linebreaks }}
+
+        <h3 style="text-align: center">Odczytany tekst</h3>
+        {% for n, t in text %}
+            {% if n == 0 %}
+                <div class="text_block" style="margin: 10px auto; display: block">
+                    {{ t|linebreaks }}
+                </div>
+            {% else %}
+                <div class="text_block" style="margin: 10px auto; display: none">
+                    {{ t|linebreaks }}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+    <div style="margin: auto; text-align: center; display: inline-block">
+        {% for n, t in text %}
+            {% if n == 0 %}
+                <div class="color_btn" style="background-color: black; color: white; border-radius: 10px; padding: 5px; display: inline-block; margin: 10px auto">
+                    {{ n|add:'1'}}
+                </div>
+            {% else %}
+                <div class="color_btn" style="background-color: grey; color: black; border-radius: 10px; padding: 5px; display: inline-block; margin: 10px auto">
+                {{ n|add:'1'}}
+                </div>
+            {% endif %}
+
+        {% endfor %}
     </div>
 
+    </div>
+
+    <script>
+    let text_block = document.getElementsByClassName("text_block")
+    let color_btn = document.getElementsByClassName("color_btn")
+
+    for (let i = 0; i < color_btn.length; i++) {
+          color_btn[i].addEventListener("click", function (){
+              for (let j = 0; j < text_block.length; j++) {
+                    if (i === j){
+                        text_block[j].style.display = "block"
+                        this.style.backgroundColor = "black"
+                        this.style.color = "white"
+                    }
+                    else
+                  {
+                      text_block[j].style.display = "none"
+                      color_btn[j].style.backgroundColor = "grey"
+                      color_btn[j].style.color = "black"
+                  }
+                }
+          })
+        }
+
+    </script>
 {% endblock content %}

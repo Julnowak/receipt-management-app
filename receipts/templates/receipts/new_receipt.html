@@ -30,7 +30,13 @@
     </div>
 
 
-    <a href="{% url 'receipts:your_receipts' %}">
+    {% if flag == "mainpage" %}
+        <a href="{% url 'receipts:your_receipts' %}">
+    {% elif flag == "group" %}
+        <a href="{% url 'groups:group_receipts_and_expenses' group.id %}">
+    {% else %}
+        <a href="{% url 'receipts:receipts_page' %}">
+    {% endif %}
         <div style="position: absolute; margin-top: 15px;color: black; margin-left: 15px">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
@@ -64,10 +70,18 @@
             {{ form.receipt_info }}
         </div>
 
-        <div style="margin: 20px">
-            {{ form.group.label }}
-            {{ form.group }}
-        </div>
+        {% if flag != "group" %}
+                <div style="margin: auto">
+                    {{ form.group.label }}
+                    {{ form.group }}
+                </div>
+            {% endif %}
+            {% if flag == "group" %}
+                <input type="hidden" name="flag" value="group">
+                <input type="hidden" name="grp" value="{{ group.id }}">
+            {% elif flag == "mainpage" %}
+                <input type="hidden" name="flag" value="mainpage">
+            {% endif %}
             {{ form.errors }}
         <div style="margin: 20px; text-align: center">
             <button id="sub_btn" style="min-width: 150px" type="submit" class="btn btn-dark">Zapisz</button>
@@ -84,9 +98,9 @@
         </div>
         <br>
         <strong style="color: whitesmoke">
-            Poczekaj chwilkę!
+            Poczekaj chwilę!
             <br>
-            Twoje wyniki są ładowane :)
+            Twoje wyniki są ładowane.
         </strong>
     </div>
 

@@ -1,22 +1,16 @@
-import datetime
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from .models import Receipt, Guarantee, Expense
 from groups.models import CommonGroups
 from receipts.forms import ReceiptForm, ExpenseForm, GuaranteeForm, HandReceiptForm
-from categories.models import Product
 from django.contrib import messages
-import re
-from categories.models import BaseCategories
 from django.shortcuts import get_object_or_404
 from pdf2image import convert_from_path
-import calendar
-from collections import Counter
-from promotions_and_discounts.models import Shop
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from receipts.OCR_algorithm import *
 from django.db.models import CharField
 from django.db.models.functions import Lower
+from categories.models import Product
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 poppler_path = r"C:\path\to\poppler-xx\bin"
@@ -41,9 +35,11 @@ def month_map(name):
     }
     return month[name]
 
+
 ########## STRONA GŁÓWNA ##########
 @login_required
 def your_receipts(request):
+
     if len(Receipt.objects.filter(owner=request.user, is_deleted=False)) > 5:
         flag = True
     else:
@@ -89,7 +85,6 @@ def your_receipts(request):
 ########## OPŁATY ##########
 @login_required
 def costs_by_hand(request):
-
     if 'flag' in request.GET:
         flag = request.GET['flag']
     elif 'flag' in request.POST:
@@ -97,10 +92,10 @@ def costs_by_hand(request):
     else:
         flag = None
 
-    if 'group' in request.GET:
-        group = get_object_or_404(CommonGroups, id=int(request.GET['group']))
-    elif 'group' in request.POST:
-            group = get_object_or_404(CommonGroups, id=int(request.POST['group']))
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = get_object_or_404(CommonGroups, id=int(request.POST['grp']))
     else:
         group = None
 
@@ -109,8 +104,12 @@ def costs_by_hand(request):
         form = ExpenseForm(request.POST)
         if form.is_valid():
             cost = form.save(commit=False)
-            if form.data['group']:
-                g = groups.get(id=int(form.data['group']))
+            if ("group" in request.POST and request.POST['group']) or group:
+                if group:
+                    g = group
+                    cost.group = g
+                else:
+                    g = groups.get(id=int(form.data['group']))
                 if g.can_receipts_be_added:
                     suma = sum(list(i[0] for i in g.expense_set.values_list('amount'))) + sum(
                         list(i[0] for i in g.receipt_set.values_list('amount')))
@@ -120,8 +119,10 @@ def costs_by_hand(request):
                         messages.success(request, f"Dodano opłatę.")
                         if flag == "group":
                             return redirect('groups:group_receipts_and_expenses', group_id=group.id)
-                        else:
+                        elif flag == "mainpage":
                             return redirect('receipts:your_receipts')
+                        else:
+                            return redirect('receipts:expenses_page')
                     else:
                         messages.error(request, f"Przekroczono limit grupy.")
                 else:
@@ -130,7 +131,12 @@ def costs_by_hand(request):
                 cost.owner = request.user
                 form.save()
                 messages.success(request, f"Dodano opłatę.")
-                return redirect('receipts:your_receipts')
+                if flag == "group":
+                    return redirect('groups:group_receipts_and_expenses', group_id=group.id)
+                elif flag == "mainpage":
+                    return redirect('receipts:your_receipts')
+                else:
+                    return redirect('receipts:expenses_page')
     else:
         form = ExpenseForm()
 
@@ -140,22 +146,23 @@ def costs_by_hand(request):
 
 @login_required
 def add_expense_from_grouppage(request, group_id):
-    return redirect('{}?flag=group&group={}'.format(reverse('receipts:costs_by_hand'), group_id))
+    return redirect('{}?flag=group&grp={}'.format(reverse('receipts:costs_by_hand'), group_id))
 
 
 @login_required
 def add_expense_from_mainpage(request):
     return redirect('{}?flag=mainpage'.format(reverse('receipts:costs_by_hand')))
 
+
 @login_required
 def expenses_page(request):
     expenses = Expense.objects.filter(owner=request.user, is_deleted=False).order_by('-date_added')
-    only_starred = request.GET.get('only_starred', False)
-    from_date = request.GET.get('from_date', '')
-    to_date = request.GET.get('to_date', '')
-    name = request.GET.get('name', '')
-    from_number = request.GET.get('from_number', '')
-    to_number = request.GET.get('to_number', '')
+    only_starred = request.POST.get('only_starred', False)
+    from_date = request.POST.get('from_date', '')
+    to_date = request.POST.get('to_date', '')
+    name = request.POST.get('name', '')
+    from_number = request.POST.get('from_number', '')
+    to_number = request.POST.get('to_number', '')
 
     if request.POST:
         if 'only_starred_lists' in request.POST:
@@ -206,7 +213,14 @@ def expenses_page(request):
             from_date = datetime.date(int(lst[2]), int(month_map(lst[1])), int(lst[0]))
         except:
             pass
-        expenses = expenses.filter(date_added__range=[from_date,datetime.date.today()])
+        expenses = expenses.filter(date_added__gte=from_date)
+    elif to_date:
+            try:
+                lst = to_date.split()
+                to_date = datetime.date(int(lst[2]), int(month_map(lst[1])), int(lst[0]))
+            except:
+                pass
+            expenses = expenses.filter(date_added__lte=to_date)
 
     if name:
         expenses = expenses.filter(expense_name__contains=name)
@@ -237,8 +251,10 @@ def expense_site(request, expense_id):
     else:
         flag = None
 
-    if 'group' in request.GET:
-        group = get_object_or_404(CommonGroups, id=int(request.GET['group']))
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = get_object_or_404(CommonGroups, id=int(request.POST['grp']))
     else:
         group = None
 
@@ -254,7 +270,7 @@ def expense_site_from_mainpage(request, expense_id):
 
 @login_required
 def expense_site_from_grouppage(request, expense_id, group_id):
-    return redirect('{}?flag=group&group={}'.format(reverse('receipts:expense_site',kwargs={'expense_id':expense_id}), group_id))
+    return redirect('{}?flag=group&grp={}'.format(reverse('receipts:expense_site',kwargs={'expense_id':expense_id}), group_id))
 
 
 @login_required
@@ -268,10 +284,10 @@ def change_expense_starred_status(request, expense_id):
     else:
         flag = None
 
-    if 'group' in request.GET:
-        group = get_object_or_404(CommonGroups, id=int(request.GET['group']))
-    elif 'group' in request.POST:
-        group = request.POST['group']
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = get_object_or_404(CommonGroups, id=int(request.POST['grp']))
     else:
         group = None
     if expense.is_starred:
@@ -279,9 +295,8 @@ def change_expense_starred_status(request, expense_id):
     else:
         expense.is_starred = True
     expense.save()
-    print(flag)
     if flag == "group":
-        return redirect('{}?flag=group&group={}'.format(reverse('receipts:expense_site_from_grouppage',kwargs={'expense_id':expense_id}), int(group.id)))
+        return redirect('{}?flag=group&grp={}'.format(reverse('receipts:expense_site_from_grouppage',kwargs={'expense_id':expense_id, 'group_id':group.id}), int(group.id)))
     elif flag == "mainpage":
         return redirect('{}?flag=mainpage'.format(reverse('receipts:expense_site_from_mainpage', kwargs={'expense_id': expense_id})))
     else:
@@ -290,7 +305,7 @@ def change_expense_starred_status(request, expense_id):
 
 @login_required
 def change_expense_starred_status_fromgroup(request, expense_id, group_id):
-    return redirect('{}?flag=group&group={}'.format(reverse('receipts:change_expense_starred_status',kwargs={'expense_id':expense_id}), group_id))
+    return redirect('{}?flag=group&grp={}'.format(reverse('receipts:change_expense_starred_status',kwargs={'expense_id':expense_id}), group_id))
 
 
 @login_required
@@ -309,10 +324,10 @@ def edit_expense(request, expense_id):
     else:
         flag=None
 
-    if 'group' in request.GET:
-        group = get_object_or_404(CommonGroups, id=int(request.GET['group']))
-    elif 'group' in request.POST:
-        group = request.POST['group']
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = request.POST['grp']
     else:
         group = None
 
@@ -335,7 +350,7 @@ def edit_expense(request, expense_id):
 
 @login_required
 def edit_expense_group(request, expense_id, group_id):
-    return redirect('{}?flag=group&group={}'.format(reverse('receipts:edit_expense',kwargs={'expense_id':expense_id}), group_id))
+    return redirect('{}?flag=group&grp={}'.format(reverse('receipts:edit_expense',kwargs={'expense_id':expense_id}), group_id))
 
 
 @login_required
@@ -347,16 +362,24 @@ def edit_expense_mainpage(request, expense_id):
 def delete_expense(request, expense_id):
     exp = Expense.objects.get(id=expense_id)
     exp.is_deleted = True
+    exp.ended_date = date.today()
     exp.save()
+    if "flag" in request.GET:
+        if request.GET['flag'] == "mainpage":
+            return redirect("receipts:your_receipts")
+        elif request.GET['flag'] == "group":
+            return redirect("groups:group_receipts_and_expenses", group_id=int(request.GET['grp']))
     return redirect("receipts:expenses_page")
 
 
 @login_required
 def delete_expense_group(request, expense_id, group_id):
-    exp = Expense.objects.get(id=expense_id)
-    exp.is_deleted = True
-    exp.save()
-    return redirect("groups:group_receipts_and_expenses", group_id=group_id)
+    return redirect('{}?flag=group&grp={}'.format(reverse('receipts:delete_expense',kwargs={'expense_id':expense_id}), group_id))
+
+
+@login_required
+def delete_expense_mainpage(request, expense_id):
+    return redirect('{}?flag=mainpage'.format(reverse('receipts:delete_expense',kwargs={'expense_id':expense_id})))
 
 
 @login_required
@@ -369,12 +392,13 @@ def expense_settings(request):
 @login_required
 def guarantees(request):
     guarantees = Guarantee.objects.filter(owner=request.user, is_deleted=False)
-    from_date = request.GET.get('from_date', '')
-    to_date = request.GET.get('to_date', '')
-    name = request.GET.get('name', '')
-    from_number = request.GET.get('from_number', '')
-    to_number = request.GET.get('to_number', '')
-
+    from_date = request.POST.get('from_date', '')
+    to_date = request.POST.get('to_date', '')
+    name = request.POST.get('name', '')
+    from_number = request.POST.get('from_number', '')
+    to_number = request.POST.get('to_number', '')
+    relation = request.POST.get('relation', '')
+    print(relation)
     # POTRZEBA DOSTOSOWANIA PAGINATORA
     if request.POST:
 
@@ -413,18 +437,55 @@ def guarantees(request):
             from_date = datetime.date(int(lst[2]), int(month_map(lst[1])), int(lst[0]))
         except:
             pass
-        guarantees = guarantees.filter(date_added__range=[from_date,datetime.date.today()])
+        guarantees = guarantees.filter(end_date__gte=from_date)
+    elif to_date:
+        try:
+            lst = to_date.split()
+            from_date = datetime.date(int(lst[2]), int(month_map(lst[1])), int(lst[0]))
+        except:
+            pass
+        guarantees = guarantees.filter(end_date__lte=to_date)
 
     if name:
         guarantees = guarantees.filter(guarantee_name__contains=name)
 
-    if from_number and to_number:
-        guarantees = guarantees.filter(amount__range=[from_number, to_number])
+    if relation:
+        print(relation)
+        guarantees = guarantees.filter(receipt__receipt_name=relation)
 
+    print(request.POST)
     left = []
     flags = []
+    left_gwar = []
+    gwar_list = []
+    gwar_flags = []
     for guarantee in guarantees:
         result = guarantee.end_date - datetime.date.today()
+
+        if from_number or to_number:
+            print(int(to_number) >= int(result.days) >= int(from_number))
+            if from_number and to_number and int(to_number) >= int(result.days) >= int(from_number):
+                gwar_list.append(guarantee.id)
+                left_gwar.append(result)
+                if int(result.days) < 3:
+                    gwar_flags.append(True)
+                else:
+                    gwar_flags.append(False)
+            elif from_number and not to_number and int(result.days) >= int(from_number):
+                gwar_list.append(guarantee.id)
+                left_gwar.append(result)
+                if int(result.days) < 3:
+                    gwar_flags.append(True)
+                else:
+                    gwar_flags.append(False)
+            elif to_number and not from_number and int(result.days) <= int(from_number):
+                gwar_list.append(guarantee.id)
+                left_gwar.append(result)
+                if int(result.days) < 3:
+                    gwar_flags.append(True)
+                else:
+                    gwar_flags.append(False)
+
         if int(result.days) < 0:
             g = guarantees.get(id=guarantee.id)
             g.is_deleted = True
@@ -437,8 +498,12 @@ def guarantees(request):
             else:
                 flags.append(False)
 
-    info = zip(guarantees, left, flags)
-    info = sorted(list(info), key=lambda x: x[1], reverse=False)
+    if from_number or to_number:
+        info = zip(guarantees.filter(id__in=gwar_list), left_gwar, gwar_flags)
+        info = sorted(list(info), key=lambda x: x[1], reverse=False)
+    else:
+        info = zip(guarantees, left, flags)
+        info = sorted(list(info), key=lambda x: x[1], reverse=False)
 
     page_number = request.GET.get('page', 1)
     p = Paginator(info, 4)
@@ -451,7 +516,7 @@ def guarantees(request):
         pages = p.page(p.num_pages)
 
     context = {'to_date': to_date,
-               'from_date':from_date,'from_number':from_number,'to_number': to_number, 'name': name,
+               'from_date':from_date,'from_number':from_number,'to_number': to_number, 'name': name,'relation': relation,
                'guarantees': guarantees, 'time_left': left,'pages': pages, 'info': info}
     return render(request, 'receipts/guarantees.html', context)
 
@@ -600,13 +665,19 @@ def elongate_guarantee_mainpage(request, guarantee_id):
 ########## PARAGONY ##########
 @login_required
 def receipt_site(request, receipt_id):
-    flag = None
-    group = None
     if 'flag' in request.GET:
         flag = request.GET['flag']
+    elif 'flag' in request.POST:
+            flag = request.POST['flag']
+    else:
+        flag = None
 
-    if 'group' in request.GET:
-        group = get_object_or_404(CommonGroups, id=int(request.GET['group']))
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = get_object_or_404(CommonGroups, id=int(request.POST['grp']))
+    else:
+        group = None
 
     receipt = get_object_or_404(Receipt, id=receipt_id)
     categs = receipt.receipt_categories.all()
@@ -625,59 +696,152 @@ def receipt_site_from_mainpage(request, receipt_id):
 
 @login_required
 def receipt_site_from_grouppage(request, receipt_id, group_id):
-    return redirect('{}?flag=group&group={}'.format(reverse('receipts:receipt_site',kwargs={'receipt_id': receipt_id}), group_id))
+    return redirect('{}?flag=group&grp={}'.format(reverse('receipts:receipt_site',kwargs={'receipt_id': receipt_id}), group_id))
 
 
 @login_required
 def new_receipt(request):
+    if 'flag' in request.GET:
+        flag = request.GET['flag']
+    elif 'flag' in request.POST:
+            flag = request.POST['flag']
+    else:
+        flag = None
+
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = get_object_or_404(CommonGroups, id=int(request.POST['grp']))
+    else:
+        group = None
+
     if request.method == 'POST':
         form = ReceiptForm(request.POST, request.FILES)
         if form.is_valid():
             new_receipt = form.save(commit=False)
             new_receipt.owner = request.user
+            if group:
+                new_receipt.group = group
             new_receipt.save()
-            return redirect('receipts:OCR_site', receipt_id=new_receipt.id)
+            if flag == "mainpage":
+                return redirect('receipts:OCR_site_mainpage', receipt_id=new_receipt.id)
+            elif flag == "group":
+                return redirect('receipts:OCR_site_group', receipt_id=new_receipt.id, group_id=group.id)
+            else:
+                return redirect('receipts:OCR_site', receipt_id=new_receipt.id)
     else:
         form = ReceiptForm()
-    return render(request, 'receipts/new_receipt.html', {'form': form})
+    context = {'form': form, 'flag': flag, 'group': group}
+    return render(request, 'receipts/new_receipt.html', context)
+
+
+@login_required
+def new_receipt_mainpage(request):
+    return redirect('{}?flag=mainpage'.format(reverse('receipts:new_receipt')))
+
+
+@login_required
+def new_receipt_group(request, group_id):
+    return redirect(
+        '{}?flag=group&grp={}'.format(reverse('receipts:new_receipt'),group_id))
 
 
 @login_required
 def edit_receipt(request, receipt_id):
+    if 'flag' in request.GET:
+        flag = request.GET['flag']
+    elif 'flag' in request.POST:
+            flag = request.POST['flag']
+    else:
+        flag = None
+
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = get_object_or_404(CommonGroups, id=int(request.POST['grp']))
+    else:
+        group = None
+
     rec = Receipt.objects.get(id=receipt_id)
     if request.method == 'POST':
         form = ReceiptForm(instance=rec, data=request.POST)
         if form.is_valid():
             form.save()
-            return redirect('receipts:receipt_site', receipt_id=rec.id)
+            if flag == "mainpage":
+                return redirect('receipts:receipt_site_from_mainpage', receipt_id=rec.id)
+            elif flag == "group":
+                return redirect('receipts:receipt_site_from_grouppage', receipt_id=rec.id, group_id=group.id)
+            else:
+                return redirect('receipts:receipt_site', receipt_id=rec.id)
     else:
         form = ReceiptForm(instance=rec)
-    context = {'form': form, 'receipt': rec}
+    context = {'form': form, 'receipt': rec, 'flag': flag, 'group': group}
     return render(request, 'receipts/edit_receipt.html', context)
 
 
 @login_required
+def edit_receipt_mainpage(request, receipt_id):
+    return redirect('{}?flag=mainpage'.format(reverse('receipts:edit_receipt', kwargs={'receipt_id': receipt_id})))
+
+
+@login_required
+def edit_receipt_group(request, receipt_id, group_id):
+    return redirect(
+        '{}?flag=group&grp={}'.format(reverse('receipts:edit_receipt', kwargs={'receipt_id': receipt_id}), group_id))
+
+
+@login_required
 def change_receipt_starred_status(request, receipt_id):
-    receipt = get_object_or_404(Receipt, pk=receipt_id)
+    if 'flag' in request.GET:
+        flag = request.GET['flag']
+    elif 'flag' in request.POST:
+            flag = request.POST['flag']
+    else:
+        flag = None
+
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = get_object_or_404(CommonGroups, id=int(request.POST['grp']))
+    else:
+        group = None
+
+    receipt = get_object_or_404(Receipt, id=receipt_id)
     if receipt.is_starred:
         receipt.is_starred = False
     else:
         receipt.is_starred = True
     receipt.save()
-    return redirect("receipts:receipt_site", receipt_id=receipt.id)
+
+    if flag == "group":
+        return redirect("receipts:receipt_site_from_grouppage", receipt_id=receipt.id, group_id = group.id)
+    elif flag == "mainpage":
+        return redirect("receipts:receipt_site_from_mainpage", receipt_id=receipt.id)
+    else:
+        return redirect("receipts:receipt_site", receipt_id=receipt.id)
+
+
+@login_required
+def change_receipt_starred_status_mainpage(request, receipt_id):
+    return redirect('{}?flag=mainpage'.format(reverse('receipts:change_receipt_starred_status', kwargs={'receipt_id': receipt_id})))
+
+
+@login_required
+def change_receipt_starred_status_group(request, receipt_id, group_id):
+    return redirect(
+        '{}?flag=group&grp={}'.format(reverse('receipts:change_receipt_starred_status', kwargs={'receipt_id': receipt_id}), group_id))
 
 
 @login_required
 def receipts_page(request):
     receipts = Receipt.objects.filter(owner=request.user, is_deleted=False).order_by('-date_added')
-    only_starred = request.GET.get('only_starred', False)
-    from_date = request.GET.get('from_date', '')
-    to_date = request.GET.get('to_date', '')
-    name = request.GET.get('name', '')
-    from_number = request.GET.get('from_number', '')
-    to_number = request.GET.get('to_number', '')
+    only_starred = request.POST.get('only_starred', False)
+    from_date = request.POST.get('from_date', '')
+    to_date = request.POST.get('to_date', '')
+    name = request.POST.get('name', '')
+    from_number = request.POST.get('from_number', '')
+    to_number = request.POST.get('to_number', '')
 
-    # POTRZEBA DOSTOSOWANIA PAGINATORA
     if request.POST:
         if 'only_starred_lists' in request.POST:
             only_starred = request.POST['only_starred_lists']
@@ -721,19 +885,31 @@ def receipts_page(request):
             receipts = receipts.filter(date_added__range=[from_date, (to_date + datetime.timedelta(days=1))])
         else:
             receipts = receipts.filter(date_added__range=[from_date, to_date])
-    elif from_date:
+    elif from_date and not to_date:
         try:
             lst = from_date.split()
             from_date = datetime.date(int(lst[2]), int(month_map(lst[1])), int(lst[0]))
         except:
             pass
-        receipts = receipts.filter(date_added__range=[from_date,datetime.date.today()])
+        receipts = receipts.filter(date_added__gte=from_date)
+    elif to_date and not from_date:
+        try:
+            lst = to_date.split()
+            to_date = datetime.date(int(lst[2]), int(month_map(lst[1])), int(lst[0]))
+        except:
+            pass
+        receipts = receipts.filter(date_added__lte=to_date)
 
     if name:
         receipts = receipts.filter(receipt_name__contains=name)
 
     if from_number and to_number:
         receipts = receipts.filter(amount__range=[from_number, to_number])
+    elif from_number and not to_number:
+            receipts = receipts.filter(amount__gte=from_number)
+    elif not from_number and to_number:
+            receipts = receipts.filter(amount__lte=to_number)
+
 
     page_number = request.GET.get('page', 1)
     p = Paginator(receipts, 6)
@@ -746,55 +922,146 @@ def receipts_page(request):
         pages = p.page(p.num_pages)
 
     context = {'receipts': receipts, 'pages': pages, 'only_starred': only_starred,'to_date': to_date,
-               'from_date':from_date,'from_number':from_number,'to_number': to_number, 'name': name }
+               'from_date':from_date,'from_number':from_number,'to_number': to_number, 'name': name,
+               }
     return render(request, 'receipts/receipts_page.html', context)
 
 
 @login_required
 def receipt_by_hand(request):
     groups = CommonGroups.objects.filter(members__username=request.user.username)
+    if 'flag' in request.GET:
+        flag = request.GET['flag']
+    elif 'flag' in request.POST:
+            flag = request.POST['flag']
+    else:
+        flag = None
+
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = get_object_or_404(CommonGroups, id=int(request.POST['grp']))
+    else:
+        group = None
+
     if request.method == 'POST':
         form = HandReceiptForm(request.POST, request.FILES)
-
         if form.is_valid():
-            g = groups.get(id=int(form.data['group']))
-            new_rec = form.save(commit=False)
-
-            if g.can_receipts_be_added:
-                suma = sum(list(i[0] for i in g.expense_set.values_list('amount'))) + sum(
-                    list(i[0] for i in g.receipt_set.values_list('amount')))
-                if g.limit and float(suma) + float(form.data['amount']) <= g.limit:
-                    new_rec.owner = request.user
-                    form.save()
-                    new_rec.save()
-                    messages.success(request, f"Dodano opłatę.")
-                    return redirect('receipts:your_receipts')
-                elif not g.limit:
-                    new_rec.owner = request.user
-                    form.save()
-                    new_rec.save()
-                    messages.success(request, f"Dodano opłatę.")
-                    return redirect('receipts:your_receipts')
+            if form.data['group'] or 'grp' in request.POST:
+                if request.POST['grp']:
+                    g = groups.get(id=request.POST['grp'])
                 else:
-                    messages.error(request, f"Przekroczono limit grupy.")
+                    g = groups.get(id=int(form.data['group']))
+                new_rec = form.save(commit=False)
+
+                if g.can_receipts_be_added:
+                    suma = sum(list(i[0] for i in g.expense_set.values_list('amount'))) + sum(
+                        list(i[0] for i in g.receipt_set.values_list('amount')))
+                    if g.limit and float(suma) + float(form.data['amount']) <= g.limit:
+                        new_rec.owner = request.user
+                        new_rec.group = g
+                        form.save()
+                        new_rec.save()
+                        messages.success(request, f"Dodano opłatę.")
+                        if flag == 'mainpage':
+                            return redirect('receipts:your_receipts')
+                        elif flag == 'group':
+                            return redirect('groups:group_receipts_and_expenses', group_id=group.id)
+                        else:
+                            return redirect('receipts:your_receipts')
+                    elif not g.limit:
+                        new_rec.owner = request.user
+                        form.save()
+                        new_rec.save()
+                        messages.success(request, f"Dodano opłatę.")
+                        return redirect('receipts:receipts_page')
+                    else:
+                        messages.error(request, f"Przekroczono limit grupy.")
+            else:
+                new_rec = form.save(commit=False)
+                new_rec.owner = request.user
+                new_rec.save()
+                messages.success(request, f"Dodano opłatę.")
+                if flag == 'mainpage':
+                    return redirect('receipts:your_receipts')
+                elif flag == 'group':
+                    return redirect('groups:group_receipts_and_expenses', group_id=group.id)
+                else:
+                    return redirect('receipts:receipts_page')
     else:
         form = HandReceiptForm()
-    context = {'form': form}
+    context = {'form': form, 'flag': flag, 'group': group}
     return render(request, 'receipts/receipt_by_hand.html', context)
 
 
 @login_required
+def receipt_by_hand_mainpage(request):
+    return redirect('{}?flag=mainpage'.format(reverse('receipts:receipt_by_hand')))
+
+
+@login_required
+def receipt_by_hand_group(request, group_id):
+    return redirect('{}?flag=group&grp={}'.format(reverse('receipts:receipt_by_hand'), group_id))
+
+
+@login_required
 def delete_receipt(request, receipt_id):
+    if 'flag' in request.GET:
+        flag = request.GET['flag']
+    elif 'flag' in request.POST:
+            flag = request.POST['flag']
+    else:
+        flag = None
+
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = get_object_or_404(CommonGroups, id=int(request.POST['grp']))
+    else:
+        group = None
+
     rec = Receipt.objects.get(id=receipt_id)
     rec.is_deleted = True
     rec.save()
-    return redirect("receipts:receipts_page")
+    if flag == "mainpage":
+        return redirect("receipts:your_receipts")
+    elif flag == "group":
+        return redirect("groups:group_receipts_and_expenses", group_id = group.id)
+    else:
+        return redirect("receipts:receipts_page")
+
+
+@login_required
+def delete_receipt_mainpage(request, receipt_id):
+    return redirect(
+        '{}?flag=mainpage'.format(reverse('receipts:delete_receipt', kwargs={'receipt_id': receipt_id})))
+
+
+@login_required
+def delete_receipt_group(request, receipt_id, group_id):
+    return redirect(
+        '{}?flag=group&grp={}'.format(
+            reverse('receipts:delete_receipt', kwargs={'receipt_id': receipt_id}), group_id))
 
 
 @login_required
 def OCR_site(request, receipt_id):
-    receipt = Receipt.objects.get(id=receipt_id)
+    if 'flag' in request.GET:
+        flag = request.GET['flag']
+    elif 'flag' in request.POST:
+            flag = request.POST['flag']
+    else:
+        flag = None
 
+    if 'grp' in request.GET:
+        group = get_object_or_404(CommonGroups, id=int(request.GET['grp']))
+    elif 'grp' in request.POST:
+        group = get_object_or_404(CommonGroups, id=int(request.POST['grp']))
+    else:
+        group = None
+
+    receipt = Receipt.objects.get(id=receipt_id)
+    text = []
     if request.method == 'POST':
         form = ReceiptForm(instance=receipt, data=request.POST)
 
@@ -856,21 +1123,27 @@ def OCR_site(request, receipt_id):
                                                     owner=request.user)
                 new_guar.receipt = receipt
                 new_guar.save()
-            return redirect('receipts:receipt_site', receipt_id=receipt.id)
+            if flag == "mainpage":
+                return redirect('receipts:receipt_site_from_mainpage', receipt_id=receipt.id)
+            elif flag == "group":
+                return redirect('receipts:receipt_site_from_grouppage', receipt_id=receipt.id, group_id = group.id)
+            else:
+                return redirect('receipts:receipt_site', receipt_id=receipt.id)
     else:
         if receipt.receipt_img and (".pdf" in receipt.receipt_img.url or ".png" in receipt.receipt_img.url
                                     or ".jpg" in receipt.receipt_img.url):
             if ".pdf" in receipt.receipt_img.url:
                 img = convert_from_path(f'media/{receipt.receipt_img}',
-                                        poppler_path=r"..\ZebragonApp\poppler-23.11.0\Library\bin")
-                new_name = 'images/' + receipt.receipt_img.url[14:len(receipt.receipt_pdf.url) - 4] + '.jpg'
+                                        poppler_path=r"C:\Users\Julia\Desktop\poppler-23.11.0\Library\bin")
+                new_name = 'images/' + receipt.receipt_img.url[14:len(receipt.receipt_img.url) - 4] + '.jpg'
                 img[0].save(f'media/{new_name}', 'JPEG')
                 receipt.receipt_img = new_name
 
             img = cv2.imread(f'media/{receipt.receipt_img}')
             print('START')
-            main_price, dat_dat, shop_shop, category, cases = make_OCR(img)
+            main_price, dat_dat, shop_shop, category, cases, text, potencjalne_produkty = make_OCR(img)
             print("STOP")
+
             try:
                 receipt.amount = float(main_price.replace(",", "."))
             except:
@@ -885,7 +1158,6 @@ def OCR_site(request, receipt_id):
                 receipt.receipt_categories.add(prod.subcategory.category)
 
             try:
-                print(shop_shop)
                 receipt.shop = Shop.objects.get(shop_name=shop_shop.capitalize())
             except:
                 receipt.shop = None
@@ -897,14 +1169,46 @@ def OCR_site(request, receipt_id):
             if receipt.shop:
                 for cat in receipt.shop.category.all():
                     receipt.receipt_categories.add(cat)
+            receipt.save()
+            all_prods = Product.objects.values_list('product_name', flat=True)
+            for i in potencjalne_produkty:
+                if i.capitalize() in all_prods:
+                    iprod = Product.objects.filter(product_name=i.capitalize())
+                    for j in iprod.all():
+                        receipt.products.add(j)
+                        if not j.subcategory.category in receipt.receipt_categories.all():
+                            receipt.receipt_categories.add(j.subcategory.category)
 
+            receipt.receipt_text_read_by_OCR = text
             receipt.save()
             form = ReceiptForm(instance=receipt)
         else:
-            return redirect('receipts:new_receipt')
+            if flag == "mainpage":
+                return redirect('receipts:new_receipt_mainpage')
+            elif flag == "group":
+                return redirect('receipts:new_receipt_group', group_id = group.id)
+            else:
+                return redirect('receipts:new_receipt')
 
-    context = {'form': form, 'receipt': receipt, 'img': img, 'suma': main_price}
+    print(potencjalne_produkty)
+    print(all_prods)
+    text = list(zip(list(range(len(text))), text))
+    context = {'form': form, 'receipt': receipt, 'img': img, 'suma': main_price, 'text': text,
+                'group': group, 'flag': flag}
     return render(request, 'receipts/OCR_site.html', context)
+
+
+@login_required
+def OCR_site_mainpage(request, receipt_id):
+    return redirect(
+        '{}?flag=mainpage'.format(reverse('receipts:OCR_site', kwargs={'receipt_id': receipt_id})))
+
+
+@login_required
+def OCR_site_group(request, receipt_id, group_id):
+    return redirect(
+        '{}?flag=group&grp={}'.format(
+            reverse('receipts:OCR_site', kwargs={'receipt_id': receipt_id}), group_id))
 
 
 @login_required

@@ -1,5 +1,5 @@
 from django import forms
-from .models import BaseCategories, SubCategories
+from .models import BaseCategories, SubCategories, Product
 
 
 class NewCategoryForm(forms.ModelForm):
@@ -48,4 +48,18 @@ class NewSubCategoryForm(forms.ModelForm):
                         'style': 'height:25px; width:25px;accent-color: black;'
                                  'border-radius: 10px',
                     })
+                }
+
+
+class NewProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['product_name']
+        labels = {'product_name': "Nazwa produktu",}
+        widgets = {
+                    'product_name': forms.TextInput(attrs={
+                        'class': "form-control",
+                        'style': 'min-width: 300px; max-width: 600px; margin: auto;'
+                                 'border-color:black',
+                    }),
                 }

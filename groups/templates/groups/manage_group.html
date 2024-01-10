@@ -41,7 +41,7 @@
     <div style="margin: 20px auto; padding: 10px;min-width: 300px;">
         <h3 style="text-align: center">Członkowie</h3>
 
-        <div id="lista" style="margin: 10px auto;min-width: 300px;max-width: 400px;">
+        <div id="lista" style="margin: 10px auto;min-width: 360px;max-width: 380px;">
             <div>
                 {% for member in pages %}
                     <div style="display:grid; grid-template: auto/80% 20%;border-radius: 10px; border: 1px solid black;margin: 10px auto; " >
@@ -115,7 +115,7 @@
     </div>
 
 
-    <div style="margin: 20px auto; padding: 10px;min-width: 300px;">
+    <div style="margin: auto 0; min-width: 380px;max-width: 380px;">
         <h3 style="text-align: center">Listy zakupowe</h3>
 
         <div id="lista" style="margin: 10px auto;min-width: 300px;max-width: 400px;">
@@ -235,7 +235,7 @@
 
     </script>
 
-    <div style="margin: 20px auto; max-width: 500px; text-align: justify">
+    <div style="margin: 20px auto; max-width: 370px; text-align: justify">
         <h3>Zmień możliwość dodawania wydatków</h3>
         Możesz zablokować możliwość dodawania wydatków do Twojej grupy. Użytkownicy mogą się odznaczyć i poinformować, że spłacili
         swoją część. Aktualnie
@@ -246,7 +246,7 @@
         {% endif %}
     </div>
 
-    <div style="text-align: center; margin: 10px">
+    <div style="text-align: center; margin: 10px;">
         {% if group.owner == user %}
             <a style="width: 150px" href="{% url 'groups:change_adding_possibility' group.id %}" class="btn btn-dark">
                 Zmień
@@ -255,7 +255,7 @@
     </div>
 
 
-    <div style="margin: 20px auto; max-width: 500px; text-align: justify">
+    <div style="margin: 40px auto 20px auto ; max-width: 370px; text-align: justify">
         <h3>Zmień możliwość wysyłania zaproszeń</h3>
         Aktualnie możliwość wysyłania zaproszeń przez użytkowników innych niż admin jest
         {% if group.allow_invitations %}
@@ -273,6 +273,19 @@
         {% if group.owner == user %}
             <a style="width: 150px" href="{% url 'groups:change_invite_possibility' group.id %}" class="btn btn-dark">
                 Zmień
+            </a>
+        {% endif %}
+    </div>
+
+    <div style="margin: 40px auto 20px auto ; max-width: 370px; text-align: justify">
+        <h3>Zmień kod dostępu do grupy</h3>
+        W tym miejscu możesz szybko zmienić kod dostępu do swojj grupy.
+    </div>
+
+    <div style="text-align: center; margin: 10px">
+        {% if group.owner == user %}
+            <a style="width: 150px" href="{% url 'groups:change_groupcode' group.id %}" class="btn btn-dark">
+                Zmień kod
             </a>
         {% endif %}
     </div>

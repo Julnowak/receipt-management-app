@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import BaseCategories, SubCategories, Product
-from .forms import NewCategoryForm, NewSubCategoryForm
+from .forms import NewCategoryForm, NewSubCategoryForm, NewProductForm
 from groups.models import CommonGroups
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -85,7 +85,7 @@ def edit_category(request, category_id):
 
 @login_required
 def subcategories(request, category_id):
-    category = BaseCategories.objects.get(id=category_id)
+    category = get_object_or_404(BaseCategories, id=category_id)
     subcats = SubCategories.objects.filter(category=category).order_by("subcategory_name")
 
     page_number_priv = request.GET.get('page', 1)
@@ -154,7 +154,7 @@ def products_in_subcategory(request, subcategory_id):
     subcat = SubCategories.objects.get(id=subcategory_id)
     category = subcat.category
     sub_products = Product.objects.filter(subcategory=subcat)
-
+    user = request.user
     page_number_priv = request.GET.get('page', 1)
     p_priv = Paginator(sub_products, 10)
 
@@ -166,7 +166,7 @@ def products_in_subcategory(request, subcategory_id):
         pages = p_priv.page(p_priv.num_pages)
 
     context = {"subcategory": subcat, 'category': category, 'sub_products': sub_products,
-               'pages':pages}
+               'pages':pages, "user": user}
     return render(request, 'categories/products_in_subcategory.html', context)
 
 
@@ -176,9 +176,61 @@ def delete_category(request, category_id):
     category.delete()
     return redirect("categories:categories")
 
+
 @login_required
 def delete_subcategory(request, subcategory_id):
-    subcategory = SubCategories.objects.get(id=subcategory_id)
+    subcategory = get_object_or_404(SubCategories, id=subcategory_id)
     category = subcategory.category
     subcategory.delete()
     return redirect("categories:subcategories", category_id=category.id)
+
+
+@login_required
+def delete_product(request, product_id):
+    prod = get_object_or_404(Product, id=product_id)
+    subcat = prod.subcategory
+    prod.delete()
+    return redirect("categories:products_in_subcategory", subcategory_id=subcat.id)
+
+
+@login_required
+def new_product(request, subcategory_id):
+    subcat = get_object_or_404(SubCategories, id=subcategory_id)
+    cat = subcat.category
+    if request.method == "POST":
+        form = NewProductForm(data=request.POST)
+        if form.is_valid():
+            new_prod = form.save(commit=False)
+            new_prod.subcategory = subcat
+            new_prod.save()
+            messages.success(request, "Poprawnie dodano produkt do kategorii.")
+            return redirect('categories:products_in_subcategory', subcategory_id=subcategory_id)
+        else:
+            messages.error(request, "Coś poszło nie tak.")
+    else:
+        form = NewProductForm()
+
+    context = {'subcategory': subcat, 'category': cat,'form': form}
+    return render(request,"categories/new_product.html", context)
+
+
+@login_required
+def edit_product(request, product_id):
+    prod = get_object_or_404(Product, id=product_id)
+    subcat = prod.subcategory
+    category = prod.subcategory.category
+    if request.method == "POST":
+        form = NewProductForm(instance=prod, data=request.POST)
+        if form.is_valid():
+            new_prod = form.save(commit=False)
+            new_prod.save()
+            messages.success(request, "Poprawnie dodano produkt do kategorii.")
+            return redirect('categories:products_in_subcategory', subcategory_id=subcat.id)
+        else:
+            messages.error(request, "Coś poszło nie tak.")
+    else:
+        form = NewProductForm(instance=prod)
+
+    context = {'form': form, "prod": prod,'subcategory': subcat, 'category': category}
+    return render(request, "categories/edit_product.html", context)
+

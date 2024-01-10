@@ -103,7 +103,7 @@
 
         {% if flag == "group" %}
             <input type="hidden" name="flag" value="group">
-            <input type="hidden" name="group" value="{{ group.id }}">
+            <input type="hidden" name="grp" value={{ group.id }}>
         {% elif flag == "mainpage" %}
             <input type="hidden" name="flag" value="mainpage">
         {% endif %}

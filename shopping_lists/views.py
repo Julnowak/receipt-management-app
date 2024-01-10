@@ -17,7 +17,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
-
+from statistics_and_plots.views import calculate_recurrent_expense
 
 def homepage(request):
     """ Homepage of application"""
@@ -88,7 +88,7 @@ def edit_list(request, list_id):
                     new_message = Message.objects.create(sender=request.user,
                                                          receiver=real,
                                                          title="Zmieniono nazwę grupy",
-                                                         message_type="normal")
+                                                         message_type="info")
                     new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
                                        f"Użytkownik {request.user} zmienił nazwę listy {old} na {current_list.text}."
                     new_message.save()
@@ -145,10 +145,8 @@ def single_list(request, list_id):
     return render(request, 'shopping_lists/shopping_list_page.html', context)
 
 
-## TO DO
 @login_required
 def single_list_redirected(request, list_id, group_id):
-    """ Your shopping lists page"""
     try:
         group = get_object_or_404(CommonGroups, id=group_id)
         sh_list = get_object_or_404(ShoppingList, id=list_id)
@@ -242,12 +240,16 @@ def edit_product(request, product_id):
 
 @login_required
 def main_panel(request):
-    expenses = Expense.objects.filter(owner=request.user).values_list("category","amount","date_added")
-    receipts = Receipt.objects.filter(owner=request.user).values_list("receipt_categories", "amount", "date_added")
+    expenses = Expense.objects.filter(owner=request.user, is_deleted=False).values_list("category","amount","date_added","is_recurrent","number","time_stamp")
+    receipts = Receipt.objects.filter(owner=request.user, is_deleted=False).values_list("receipt_categories", "amount", "date_added")
     new_messages_number = Message.objects.filter(receiver=request.user, new=True).count()
     categories = BaseCategories.objects.values_list("id","category_name")
     guarantees = Guarantee.objects.filter(owner=request.user, is_deleted=False)
 
+    text_year = ''
+    text_month = ''
+    text_week = ''
+    text_day = ''
     year_sum = 0
     month_sum = 0
     week_sum = 0
@@ -267,7 +269,7 @@ def main_panel(request):
     page_number = request.GET.get('page', 1)
     p = Paginator(sorted(list(deadlines), key=lambda x: x[0]), 3)
 
-    #### CHARTS ####
+
     try:
         pages = p.page(page_number)
     except PageNotAnInteger:
@@ -275,19 +277,30 @@ def main_panel(request):
     except EmptyPage:
         pages = p.page(p.num_pages)
 
+    #### CHARTS ####
+    if expenses:
+        df_exp = pd.DataFrame(list(expenses))
+        df_exp.columns = ["category", "amount", "date_added", "is_recurrent", "number", "time_stamp"]
+        df_exp = calculate_recurrent_expense(df_exp)
 
-    try:
-        df = pd.DataFrame(list(expenses))
+    if receipts:
         df_rec = pd.DataFrame(list(receipts))
-        df.columns = ['category', 'amount', "date_added"]
         df_rec.columns = ['category', 'amount', "date_added"]
-        new = pd.concat([df, df_rec])
 
-        # Pie Chart
-        df_temp = pd.DataFrame(list(categories))
-        df_temp.columns = ['category', 'category_name']
-        df2 = pd.merge(new, df_temp, on=['category'])
-        # print(df2)
+    if expenses and receipts:
+        new = pd.concat([df_exp, df_rec])
+    elif expenses:
+        new = df_exp
+    elif receipts:
+        new = df_rec
+
+    # Pie Chart
+    df_temp = pd.DataFrame(list(categories))
+    df_temp.columns = ['category', 'category_name']
+    df2 = pd.merge(new, df_temp, on=['category'])
+    try:
+
+
         for i in range(len(df2)):
             df2.loc[i, 'date_added'] = date(int(str(df2.loc[i, 'date_added'])[:4]),
                                             int(str(df2.loc[i, 'date_added'])[5:7]),
@@ -298,10 +311,16 @@ def main_panel(request):
             by=['amount'], ascending=False)
 
         year_sum = df2_year['amount'].sum()
+        whole_year = df2_year.copy()
         new = df2_year[:3]
         if len(df2_year) >= 3:
-            new.loc[len(new)] = ["Inne", df2_year['amount'][3:].sum()]
+            new.loc[len(new)+1] = ["Pozostałe", df2_year['amount'][3:].sum()]
             df2_year = new
+
+        info = ''
+        for i, row in whole_year.iterrows():
+            info += str(row['category_name']) + ': ' + str(row['amount']) + ' zł\n'
+        text_year = f"W roku {datetime.today().year} wydatki rozłożyły się następująco:\n" + info
 
         if df2_year.empty:
             pie_chart_year = "Brak danych z tego roku"
@@ -314,7 +333,7 @@ def main_panel(request):
                 texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
                 textposition="inside",
             ))
-            fig_pie_year.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_pie_year.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ffc0cb']))
             fig_pie_year.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
                                        legend=dict(
                                            orientation="h",  # Set legend orientation to horizontal
@@ -323,17 +342,23 @@ def main_panel(request):
 
             pie_chart_year = fig_pie_year.to_html(full_html=False, include_plotlyjs=False)
     except:
-        pie_chart_year = "None"
+        pie_chart_year = "Nie udało się wyświetlić wykresu."
 
     try:
         df2_month = df2[(df2["date_added"] >= date(datetime.today().year, datetime.today().month, 1))]
         df2_month = df2_month[['amount', 'category_name']].groupby('category_name', as_index=False).sum().sort_values(
             by=['amount'], ascending=False)
         month_sum = df2_month['amount'].sum()
+        whole_month = df2_month.copy()
         new = df2_month[:3]
         if len(df2_month) >= 3:
-            new.loc[len(new)] = ["Inne", df2_month['amount'][3:].sum()]
+            new.loc[len(new)+1] = ["Pozostałe", df2_month['amount'][3:].sum()]
             df2_month = new
+
+        info = ''
+        for i, row in whole_month.iterrows():
+            info += str(row['category_name']) + ': ' + str(row['amount']) + ' zł\n'
+        text_month = f"W tym miesiącu wydatki rozłożyły się następująco:\n" + info
 
         if df2_month.empty:
             pie_chart_month = "Brak danych z tego miesiąca"
@@ -346,7 +371,7 @@ def main_panel(request):
                 texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
                 textposition="inside",
             ))
-            fig_pie_month.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_pie_month.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ffc0cb']))
             fig_pie_month.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
                                         autosize=False,
                                         width=300,
@@ -365,18 +390,24 @@ def main_panel(request):
             if day <= i:
                 weekday = i
                 break
-        nk = df2[date(datetime.today().year, datetime.today().month, 1) <= df2["date_added"]]
+        nk = df2[date(datetime.today().year, datetime.today().month, weekday-7) <= df2["date_added"]]
         nk = nk[nk["date_added"] <= date(datetime.today().year, datetime.today().month, weekday)]
 
         df2_week = nk
         df2_week = df2_week[['amount', 'category_name']].groupby('category_name', as_index=False).sum().sort_values(
             by=['amount'], ascending=False)
         week_sum = df2_week['amount'].sum()
+
+        whole_week = df2_week.copy()
+        info = ''
+        for i, row in whole_week.iterrows():
+            info += str(row['category_name']) + ': ' + str(row['amount']) + ' zł\n'
+        text_week = f"W tym tygodniu wydatki rozłożyły się następująco:\n" + info
+
         new = df2_week[:3]
         if len(df2_week) >= 3:
-            new.loc[len(new)] = ["Inne", df2_week['amount'][3:].sum()]
+            new.loc[len(new)] = ["Pozostałe", df2_week['amount'][3:].sum()]
             df2_week = new
-
         if df2_week.empty:
             pie_chart_week = "Brak danych z tego tygodnia"
         else:
@@ -388,7 +419,7 @@ def main_panel(request):
                 texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
                 textposition="inside",
             ))
-            fig_pie_week.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_pie_week.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ffc0cb']))
             fig_pie_week.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
                                         autosize=False,
                                         width=300,
@@ -396,7 +427,7 @@ def main_panel(request):
                                         legend=dict(orientation="h"))
             pie_chart_week = fig_pie_week.to_html(full_html=False, include_plotlyjs=False)
     except:
-        pie_chart_week = "None"
+        pie_chart_week = "Nie udało się wyświetlić wykresu."
 
 
     try:
@@ -405,9 +436,15 @@ def main_panel(request):
             by=['amount'], ascending=False)
 
         day_sum = df2_day['amount'].sum()
+        whole_day = df2_day
+        info = ''
+        for i, row in whole_day.iterrows():
+            info += str(row['category_name']) + ': ' + str(row['amount']) + ' zł\n'
+        text_day = f"W tym dniu wydatki rozłożyły się następująco:\n" + info
+
         new = df2_day[:3]
         if len(df2_day) >= 3:
-            new.loc[len(new)] = ["Inne", df2_day['amount'][3:].sum()]
+            new.loc[len(new)] = ["Pozostałe", df2_day['amount'][3:].sum()]
             df2_day = new
 
         if df2_day.empty:
@@ -421,7 +458,7 @@ def main_panel(request):
                 texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
                 textposition="inside",
             ))
-            fig_pie_day.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_pie_day.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ffc0cb']))
             fig_pie_day.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0),
                                         autosize=False,
                                         width=300,
@@ -429,12 +466,13 @@ def main_panel(request):
                                         legend=dict(orientation="h"))
             pie_chart_day = fig_pie_day.to_html(full_html=False, include_plotlyjs=False)
     except:
-        pie_chart_day = "None"
+        pie_chart_day = "Nie udało się wyświetlić wykresu."
 
     context = {"pie_chart_year": pie_chart_year, 'pie_chart_month': pie_chart_month,
                'new_messages_number': new_messages_number,'pie_chart_day': pie_chart_day,
                'pie_chart_week': pie_chart_week, 'year_sum':year_sum, 'month_sum':month_sum,
-               'deadlines': deadlines, 'pages': pages, 'week_sum':week_sum, 'day_sum':day_sum,}
+               'deadlines': deadlines, 'pages': pages, 'week_sum':week_sum, 'day_sum':day_sum,
+               'text_year': text_year, 'text_week': text_week, 'text_day': text_day, "text_month": text_month }
     return render(request, 'shopping_lists/main_panel.html', context)
 
 
@@ -467,7 +505,7 @@ def list_removed(request, list_id):
         new_message = Message.objects.create(sender=request.user,
                                              receiver=current_list.owner,
                                              title="Użytkownik usunął udostępnioną listę.",
-                                             message_type="normal")
+                                             message_type="info")
         new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
                            f"Użytkownik {request.user} usunął u siebie udostępnioną mu listę {current_list.text}. " \
                            f"Tym samym został on usunięty z listy realizatorów." + "\n" + addition
@@ -492,7 +530,7 @@ def share_list(request, list_id):
                     new_message = Message.objects.create(sender=request.user,
                                                          receiver=user_receiver,
                                                          title="Przekazano Ci nową listę!",
-                                                         message_type="normal")
+                                                         message_type="info")
                     new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
                                        f"Użytkownik {request.user} przekazuje Ci listę zakupową {lista.text}. Jeśli doszło do pomyłki, skontaktuj się z nadawcą" \
                                        f"w celu wyjaśnienia sprawy."
@@ -511,9 +549,9 @@ def share_list(request, list_id):
                         new_message = Message.objects.create(sender=request.user,
                                                              receiver=user_receiver,
                                                              title="Przekazano Ci nową listę!",
-                                                             message_type="normal")
+                                                             message_type="info")
                         new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
-                                           f"Użytkownik {request.user} przekazuje Ci listę zakupową {lista.text}. Jeśli doszło do pomyłki, skontaktuj się z nadawcą" \
+                                           f"Użytkownik {request.user} przekazuje Ci listę zakupową {lista.text}. Jeśli doszło do pomyłki, skontaktuj się z nadawcą " \
                                            f"w celu wyjaśnienia sprawy."
                         new_message.save()
                 else:
@@ -528,9 +566,9 @@ def share_list(request, list_id):
                     new_message = Message.objects.create(sender=request.user,
                                                          receiver=user_receiver,
                                                          title="Przekazano Ci nową listę!",
-                                                         message_type="normal")
+                                                         message_type="info")
                     new_message.text = "Witaj " + new_message.receiver.username + "!\n" + \
-                                       f"Użytkownik {request.user} przekazuje Ci listę zakupową {lista.text}. Jeśli doszło do pomyłki, skontaktuj się z nadawcą" \
+                                       f"Użytkownik {request.user} przekazuje Ci listę zakupową {lista.text}. Jeśli doszło do pomyłki, skontaktuj się z nadawcą " \
                                        f"w celu wyjaśnienia sprawy."
                     new_message.save()
             if request.POST['copy_or_display_only'] == "copy":

@@ -36,8 +36,8 @@
 
         <form method="post" novalidate action="{% url 'groups:invite_page' group.id %}"  style="text-align: center">
             {% csrf_token %}
-            <div style="margin: 20px">
-                <input class="form-control" type="text" name="user_to_invite">
+            <div style="margin: 20px; ">
+                <input style="border-color: black" class="form-control" type="text" name="user_to_invite">
             </div>
             <button class="btn btn-dark" name="post_btn" type="submit">Zaproś</button>
 

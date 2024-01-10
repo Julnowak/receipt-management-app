@@ -47,6 +47,13 @@
             {{ form.products }}
         </div>
 
+        {% if flag == "mainpage" %}
+            <input type="hidden" name="flag" value="mainpage">
+        {% elif flag == "group" %}
+            <input type="hidden" name="flag" value="group">
+            <input type="hidden" name="grp" value="{{ group.id }}">
+        {% endif %}
+
         <div style="text-align: center">
             <button style="margin: 20px; min-width: 150px" class="btn btn-dark" type="submit">Zatwierdź</button>
         </div>

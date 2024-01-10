@@ -72,7 +72,7 @@ class HandReceiptForm(forms.ModelForm):
                   'amount': 'Wartość','receipt_info': 'Dodatkowe informacje',
                   'group': 'Grupa','products': 'Produkty'}
         widgets = {
-            'products': forms.TextInput(attrs={
+            'products': forms.SelectMultiple(attrs={
                 'class': "form-control",
                 'style': 'max-width: 300px; margin: auto; border-color: black',
             }),

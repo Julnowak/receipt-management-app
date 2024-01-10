@@ -18,7 +18,7 @@
             </svg>
         </div>
     </a>
-
+    {% if expense.owner == user %}
     {% if expense.is_starred %}
         <div style="position: absolute; right: 20px; top: 100px">
         {% if flag == "group" %}
@@ -49,6 +49,7 @@
                 </svg>
             </a>
         </div>
+    {% endif %}
     {% endif %}
 
 
@@ -113,6 +114,8 @@
             <div id="icons_container_id" style="margin: 10px auto">
             {% if flag == "group" %}
                 <a href="{% url 'receipts:delete_expense_group' expense.id group.id %}" style="text-decoration: none; color: black;margin-right: 35px">
+            {% elif flag == "mainpage" %}
+                <a href="{% url 'receipts:delete_expense_mainpage' expense.id %}" style="text-decoration: none; color: black;margin-right: 35px">
             {% else %}
                 <a href="{% url 'receipts:delete_expense' expense.id %}" style="text-decoration: none; color: black;margin-right: 35px">
             {% endif %}
