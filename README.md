@@ -12,6 +12,9 @@ Ze względu na pracę z darmową wersją hostingu ngrok, uzyskanie dostępu do w
 **python manage.py runserver** będąc w folderze ZebragonApp. Zalecane jest uprzednie pobranie przygotowanej bazy danych. Zapewnia to dostęp do możliwości przetestowania aplikacji w przeglądarce. Aplikacja jest przystosowana do telefonów i była sprawdzana na urządzeniu o wymiarach ekranu 412x777px, a więc te wymiary są zalecane przy testowaniu aplikacji.
 Uruchomienie aplikacji mobilnej w języku Kotlin lokalnie jest nico bardziej skomplikowane i wymaga podmienienia adresu zapewnionego przez hosting ngrok, oznaczonego jako url, adresem, który odpowiada portowi localhost. Należy również pobrać aplikację na telefon z systemem Android poprzez Android Studio.
 
+Do uruchomienia strony, w momencie działania serwera, wystarczy skorzystać z poniższego, tymczasowego linka:
+eminently-working-lynx.ngrok-free.app
+
 ## Przewodnik po folderach
 - **Android_app_folder** - zawiera folder AaMk, w którym znajduje się aplikacja mobilna, utworzona w języku Kotlin, na podstawie dostępnej dokumentacji.
 - **Docs** - folder zawierający opis działania aplikacji, ideę projektu oraz źródła wykorzystane przy jej tworzeniu. Schematy tam ukazane w dużym stopniu ukazują sposób działania całej aplikacji.
