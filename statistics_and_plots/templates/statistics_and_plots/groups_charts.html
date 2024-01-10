@@ -94,13 +94,13 @@
                 {% endautoescape %}
             </div>
 
-            <div id="month" style="display: none;align-items: center; margin: auto; height: 300px">
+            <div id="month" style="display: none;align-items: center; margin: auto; height: 500px">
                 {% autoescape off %}
                     {{ pie_chart_year }}
                 {% endautoescape %}
             </div>
 
-            <div id="week" style="display: none;align-items: center; margin: auto; height:300px">
+            <div id="week" style="display: none;align-items: center; margin: auto; height:500px">
                 {% autoescape off %}
                     {{ pie_chart_month }}
                 {% endautoescape %}
@@ -109,29 +109,10 @@
         </div>
 
     </div>
-            <h3 id="text" style="margin: 10px auto">
-            Łącznie: {{ suma|floatformat:2 }} zł
-        </h3>
-        <div class="basic_white" id="expenses_title">
-            <div id="year" style="align-items: center; margin: auto; height:500px">
-                {% autoescape off %}
-                    {{ exp_rec_pie }}
-                {% endautoescape %}
-            </div>
+    <h3 id="text" style="margin: 10px auto">
+        Łącznie: {{ suma|floatformat:2 }} zł
+    </h3>
 
-{#            <div id="month" style="display: none;align-items: center; margin: auto; height:500px">#}
-{#                {% autoescape off %}#}
-{#                    {{ pie_years }}#}
-{#                {% endautoescape %}#}
-{#            </div>#}
-{##}
-{#            <div id="week" style="display: none;align-items: center; margin: auto; height:500px">#}
-{#                {% autoescape off %}#}
-{#                    {{ pie_months }}#}
-{#                {% endautoescape %}#}
-{#            </div>#}
-
-        </div>
 <script>
         var year_box = document.getElementById("year_box")
         var month_box = document.getElementById("month_box")
@@ -166,26 +147,21 @@
                   y.style.display = 'grid';
                   m.style.display = 'none';
                   w.style.display = 'none';
-                  {#text.innerHTML = `Łącznie: {{ year_sum|floatformat:2 }} zł`#}
+                  text.innerHTML = `Łącznie: {{ suma|floatformat:2 }} zł`
               }
               else if (box === month_box){
                   m.style.display = 'grid';
                   y.style.display = 'none';
                   w.style.display = 'none';
-                  {#text.innerHTML = `Łącznie: {{ month_sum|floatformat:2 }} zł`#}
+                  text.innerHTML = `Łącznie: {{ sumaY|floatformat:2 }} zł`
               }
               else if (box === week_box){
                   m.style.display = 'none';
                   y.style.display = 'none';
                   w.style.display = 'grid';
-                  {#text.innerHTML = `Łącznie: {{ week_sum|floatformat:2 }} zł`#}
+                  text.innerHTML = `Łącznie: {{ sumaM|floatformat:2 }} zł`
               }
-              else if (box === day_box){
-                  m.style.display = 'none';
-                  y.style.display = 'none';
-                  w.style.display = 'none';
-                  {#text.innerHTML = `Łącznie: {{ day_sum|floatformat:2 }} zł`#}
-              }
+
               boxes.forEach((item) => {
                   if (item === box){
                       item.style.backgroundColor = "lightgray";

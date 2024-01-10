@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 import math
 import plotly.express as px
 
+
 def month_map(num):
     months = {
         1: 'Styczeń',
@@ -26,6 +27,24 @@ def month_map(num):
         10: 'Październik',
         11: 'Listopad',
         12: 'Grudzień'
+    }
+    return months[num]
+
+
+def month_day_map(num):
+    months = {
+        1: 31,
+        2: 28,
+        3: 31,
+        4: 30,
+        5: 31,
+        6: 30,
+        7: 31,
+        8: 31,
+        9: 30,
+        10: 31,
+        11: 30,
+        12: 31
     }
     return months[num]
 
@@ -417,7 +436,6 @@ def groups_charts(request):
     elif exps:
         df_new = df_exp
 
-    df_prev = df_new.copy()
     df_new = df_new[['amount','group_name','number_of_members']].groupby(['group_name', 'number_of_members'], as_index=False).sum()
     try:
         for i, row in df_new.iterrows():
@@ -443,13 +461,30 @@ def groups_charts(request):
         exp_rec_pie = "Nie dodano jeszcze żadnych wartości."
 
     suma = df_new['amount'].sum()
-    print(df_prev)
-    for i,row in df_prev.iterrows():
-        if not row['Year'] and not row['Month'] and not row['Day']:
-            dat = str(row['date_added'])
-            print(dat)
+    #####################################################################
 
-    df_new = df_new[['amount','group_name','number_of_members']].groupby(['group_name', 'number_of_members'], as_index=False).sum()
+    if exps:
+        df_exp = pd.DataFrame(list(exps))
+        df_exp.columns = ["expense_name", 'amount', 'group', "date_added", "is_recurrent", "number", "time_stamp"]
+        df_exp = calculate_recurrent_expense(df_exp)
+        df_exp = pd.merge(df_exp, df_temp, on=['group'])
+
+    if recs:
+        df_recs = pd.DataFrame(list(recs))
+        df_recs.columns = ["receipt_name", "date_added", "amount", 'group']
+        df_recs = pd.merge(df_recs, df_temp, on=['group'])
+
+    if recs and exps:
+        df_new = pd.concat([df_recs, df_exp], axis=0)
+    elif recs:
+        df_new = df_recs
+    elif exps:
+        df_new = df_exp
+
+    df_new['date_added'] = pd.to_datetime(df_new['date_added'], format='%Y-%m-%d')
+    y = datetime.date.today().year
+    df_new = df_new.loc[(df_new['date_added'] >= f'{y}-01-01') & (df_new['date_added'] <= f'{y}-12-31')]
+    df_new = df_new[["amount", 'group_name','number_of_members']].groupby(['group_name','number_of_members'], as_index=False).sum()
 
     try:
         for i, row in df_new.iterrows():
@@ -474,14 +509,63 @@ def groups_charts(request):
     except:
         pie_chart_year = "Nie dodano jeszcze żadnych wartości."
 
-    sumaR = df_new['amount'].sum()
+    sumaY = df_new['amount'].sum()
     ########################################################################
+    if exps:
+        df_exp = pd.DataFrame(list(exps))
+        df_exp.columns = ["expense_name", 'amount', 'group', "date_added", "is_recurrent", "number", "time_stamp"]
+        df_exp = calculate_recurrent_expense(df_exp)
+        df_exp = pd.merge(df_exp, df_temp, on=['group'])
+
+    if recs:
+        df_recs = pd.DataFrame(list(recs))
+        df_recs.columns = ["receipt_name", "date_added", "amount", 'group']
+        df_recs = pd.merge(df_recs, df_temp, on=['group'])
+
+    if recs and exps:
+        df_new = pd.concat([df_recs, df_exp], axis=0)
+    elif recs:
+        df_new = df_recs
+    elif exps:
+        df_new = df_exp
+
+    df_new['date_added'] = pd.to_datetime(df_new['date_added'], format='%Y-%m-%d')
+    y = datetime.date.today().year
+    m = datetime.date.today().month
+    df_new = df_new.loc[
+        (df_new['date_added'] >= f'{y}-{m}-01') & (df_new['date_added'] <= f'{y}-{m}-{month_day_map(m)}')]
+    df_new = df_new[["amount", 'group_name','number_of_members']].groupby(['group_name','number_of_members'], as_index=False).sum()
+
+    try:
+        for i, row in df_new.iterrows():
+            df_new.at[i, 'amount'] = math.ceil(df_new['amount'][i] / df_new['number_of_members'][i] * 100) / 100
+
+        if df_new.empty:
+            chart_month = "Brak danych z tego roku"
+        else:
+            fig_chart_month = go.Figure(go.Pie(
+                name="",
+                hole=0.5,
+                values=df_new['amount'],
+                labels=df_new['group_name'],
+                texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
+                textposition="inside",
+            ))
+            fig_chart_month.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_chart_month.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0), height=500,
+                                          legend=dict(orientation="h"), width=300)
+
+            chart_month = fig_chart_month.to_html(full_html=False, include_plotlyjs=False)
+    except:
+        chart_month = "Nie dodano jeszcze żadnych wartości."
+
+    sumaM = df_new['amount'].sum()
 
     context = {'rec_num': receipts.filter().count(),
                'rec_num_actual': receipts.filter(is_deleted=False).count(),
                'exps_num': expenses.filter().count(), 'exps_num_actual': expenses.filter(is_deleted=False).count(),
                "expen_num": expenses.count(), 'exp_rec_pie': exp_rec_pie, "pie_chart_year": pie_chart_year, 'user': request.user, 'suma': suma,
-               'pie_chart_month': None}
+               'pie_chart_month': chart_month, 'sumaY': sumaY, "sumaM": sumaM}
     return render(request, "statistics_and_plots/groups_charts.html", context)
 
 
@@ -494,26 +578,33 @@ def shops_charts(request):
                                                          "number", "time_stamp",'shop')
     recs = receipts.filter(is_deleted=False).values_list("receipt_name", "date_added", "amount",'shop')
 
-    df_new = pd.DataFrame(list(expenses))
-    df_new.columns = ["expense_name", "date_added", "amount", "is_recurrent", "number", "time_stamp", 'shop']
-
+    if expenses:
+        df_new = pd.DataFrame(list(expenses))
+        df_new.columns = ["expense_name", "date_added", "amount", "is_recurrent", "number", "time_stamp", 'shop']
+        df_new = calculate_recurrent_expense(df_new)
     # Sklepy
-    df_new = calculate_recurrent_expense(df_new)
-    df_rec = pd.DataFrame(list(recs))
-    df_rec.columns = ["receipt_name", "date_added", "amount",'shop']
-    df_rec = calculate_date(df_rec)
-    df_shops = pd.DataFrame(list(shops))
-    df_shops.columns = ["shop", 'shop_name']
-    df_rec = pd.merge(df_rec, df_shops, on=['shop'])
 
-    df_new['shop'].fillna(Shop.objects.get(shop_name="Inne").id, inplace=True)
-    df_new = pd.merge(df_new, df_shops, on=['shop'])
-    df_rec = pd.concat([df_new, df_rec], axis=0)
-    print(df_rec)
-    df_rec = df_rec[['shop_name', 'amount']].groupby('shop_name', as_index=False).sum()
+    if recs:
+        df_rec = pd.DataFrame(list(recs))
+        df_rec.columns = ["receipt_name", "date_added", "amount",'shop']
+
+    if shops:
+        df_shops = pd.DataFrame(list(shops))
+        df_shops.columns = ["shop", 'shop_name']
+        df_rec = pd.merge(df_rec, df_shops, on=['shop'])
+
+
 
     try:
-
+        df_new['shop'].fillna(Shop.objects.get(shop_name="Inne").id, inplace=True)
+        df_new = pd.merge(df_new, df_shops, on=['shop'])
+        if expenses and recs:
+            df_rec = pd.concat([df_new, df_rec], axis=0)
+        elif expenses:
+            df_rec = df_new
+        elif recs:
+            df_rec = df_rec
+        df_rec = df_rec[['shop_name', 'amount']].groupby('shop_name', as_index=False).sum()
         if df_rec.empty:
             exp_rec_pie = "Brak danych z tego roku"
         else:
@@ -538,17 +629,37 @@ def shops_charts(request):
 
     ########################################################################
 
+    if recs:
+        df_rec = pd.DataFrame(recs.values_list("date_added", "amount", 'shop'))
+        df_rec.columns = ["date_added", "amount", 'shop']
 
-    df_rec = pd.concat([df_new, df_rec], axis=0)
+    if expenses:
+        df_exp = pd.DataFrame(
+            expenses.values_list("expense_name", "date_added", "amount", "is_recurrent", "number", "time_stamp",
+                                 'shop'))
+        df_exp.columns = ["expense_name", "date_added", "amount", "is_recurrent", "number", "time_stamp", 'shop']
+        df_exp = calculate_recurrent_expense(df_exp)
 
-    df_rec = df_rec[['shop_name', 'amount','date_added']]
-    print(df_rec)
+    if recs and expenses:
+        df_new = pd.concat([df_rec, df_exp[["date_added", "amount", 'shop']]])
+    elif recs:
+        df_new = df_rec
+    elif expenses:
+        df_new = df_exp[["date_added", "amount", 'shop']]
+
     try:
-
+        df_new['shop'].fillna(Shop.objects.get(shop_name="Inne").id, inplace=True)
+        df_new['date_added'] = pd.to_datetime(df_new['date_added'], format='%Y-%m-%d')
+        y = datetime.date.today().year
+        df_new = df_new.loc[(df_new['date_added'] >= f'{y}-01-01') & (df_new['date_added'] <= f'{y}-12-31')]
+        df_rec = df_new[["date_added", "amount", 'shop']].groupby(['shop', "date_added"], as_index=False).sum()
+        df_shops = pd.DataFrame(list(shops))
+        df_shops.columns = ["shop", 'shop_name']
+        df_rec = pd.merge(df_rec, df_shops, on=['shop'])
         if df_rec.empty:
-            exp_rec_pie = "Brak danych z tego roku"
+            year_chart = "Brak danych z tego roku"
         else:
-            fig_pie_exp_rec = go.Figure(go.Pie(
+            fig_year_chart = go.Figure(go.Pie(
                 name="",
                 hole=0.5,
                 values=df_rec['amount'],
@@ -556,19 +667,71 @@ def shops_charts(request):
                 texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
                 textposition="inside",
             ))
-            fig_pie_exp_rec.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
-            fig_pie_exp_rec.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0), height=500,
+            fig_year_chart.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_year_chart.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0), height=500,
                                           legend=dict(orientation="h"), width=300)
 
-            exp_rec_pie = fig_pie_exp_rec.to_html(full_html=False, include_plotlyjs=False)
+            year_chart = fig_year_chart.to_html(full_html=False, include_plotlyjs=False)
     except:
-        exp_rec_pie = "Nie dodano jeszcze żadnych wartości."
+        year_chart = "Nie dodano jeszcze żadnych wartości."
 
-    suma = df_rec['amount'].sum()
+    sumaY = df_rec['amount'].sum()
+
+    ########################################################################
+
+    if recs:
+        df_rec = pd.DataFrame(recs.values_list("date_added", "amount", 'shop'))
+        df_rec.columns = ["date_added", "amount", 'shop']
+
+    if expenses:
+        df_exp = pd.DataFrame(
+            expenses.values_list("expense_name", "date_added", "amount", "is_recurrent", "number", "time_stamp", 'shop'))
+        df_exp.columns = ["expense_name", "date_added", "amount", "is_recurrent", "number", "time_stamp", 'shop']
+        df_exp = calculate_recurrent_expense(df_exp)
+
+    if recs and expenses:
+        df_new = pd.concat([df_rec, df_exp[["date_added", "amount", 'shop']]])
+    elif recs:
+        df_new = df_rec
+    elif expenses:
+        df_new = df_exp[["date_added", "amount", 'shop']]
+
+    try:
+        df_new['shop'].fillna(Shop.objects.get(shop_name="Inne").id, inplace=True)
+        df_new['date_added'] = pd.to_datetime(df_new['date_added'], format='%Y-%m-%d')
+        y = datetime.date.today().year
+        m = datetime.date.today().month
+        df_new = df_new.loc[
+            (df_new['date_added'] >= f'{y}-{m}-01') & (df_new['date_added'] <= f'{y}-{m}-{month_day_map(m)}')]
+        df_rec = df_new[["date_added", "amount", 'shop']].groupby(['shop', "date_added"], as_index=False).sum()
+        df_shops = pd.DataFrame(list(shops))
+        df_shops.columns = ["shop", 'shop_name']
+        df_rec = pd.merge(df_rec, df_shops, on=['shop'])
+        if df_rec.empty:
+            month_chart = "Brak danych z tego roku"
+        else:
+            fig_month_chart = go.Figure(go.Pie(
+                name="",
+                hole=0.5,
+                values=df_rec['amount'],
+                labels=df_rec['shop_name'],
+                texttemplate="<br>%{value:.2f} zł <br> %{percent} </br>",
+                textposition="inside",
+            ))
+            fig_month_chart.update_traces(marker=dict(colors=['#4f000b', '#720026', '#ce4257', '#ff7f51']))
+            fig_month_chart.update_layout(showlegend=True, margin=dict(t=0, b=0, l=0, r=0), height=500,
+                                         legend=dict(orientation="h"), width=300)
+
+            month_chart = fig_month_chart.to_html(full_html=False, include_plotlyjs=False)
+    except:
+        month_chart = "Nie dodano jeszcze żadnych wartości."
+
+    sumaM = df_rec['amount'].sum()
 
     context = {'rec_num': receipts.filter().count(),
                'rec_num_actual': receipts.filter(is_deleted=False).count(),
                'exps_num': expenses.filter().count(), 'exps_num_actual': expenses.filter(is_deleted=False).count(),
-               "expen_num": expenses.count(), "exp_rec_pie": exp_rec_pie, 'user': request.user, 'suma': suma
+               "expen_num": expenses.count(), "exp_rec_pie": exp_rec_pie, 'user': request.user, 'suma': suma,
+               'year_chart': year_chart, 'sumaY': sumaY, 'month_chart': month_chart, 'sumaM': sumaM
                }
     return render(request, "statistics_and_plots/shops_charts.html", context)
